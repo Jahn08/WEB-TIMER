@@ -52,7 +52,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="package.json" />
-    <Content Include="README.md" />
     <Content Include="routes\modules.js" />
   </ItemGroup>
   <ItemGroup>
