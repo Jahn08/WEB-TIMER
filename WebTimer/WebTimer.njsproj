@@ -29,6 +29,8 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="components\stopwatch.js" />
+    <Compile Include="components\timer.js" />
     <Compile Include="config.js" />
     <Compile Include="main.js" />
     <Compile Include="models\program.js">
@@ -46,7 +48,7 @@
     <Compile Include="routes\users.js">
       <SubType>Code</SubType>
     </Compile>
-    <Content Include="components\clock.js" />
+    <Content Include="components\watch.js" />
     <Content Include="views\bootstrap.css" />
     <Content Include="views\index.html">
       <SubType>Code</SubType>

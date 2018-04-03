@@ -17,19 +17,22 @@
     <script src="/modules/vue/vue.js"></script>
     <script src="/modules/vue-router/vue-router.js"></script>
 
-    <script src="/components/clock.js"></script>
-
+    <script src="/components/watch.js"></script>
+    <script src="/components/stopwatch.js"></script>
+    <script src="/components/timer.js"></script>
+    
     <div id="app">
-        <clock></clock>
+        <timer></timer>
     </div>
 
-        <script>
-            new Vue({
-                el: "#app",
-                components: {
-                    'clock': Components.clock
-                }
-            });
-        </script>
+    <script>
+        new Vue({
+            el: "#app",
+            components: {
+                'stopwatch': Components.stopwatch,
+                'timer': Components.timer
+            }
+        });
+    </script>
 </body>
 </html>
