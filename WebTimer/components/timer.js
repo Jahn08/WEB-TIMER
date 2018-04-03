@@ -27,6 +27,7 @@ Components.timer = {
         onReset() {
             this.running = false;
             this.input = '';
+            this.time = 0;
         },
         bannerBlink() {
             $('#alertInfo').fadeOut(1000)
@@ -35,7 +36,7 @@ Components.timer = {
         onKeyDown(event) {
             let keyVal;
 
-            if (event.key && (keyVal = event.key.trim()) && !isNaN(keyVal = Number(keyVal))) {
+            if (!this.running && event.key && (keyVal = event.key.trim()) && !isNaN(keyVal = Number(keyVal))) {
                 if (this.input.length == 6)
                     this.input = '';
 
