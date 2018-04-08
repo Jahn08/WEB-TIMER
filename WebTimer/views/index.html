@@ -7,7 +7,7 @@
 </head>
 <body>
     <!--TODO: Local bootstrap styles only for development purposes-->
-    <link href="bootstrap.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" rel="stylesheet" />
     <!--TODO: Use minified version-->
     <!--<link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />-->
 
@@ -18,13 +18,14 @@
     <script src="/modules/vue-router/vue-router.js"></script>
 
     <script src="/components/watch.js"></script>
+    <script src="/components/audio-list.js"></script>
     <script src="/components/stopwatch.js"></script>
     <script src="/components/timer.js"></script>
-    
+
     <div id="app">
         <timer></timer>
     </div>
-
+    
     <script>
         new Vue({
             el: "#app",

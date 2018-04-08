@@ -107,6 +107,9 @@ Components.watch = {
 
                                 this.time += curValue;
                                 this.elapsedRangeTime = timeDifference;
+
+                                if (this.time <= 0 && !this.clockwise)
+                                    this.$emit('end');
                             }
                         }, 12);
                     }

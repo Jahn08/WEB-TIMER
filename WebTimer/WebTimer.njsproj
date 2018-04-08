@@ -29,6 +29,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="components\audio-list.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="components\stopwatch.js" />
     <Compile Include="components\timer.js" />
     <Compile Include="config.js" />
@@ -49,7 +52,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Content Include="components\watch.js" />
-    <Content Include="views\bootstrap.css" />
+    <Content Include="resources\audio\alarm_classic.mp3" />
+    <Content Include="resources\audio\alert_8bit.mp3" />
+    <Content Include="resources\audio\bell_official.mp3" />
+    <Content Include="resources\audio\horn.mp3" />
+    <Content Include="resources\audio\horn_wahwah.mp3" />
     <Content Include="views\index.html">
       <SubType>Code</SubType>
     </Content>
@@ -59,6 +66,8 @@
   <ItemGroup>
     <Folder Include="models\" />
     <Folder Include="components\" />
+    <Folder Include="resources\" />
+    <Folder Include="resources\audio\" />
     <Folder Include="views\" />
     <Folder Include="routes\" />
   </ItemGroup>

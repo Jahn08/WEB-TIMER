@@ -1,16 +1,22 @@
 Components.timer = {
     components: {
-        'watch': Components.watch
+        'watch': Components.watch,
+        'audioList': Components.audioList
     },
     data() {
         return {
             time: 0,
             input: '',
-            running: false
+            running: false,
+            shouldPlaySound: false
         };
     },
     mounted() {
         this.bannerBlink();
+
+        $('#modal').on('hide.bs.modal', e => {
+            this.shouldPlaySound = false;
+        });
     },
     computed: {
         allowed() {
@@ -24,13 +30,17 @@ Components.timer = {
             else
                 this.running = true;
         },
+        onEnd() {
+            this.shouldPlaySound = true;
+            $('#modal').modal();
+        },
         onReset() {
             this.running = false;
             this.input = '';
             this.time = 0;
         },
         bannerBlink() {
-            $('#alertInfo').fadeOut(1000)
+            $('#alertHeading').fadeOut(1000)
                 .fadeIn(1000);
         },
         onKeyDown(event) {
@@ -71,14 +81,33 @@ Components.timer = {
     template: `
         <div>
             <div>
-                <div v-if="!running" id="alertInfo" class="text-center alert alert-info">
-                    Start entering figures to set the timer
+                <div :class="{'d-none':running}" class="text-center alert alert-info">
+                    <h1 class="" id="alertHeading">Start entering figures to set the timer</h1>
+                    <audio-list :active="shouldPlaySound"></audio-list>
                 </div>
             </div>
-            <watch :allowed="allowed" :timing="time" :clockwise="false" @reset="onReset" @start="onStart" @keydown="onKeyDown">    
+            <watch :allowed="allowed" :timing="time" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" @keydown="onKeyDown">    
                 <div :title="running ? '': 'Start entering figures to set the timer'" slot-scope="scope">
                     <span>{{ scope.text }}</span>
                 </div>
             </watch>
+            <div class="modal fade" id="modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header alert alert-info">
+                            <h2 class="modal-title">Time is over</h2>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body text-primary">
+                            <p>Close the window to set timer again</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>`
 };

@@ -6,6 +6,7 @@ app.use(bodyParser.json());
 
 app.use('/components', express.static(__dirname + '/components'));
 app.use(express.static(__dirname + '/views'));
+app.use('/resources', express.static(__dirname + '/resources'));
 
 const routerModule = require('./routes/modules');
 app.use('/modules', routerModule);
