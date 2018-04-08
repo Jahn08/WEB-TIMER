@@ -18,21 +18,38 @@
     <script src="/modules/vue-router/vue-router.js"></script>
 
     <script src="/components/watch.js"></script>
+    <script src="/components/banner.js"></script>
     <script src="/components/audio-list.js"></script>
     <script src="/components/stopwatch.js"></script>
     <script src="/components/timer.js"></script>
 
     <div id="app">
-        <timer></timer>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <router-link class="nav-link" to="/stopwatch" active-class="active">Stopwatch</router-link>
+            </li>
+            <li class="nav-item">
+                <router-link class="nav-link" to="/timer" active-class="active">Timer</router-link>
+            </li>
+        </ul>
+
+        <div class="mt-2">
+            <router-view></router-view>
+        </div>
     </div>
-    
+
     <script>
+        const router = new VueRouter({
+            routes: [
+                { path: '/', redirect: '/stopwatch' },
+                { path: '/stopwatch', component: Components.stopwatch },
+                { path: '/timer', component: Components.timer }
+            ]
+        });
+
         new Vue({
             el: "#app",
-            components: {
-                'stopwatch': Components.stopwatch,
-                'timer': Components.timer
-            }
+            router: router
         });
     </script>
 </body>

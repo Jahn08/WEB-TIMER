@@ -32,6 +32,9 @@
     <Compile Include="components\audio-list.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="components\banner.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="components\stopwatch.js" />
     <Compile Include="components\timer.js" />
     <Compile Include="config.js" />

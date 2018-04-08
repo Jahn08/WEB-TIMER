@@ -1,6 +1,12 @@
 Components.stopwatch = {
     components: {
-        'watch': Components.watch
+        'watch': Components.watch,
+        'banner': Components.banner
     },
-    template: `<watch :clockwise="true"></watch>`
+    template: `
+        <div>
+            <banner heading="Stopwatch"></banner>
+            <watch :clockwise="true"></watch>
+        </div>
+    `
 };

@@ -1,7 +1,8 @@
 Components.timer = {
     components: {
         'watch': Components.watch,
-        'audioList': Components.audioList
+        'audioList': Components.audioList,
+        'banner': Components.banner
     },
     data() {
         return {
@@ -80,12 +81,13 @@ Components.timer = {
     },
     template: `
         <div>
-            <div>
-                <div :class="{'d-none':running}" class="text-center alert alert-info">
-                    <h1 class="" id="alertHeading">Start entering figures to set the timer</h1>
+            <banner heading="Timer">
+                <div :class="{'d-none':running}" class="text-center">
+                    <hr/>
+                    <h2 id="alertHeading">Start entering figures to set the timer</h2>
                     <audio-list :active="shouldPlaySound"></audio-list>
                 </div>
-            </div>
+            </banner>
             <watch :allowed="allowed" :timing="time" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" @keydown="onKeyDown">    
                 <div :title="running ? '': 'Start entering figures to set the timer'" slot-scope="scope">
                     <span>{{ scope.text }}</span>
