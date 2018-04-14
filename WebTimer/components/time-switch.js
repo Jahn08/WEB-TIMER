@@ -77,7 +77,8 @@ Components.timeSwitch = {
             values: [],
             curIndex: 0,
             limits: [2, 9, 5, 9, 5, 9],
-            idPrefix: 'f'
+            idPrefix: 'f',
+            internalChange: false // To prevent changes caused by the component itself
         };
     },
     props: {
@@ -92,7 +93,10 @@ Components.timeSwitch = {
     },
     watch: {
         text() {
-            this.renderText();
+            if (!this.internalChange)
+                this.renderText();
+            else
+                this.internalChange = false;
         }
     },
     components: {
@@ -130,10 +134,13 @@ Components.timeSwitch = {
             if (event.id && !isNaN(event.value)) {
                 let id = event.id.slice(-1);
                 this.input[id] = '' + event.value;
-                this.$emit('change', this.input.join(''));
-
+                this.values[id].val = event.value;
+                
                 if (event.entered)
                     this.curIndex = this.getCurrentIndex(this.curIndex);
+
+                this.internalChange = true;
+                this.$emit('change', this.input.join(''));
             }
         }
     },

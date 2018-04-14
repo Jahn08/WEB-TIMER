@@ -131,23 +131,21 @@ Components.watch = {
             running: false,
             dateStart: null,
             laps: [],
-            elapsedRangeTime: 0,
-            input: '' // Text to accumulate external changes and pass it to the time field
+            elapsedRangeTime: 0
         };
     },
     watch: {
         time() {
-            this.outputText = this.timeToText();
+            this.computeOutput();
         },
         inputText() {
-            if (this.inputText && this.inputText.length)
-                this.input = this.inputText;
+            this.outputText = this.inputText;
         }
     },
     mounted() {
         window.addEventListener('keydown', this.onKeyDown);
 
-        this.outputText = this.timeToText();
+        this.computeOutput();
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
@@ -170,10 +168,11 @@ Components.watch = {
         },
         timeToText() {
             var t = new Date(this.time);
-            return `${this.format(t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
+            let hours = t.getUTCDate() == 1 ? 0: 24;
+            return `${this.format(hours + t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
         },
         textToTime() {
-			let input = this.input.split(',')[0];
+            let input = this.outputText.split(',')[0];
             let temp = Number(input.replace(/:/g, ''));
             
             let hours = 0;
@@ -198,12 +197,17 @@ Components.watch = {
                 seconds = 59;
 
             return hours * 3600000 + minutes * 60000 + seconds * 1000;
-		},
+        },
+        computeOutput() {
+            this.outputText = this.timeToText();
+        },
         reset() {
-            this.time = 0;
+            // Recompute the output since it might have been changed even without running the component
+            if (this.time == 0)
+                this.computeOutput();
+            else
+                this.time = 0;
             
-            this.input = '';
-
             this.elapsedRangeTime = 0;
             this.dateStart = new Date();
 
