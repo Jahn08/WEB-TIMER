@@ -2,14 +2,15 @@ Components.timer = {
     components: {
         'watch': Components.watch,
         'audioList': Components.audioList,
-        'banner': Components.banner
+        'banner': Components.banner,
+        'time-switch': Components.timeSwitch
     },
     data() {
         return {
-            time: 0,
-            input: '',
             running: false,
-            shouldPlaySound: false
+            shouldPlaySound: false,
+            inputText: '',
+            tipText: 'Start entering figures or use switches to set the timer'
         };
     },
     mounted() {
@@ -19,17 +20,13 @@ Components.timer = {
             this.shouldPlaySound = false;
         });
     },
-    computed: {
-        allowed() {
-            return this.input > 0;
-        }
-    },
     methods: {
-        onStart() {
-            if (!this.allowed)
+        onStart(event) {
+            if (!event.allowedToRun)
                 this.bannerBlink();
-            else
+            else {
                 this.running = true;
+            }
         },
         onEnd() {
             this.shouldPlaySound = true;
@@ -37,46 +34,13 @@ Components.timer = {
         },
         onReset() {
             this.running = false;
-            this.input = '';
-            this.time = 0;
         },
         bannerBlink() {
             $('#alertHeading').fadeOut(1000)
                 .fadeIn(1000);
         },
-        onKeyDown(event) {
-            let keyVal;
-
-            if (!this.running && event.key && (keyVal = event.key.trim()) && !isNaN(keyVal = Number(keyVal))) {
-                if (this.input.length == 6)
-                    this.input = '';
-
-                this.input = keyVal + this.input;
-                let temp = Number(this.input);
-
-                let hours = 0;
-                if (temp > 10000) {
-                    hours = Math.floor(temp / 10000);
-                    temp = temp - hours * 10000;
-
-                    if (hours > 23)
-                        hours = 23;
-                }
-
-                let minutes = 0;
-                if (temp > 100) {
-                    minutes = Math.floor(temp / 100);
-
-                    if (minutes > 59)
-                        minutes = 59;
-                }
-
-                let seconds = temp % 100;
-                if (seconds > 59)
-                    seconds = 59;
-
-                this.time = hours * 3600000 + minutes * 60000 + seconds * 1000;
-            }
+        onTextChange(newValue) {
+            this.inputText = newValue;
         }
     },
     template: `
@@ -84,13 +48,14 @@ Components.timer = {
             <banner heading="Timer">
                 <div :class="{'d-none':running}" class="text-center">
                     <hr/>
-                    <h2 id="alertHeading">Start entering figures to set the timer</h2>
+                    <h2 id="alertHeading">{{ tipText }}</h2>
                     <audio-list :active="shouldPlaySound"></audio-list>
                 </div>
             </banner>
-            <watch :allowed="allowed" :timing="time" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" @keydown="onKeyDown">    
-                <div :title="running ? '': 'Start entering figures to set the timer'" slot-scope="scope">
-                    <span>{{ scope.text }}</span>
+            <watch :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputText='inputText'>    
+                <div :title="running ? '': tipText" slot-scope="scope">
+                    <span v-if="!running"><time-switch @change='onTextChange' :text="scope.text"></time-switch></span>
+                    <span v-else>{{ scope.text }}</span>
                 </div>
             </watch>
             <div class="modal fade" id="modal">

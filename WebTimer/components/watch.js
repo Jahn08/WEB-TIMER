@@ -1,5 +1,7 @@
 var Components = {};
 
+Components.globalVm = new Vue();
+
 Components.rowSection = {
     props: {
         marginTop: Number,
@@ -59,13 +61,8 @@ Components.watch = {
             type: Boolean,
             required: true
         },
-        allowed: {
-            type: Boolean,
-            default: true
-        },
-        timing: {
-            type: Number,
-            default: 0
+        inputText: {
+            type: String
         }
     },
     data() {
@@ -78,9 +75,11 @@ Components.watch = {
                     this.running = !this.running;
 
                     if (this.running === true) {
-                        this.$emit('start');
+						let allowedToRun = this.allowed();
 
-                        if (!this.allowed) {
+                        this.$emit('start', { allowedToRun });
+
+                        if (!allowedToRun) {
                             this.running = false;
                             return;
                         }
@@ -119,7 +118,7 @@ Components.watch = {
                 shortcut: 'Ctrl',
                 keyCodes: ['ControlRight','ControlLeft'],
                 event: () => {
-                    this.laps.push(this.currentTime)
+                    this.laps.push(this.outputText)
                 }
             }, {
                 name: 'Reset',
@@ -128,53 +127,97 @@ Components.watch = {
                 event: this.reset
             }],
             time: 0,
+            outputText: '',
             running: false,
             dateStart: null,
             laps: [],
-            elapsedRangeTime: 0
+            elapsedRangeTime: 0,
+            input: '' // Text to accumulate external changes and pass it to the time field
         };
     },
-    computed: {
-        currentTime() {
-            var t = new Date(this.time);
-            return `${this.format(t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(),2)}`;
-        }
-    },
     watch: {
-        timing() {
-            this.time = this.timing;
+        time() {
+            this.outputText = this.timeToText();
+        },
+        inputText() {
+            if (this.inputText && this.inputText.length)
+                this.input = this.inputText;
         }
     },
     mounted() {
-        window.addEventListener("keydown", (event) => {
-            var btn = this.buttons.find(el => el.keyCodes.indexOf(event.code) !== -1);
+        window.addEventListener('keydown', this.onKeyDown);
+
+        this.outputText = this.timeToText();
+    },
+    beforeDestroy() {
+        window.removeEventListener('keydown', this.onKeyDown);
+        Components.globalVm.$off('watchKeyDown');
+    },
+    methods: {
+        allowed() {
+            return this.clockwise || (this.time > 0 || (this.time = this.textToTime()) > 0);
+        },
+        onKeyDown() {
+            const btn = this.buttons.find(el => el.keyCodes.indexOf(event.code) !== -1);
 
             if (btn && btn.event) {
                 btn.event();
                 event.preventDefault();
             }
             else {
-                this.$emit("keydown", event);
+                Components.globalVm.$emit('watchKeyDown', event);
             }
-        });
-    },
-    methods: {
+        },
+        timeToText() {
+            var t = new Date(this.time);
+            return `${this.format(t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
+        },
+        textToTime() {
+			let input = this.input.split(',')[0];
+            let temp = Number(input.replace(/:/g, ''));
+            
+            let hours = 0;
+            if (temp >= 10000) {
+                hours = Math.floor(temp / 10000);
+                temp = temp - hours * 10000;
+
+                if (hours > 29)
+                    hours = 29;
+            }
+
+            let minutes = 0;
+            if (temp >= 100) {
+                minutes = Math.floor(temp / 100);
+
+                if (minutes > 59)
+                    minutes = 59;
+            }
+
+            let seconds = temp % 100;
+            if (seconds > 59)
+                seconds = 59;
+
+            return hours * 3600000 + minutes * 60000 + seconds * 1000;
+		},
         reset() {
             this.time = 0;
+            
+            this.input = '';
+
             this.elapsedRangeTime = 0;
+            this.dateStart = new Date();
 
-            if (this.running) {
-                this.dateStart = new Date();
-            }
-            else {
-                this.dateStart = new Date();
+            if (!this.clockwise)
+                this.running = false;
+
+            if (!this.running)
                 this.laps = [];
-            }
-
+            
             this.$emit('reset');
         },
         format(num, figures = 2) {
             let str;
+            let outcome;
 
             if (!num || (str = num.toString()).length < figures) {
                 let tempStr = '';
@@ -182,10 +225,12 @@ Components.watch = {
                 for (var i = 0; i < figures; ++i)
                     tempStr += '0';
 
-                return (tempStr + num).slice(-figures);
+                outcome = (tempStr + num).slice(-figures);
             }
+            else
+                outcome = str.substr(0, figures);
             
-            return str.substr(0, figures);
+            return outcome;
         }
     },
     components: {
@@ -194,7 +239,7 @@ Components.watch = {
     },
     template: `<div class="container">
 		<bordered-row-section :active="running">
-            <slot :text="currentTime">{{ currentTime }}</slot>
+            <slot :text="outputText">{{ outputText }}</slot>
         </bordered-row-section>
 		<row-section>
             <div class="btn-group btn-group-lg">

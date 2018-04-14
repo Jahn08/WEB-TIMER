@@ -36,6 +36,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="components\stopwatch.js" />
+    <Compile Include="components\time-switch.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="components\timer.js" />
     <Compile Include="config.js" />
     <Compile Include="main.js" />

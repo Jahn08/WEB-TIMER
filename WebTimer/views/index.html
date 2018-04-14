@@ -6,10 +6,8 @@
     <title>Web Timer</title>
 </head>
 <body>
-    <!--TODO: Local bootstrap styles only for development purposes-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" rel="stylesheet" />
     <!--TODO: Use minified version-->
-    <!--<link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />-->
+    <link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />
 
     <script src="/modules/jquery/jquery.js"></script>
 
@@ -20,8 +18,39 @@
     <script src="/components/watch.js"></script>
     <script src="/components/banner.js"></script>
     <script src="/components/audio-list.js"></script>
+    <script src="/components/time-switch.js"></script>
     <script src="/components/stopwatch.js"></script>
     <script src="/components/timer.js"></script>
+
+    <style>
+        .switch {
+            height: 30px;
+            position: absolute;
+            width: 9%;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        .switch:hover {
+            cursor: pointer;
+        }
+
+        .upperSwitch:hover {
+            box-shadow: 3px 3px 9px 0px;
+        }
+
+        .belowSwitch:hover {
+            box-shadow: 3px 0px 9px 0px;
+        }
+
+        .upperSwitch {
+            top: 0;
+        }
+
+        .belowSwitch {
+            bottom: 0;
+        }
+    </style>
 
     <div id="app">
         <ul class="nav nav-tabs">
