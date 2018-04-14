@@ -168,7 +168,9 @@ Components.watch = {
         },
         timeToText() {
             var t = new Date(this.time);
-            let hours = t.getUTCDate() == 1 ? 0: 24;
+
+            let days = t.getUTCDate();
+            let hours = (days - 1) * 24;
             return `${this.format(hours + t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
         },
         textToTime() {
