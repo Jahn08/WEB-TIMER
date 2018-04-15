@@ -1,0 +1,71 @@
+﻿.switch {
+    position: absolute;
+    font-size: large;
+    font-weight: bold;
+}
+
+.switch:hover {
+    cursor: pointer;
+}
+
+.upperSwitch:hover {
+    box-shadow: 3px 3px 9px 0px;
+}
+
+.belowSwitch:hover {
+    box-shadow: 3px 0px 9px 0px;
+}
+
+.upperSwitch {
+    top: 0;
+}
+
+.belowSwitch {
+    bottom: 0;
+}
+
+.lapSection {
+    height: 40vh;
+    overflow-y: scroll;
+}
+
+.slightlyTransparent {
+    opacity: 0.6;
+}
+
+.preserveSpaces {
+    white-space: pre-wrap;
+}
+
+@media only screen and (max-width: 991px) {
+    .fontLg {
+        font-size: 4em;
+    }
+
+    .switch {
+        width: 7%;
+        height: 20px;
+    }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+    .fontLg {
+        font-size: 6em;
+    }
+
+    .switch {
+        width: 8%;
+        height: 25px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .fontLg {
+        font-size: 8em;
+    }
+
+    .switch {
+        width: 9%;
+        height: 30px;
+    }
+}

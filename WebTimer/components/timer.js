@@ -7,7 +7,7 @@ Components.timer = {
     },
     data() {
         return {
-            running: false,
+            isRun: false,
             shouldPlaySound: false,
             inputText: '',
             tipText: 'Start entering figures or use switches to set the timer'
@@ -25,7 +25,7 @@ Components.timer = {
             if (!event.allowedToRun)
                 this.bannerBlink();
             else {
-                this.running = true;
+                this.isRun = true;
             }
         },
         onEnd() {
@@ -33,7 +33,7 @@ Components.timer = {
             $('#modal').modal();
         },
         onReset() {
-            this.running = false;
+            this.isRun = false;
         },
         bannerBlink() {
             $('#alertHeading').fadeOut(1000)
@@ -46,15 +46,15 @@ Components.timer = {
     template: `
         <div>
             <banner heading="Timer">
-                <div :class="{'d-none':running}" class="text-center">
+                <div :class="{'d-none':isRun}" class="text-center">
                     <hr/>
                     <h2 id="alertHeading">{{ tipText }}</h2>
                     <audio-list :active="shouldPlaySound"></audio-list>
                 </div>
             </banner>
             <watch :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputText='inputText'>    
-                <div :title="running ? '': tipText" slot-scope="scope">
-                    <span v-if="!running"><time-switch @change='onTextChange' :text="scope.text"></time-switch></span>
+                <div :title="isRun ? '': tipText" slot-scope="scope">
+                    <span v-if="!isRun"><time-switch @change='onTextChange' :text="scope.text"></time-switch></span>
                     <span v-else>{{ scope.text }}</span>
                 </div>
             </watch>

@@ -78,7 +78,7 @@ Components.timeSwitch = {
             curIndex: 0,
             limits: [2, 9, 5, 9, 5, 9],
             idPrefix: 'f',
-            internalChange: false // To prevent changes caused by the component itself
+            changedInternally: false // To prevent changes caused by the component itself
         };
     },
     props: {
@@ -93,10 +93,10 @@ Components.timeSwitch = {
     },
     watch: {
         text() {
-            if (!this.internalChange)
+            if (!this.changedInternally)
                 this.renderText();
             else
-                this.internalChange = false;
+                this.changedInternally = false;
         }
     },
     components: {
@@ -139,7 +139,7 @@ Components.timeSwitch = {
                 if (event.entered)
                     this.curIndex = this.getCurrentIndex(this.curIndex);
 
-                this.internalChange = true;
+                this.changedInternally = true;
                 this.$emit('change', this.input.join(''));
             }
         }
