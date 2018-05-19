@@ -1,4 +1,9 @@
-﻿.switch {
+﻿:root {
+    --stage-active-background-color: #007bff;
+    --stage-active-color: #FFFFFF;
+}
+
+.switch {
     position: absolute;
     font-size: large;
     font-weight: bold;
@@ -68,4 +73,37 @@
         width: 9%;
         height: 30px;
     }
+
+    .stages span {
+        font-size: large !important;
+    }
+}
+
+.stages {
+    position: absolute;
+    display: flex;
+    bottom: 0;
+    left: 5vw;
+}
+
+.stages span {
+    border: 1px solid;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: x-small;
+}
+
+.stages.disabled span {
+    opacity: 0.8;
+}
+
+.stages .active {
+    background-color: var(--stage-active-background-color);
+    color: var(--stage-active-color);
+}
+
+.stages:not(.disabled) span:hover {
+    cursor: pointer;
+    background-color: var(--stage-active-background-color);
+    color: var(--stage-active-color);
 }

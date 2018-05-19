@@ -39,6 +39,7 @@
     <Compile Include="components\time-switch.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="components\timer-customised.js" />
     <Compile Include="components\timer.js" />
     <Compile Include="config.js" />
     <Compile Include="main.js" />

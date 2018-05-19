@@ -7,7 +7,7 @@
 <body>
     <!--TODO: Use minified version-->
     <link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="/resources/css/common.css" rel="stylesheet"/>
+    <link href="/resources/css/common.css" rel="stylesheet" />
 
     <script src="/modules/jquery/jquery.js"></script>
 
@@ -21,7 +21,8 @@
     <script src="/components/time-switch.js"></script>
     <script src="/components/stopwatch.js"></script>
     <script src="/components/timer.js"></script>
-    
+    <script src="/components/timer-customised.js"></script>
+
     <div id="app">
         <ul class="nav nav-tabs">
             <li class="nav-item">
@@ -29,6 +30,9 @@
             </li>
             <li class="nav-item">
                 <router-link class="nav-link" to="/timer" active-class="active">Timer</router-link>
+            </li>
+            <li class="nav-item">
+                <router-link class="nav-link" to="/timerCustomised" active-class="active">Timer With Stages</router-link>
             </li>
         </ul>
 
@@ -42,7 +46,8 @@
             routes: [
                 { path: '/', redirect: '/stopwatch' },
                 { path: '/stopwatch', component: Components.stopwatch },
-                { path: '/timer', component: Components.timer }
+                { path: '/timer', component: Components.timer },
+                { path: '/timerCustomised', component: Components.timerCustomised }
             ]
         });
 

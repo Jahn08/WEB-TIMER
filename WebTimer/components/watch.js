@@ -66,6 +66,9 @@ Components.watch = {
         },
         inputText: {
             type: String
+        },
+        msStageArray: {
+            type: Array
         }
     },
     data() {
@@ -74,48 +77,7 @@ Components.watch = {
                 name: 'Start|Stop',
                 shortcut: 'Space',
                 keyCodes: ['Space'],
-                event: () => {
-                    this.isRun = !this.isRun;
-
-                    if (this.isRun === true) {
-						let allowedToRun = this.allowed();
-
-                        this.$emit('start', { allowedToRun });
-
-                        if (!allowedToRun) {
-                            this.isRun = false;
-                            return;
-                        }
-
-                        this.dateStart = new Date();
-                        this.elapsedRangeTime = 0;
-
-                        let interval = setInterval(() => {
-                            if (this.isRun === false || this.time < 0) {
-                                clearInterval(interval);
-                                interval = null;
-
-                                if (this.time < 0) {
-                                    this.isRun = false;
-                                    this.reset();
-                                }
-                            }
-                            else if (interval) {
-                                let timeDifference = new Date() - this.dateStart;
-                                let curValue = timeDifference - this.elapsedRangeTime;
-
-                                if (!this.clockwise)
-                                    curValue = -curValue;
-
-                                this.time += curValue;
-                                this.elapsedRangeTime = timeDifference;
-
-                                if (this.time <= 0 && !this.clockwise)
-                                    this.$emit('end');
-                            }
-                        }, 12);
-                    }
-                }
+                event: this.start
             }, {
                 name: 'Lap',
                 shortcut: 'Ctrl',
@@ -135,7 +97,8 @@ Components.watch = {
             dateStart: null,
             laps: [],
             elapsedRangeTime: 0,
-            originalTitle: null
+            originalTitle: null,
+            stages: []
         };
     },
     watch: {
@@ -143,7 +106,10 @@ Components.watch = {
             this.computeOutput();
         },
         inputText() {
-            this.outputText = this.inputText;
+            this.outputText = this.inputText ? this.inputText.trim(): '';
+        },
+        msStageArray() {
+            this.initialiseStages();
         }
     },
     mounted() {
@@ -154,9 +120,79 @@ Components.watch = {
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
-        Components.globalVm.$off('watchKeyDown');
+
+        Components.globalVm.$off('watchKeyDown'); // Remove all listeners
     },
     methods: {
+        initialiseStages() {
+            if (this.msStageArray && this.msStageArray.length > 0) {
+                this.stages = this.msStageArray.map(val => this.timeToText(val));
+                let timeSum = this.msStageArray.reduce((pv, cv) => pv + cv);
+
+                this.$emit('stageInitialised', this.stages, timeSum, this.timeToText(timeSum));
+                this.nextStage();
+            }
+        },
+        start() {
+            this.isRun = !this.isRun;
+
+            if (this.isRun === true) {
+                let allowedToRun = this.allowed();
+
+                this.$emit('start', { allowedToRun });
+
+                if (!allowedToRun) {
+                    this.isRun = false;
+                    return;
+                }
+
+                this.dateStart = new Date();
+                this.elapsedRangeTime = 0;
+
+                let interval = setInterval(() => {
+                    if (this.isRun === false || this.time < 0) {
+                        clearInterval(interval);
+                        interval = null;
+                        let hasNextStage;
+
+                        // Time is over - not a pause
+                        if (this.time < 0) {
+                            hasNextStage = this.nextStage();
+                            this.isRun = false;
+
+                            if (!hasNextStage)
+                                this.reset();
+
+                            if (!this.clockwise) {
+                                this.$emit('end', hasNextStage);
+
+                                if (hasNextStage)
+                                    this.start();
+                            }
+                        }
+                    }
+                    else if (interval) {
+                        let timeDifference = new Date() - this.dateStart;
+                        let curValue = timeDifference - this.elapsedRangeTime;
+
+                        if (!this.clockwise)
+                            curValue = -curValue;
+
+                        this.time += curValue;
+                        this.elapsedRangeTime = timeDifference;
+                    }
+                }, 12);
+            }
+        },
+        nextStage() {
+            let nextTimeText = this.stages && this.stages.length > 0 ? this.stages.shift() : null;
+
+            if (nextTimeText != null) {
+                this.outputText = nextTimeText;
+            }
+            
+            return nextTimeText != null;
+        },
         allowed() {
             return this.clockwise || (this.time > 0 || (this.time = this.textToTime()) > 0);
         },
@@ -171,8 +207,8 @@ Components.watch = {
                 Components.globalVm.$emit('watchKeyDown', event);
             }
         },
-        timeToText() {
-            var t = new Date(this.time);
+        timeToText(timeVal) {
+            var t = new Date(timeVal ? timeVal: this.time);
             
             let hours = (t.getUTCDate() - 1) * 24;
             return `${this.format(hours + t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
@@ -223,8 +259,10 @@ Components.watch = {
             this.elapsedRangeTime = 0;
             this.dateStart = new Date();
 
-            if (!this.clockwise)
+            if (!this.clockwise) {
+                this.$nextTick(() => this.initialiseStages());
                 this.isRun = false;
+            }
 
             if (!this.isRun) {
                 this.laps = [];
