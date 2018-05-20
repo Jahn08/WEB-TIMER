@@ -1,6 +1,7 @@
 ﻿:root {
     --stage-active-background-color: #007bff;
     --stage-active-color: #FFFFFF;
+    --stage-info-left-position: 5vw;
 }
 
 .switch {
@@ -77,13 +78,24 @@
     .stages span {
         font-size: large !important;
     }
+
+    .stageDescription {
+        font-size: x-large !important;
+    }
+}
+
+.stageDescription {
+    position: absolute;
+    font-size: large;
+    top: auto;
+    left: var(--stage-info-left-position);
 }
 
 .stages {
     position: absolute;
     display: flex;
     bottom: 0;
-    left: 5vw;
+    left: var(--stage-info-left-position);
 }
 
 .stages span {
@@ -106,4 +118,8 @@
     cursor: pointer;
     background-color: var(--stage-active-background-color);
     color: var(--stage-active-color);
+}
+
+select {
+    max-width: 500px;
 }

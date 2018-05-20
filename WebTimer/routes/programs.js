@@ -7,6 +7,8 @@ app.use(bodyParser.json());
 const programs = require('../models/program');
 let router = express.Router();
 
+const defaultPrograms = require('../models/programDefault');
+
 router.route('/')
     // TODO: Available to it's author only
     .get((req, res, next) => {
@@ -20,9 +22,10 @@ router.route('/')
     })
     .delete((req, res, next) => {
         // TODO: Deleting a user's program
-    })
-    .get('/default', (req, res, next) => {
-        // TODO: Getting a list of all default programs, a public method
     });
 
-exports = router;
+router.route('/default').get((req, res, next) => {
+    res.status(200).json(defaultPrograms);
+});
+
+module.exports = router;

@@ -10,11 +10,11 @@ let programStage = new mongoose.Schema({
         min: 1,
         max: 3600
     },
-    name: {
+    descr: {
         type: String,
         required: true
     },
-    sound: Blob
+    sound: Buffer
 });
 
 let program = new mongoose.Schema({
@@ -28,7 +28,7 @@ let program = new mongoose.Schema({
     },
     stages: [programStage],
     active: Boolean,
-    icon: Blob
+    icon: Buffer
 }, { timestamps: true });
 
 module.exports = mongoose.model('Program', program);

@@ -129,7 +129,7 @@ Components.watch = {
                 this.stages = this.msStageArray.map(val => this.timeToText(val));
                 let timeSum = this.msStageArray.reduce((pv, cv) => pv + cv);
 
-                this.$emit('stageInitialised', this.stages, timeSum, this.timeToText(timeSum));
+                this.$emit('stageInitialised', this.stages, this.timeToText(timeSum));
                 this.nextStage();
             }
         },

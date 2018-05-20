@@ -59,6 +59,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Content Include="components\watch.js" />
+    <Content Include="models\programDefault.js" />
     <Content Include="resources\audio\alarm_classic.mp3" />
     <Content Include="resources\audio\alert_8bit.mp3" />
     <Content Include="resources\audio\bell_official.mp3" />

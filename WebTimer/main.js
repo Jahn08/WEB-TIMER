@@ -11,6 +11,9 @@ app.use('/resources', express.static(__dirname + '/resources'));
 const routerModule = require('./routes/modules');
 app.use('/modules', routerModule);
 
+const routerProgram = require('./routes/programs');
+app.use('/programs', routerProgram);
+
 const https = require('https');
 const fs = require('fs');
 const config = require('./config');
