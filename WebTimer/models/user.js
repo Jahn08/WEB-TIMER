@@ -1,6 +1,10 @@
 ﻿const mongoose = require('mongoose');
 
 let user = new mongoose.Schema({
+    userName: {
+        type: String,
+        required: true
+    },
     firstName: {
         type: String,
         required: true
@@ -15,7 +19,7 @@ let user = new mongoose.Schema({
     },
     facebookId: String,
     lastLogin: Date,
-    Administrator: Boolean
+    administrator: Boolean
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", user);
