@@ -25,7 +25,7 @@ const defaultPrograms = [{
         descr: 'Roast firstly'
     }, {
         order: 2,
-        duration: 5000,
+        duration: 10000,
         descr: 'Stir it up'
     }, {
         order: 3,
@@ -33,7 +33,7 @@ const defaultPrograms = [{
         descr: 'Roast secondly'
     }, {
         order: 4,
-        duration: 5000,
+        duration: 10000,
         descr: 'Stir it up'
     }, {
         order: 5,
