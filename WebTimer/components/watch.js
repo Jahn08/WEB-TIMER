@@ -1,7 +1,3 @@
-var Components = {};
-
-Components.globalVm = new Vue();
-
 Components.rowSection = {
     props: {
         marginTop: Number,

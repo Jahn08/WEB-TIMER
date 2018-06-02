@@ -4,17 +4,32 @@ let app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-const users = require('../models/user');
+const User = require('../models/user');
 let router = express.Router();
 
-router.post('/signUp', (req, res, next) => {
+const facebokAuth = require('../facebook-auth'); 
 
-    })
-    .post('/signIn', (req, res, next) => {
+const errorFormatter = require('../error-formatter');
 
-    })
-    .get('/signOut', (req, res, next) => {
-        
+router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
+    if (!req.user)
+        return errorFormatter.respondWithUserIsNotFoundError(res);
+
+    User.findOne({ facebookId: req.user.facebookId }, (err, user) => {
+        if (err)
+            return errorFormatter.respondWithAuthenticationError(res, err);
+
+        if (!user)
+            return errorFormatter.respondWithUserIsNotFoundError(res);
+
+        user.update({ lastLogin: Date.now() }, (err) => {
+            if (err)
+                return errorFormatter.respondWithAuthenticationError(res, err);
+
+            res.end('Successfully logged in.');
+            next();
+        });
     });
+});
 
-exports = router;
+module.exports = router;

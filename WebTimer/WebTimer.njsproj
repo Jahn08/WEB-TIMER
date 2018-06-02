@@ -29,6 +29,10 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="components\component-initialiser.js" />
+    <Compile Include="components\tab-menu.js" />
+    <Compile Include="error-formatter.js" />
+    <Compile Include="facebook-auth.js" />
     <Compile Include="components\audio-list.js">
       <SubType>Code</SubType>
     </Compile>
@@ -42,6 +46,9 @@
     <Compile Include="components\timer-customised.js" />
     <Compile Include="components\timer.js" />
     <Compile Include="config.js" />
+    <Compile Include="startup.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="main.js" />
     <Compile Include="models\program.js">
       <SubType>Code</SubType>
@@ -58,6 +65,8 @@
     <Compile Include="routes\users.js">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="components\facebook-auth-button.js" />
+    <Content Include="components\main-menu.js" />
     <Content Include="components\watch.js" />
     <Content Include="models\programDefault.js" />
     <Content Include="resources\audio\alarm_classic.mp3" />
@@ -68,6 +77,8 @@
     <Content Include="resources\css\common.css">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="resources\images\favicon-navbar.ico" />
+    <Content Include="resources\images\favicon.ico" />
     <Content Include="views\index.html">
       <SubType>Code</SubType>
     </Content>
@@ -80,6 +91,7 @@
     <Folder Include="resources\" />
     <Folder Include="resources\audio\" />
     <Folder Include="resources\css\" />
+    <Folder Include="resources\images\" />
     <Folder Include="views\" />
     <Folder Include="routes\" />
   </ItemGroup>

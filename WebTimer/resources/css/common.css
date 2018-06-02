@@ -123,3 +123,54 @@
 select {
     max-width: 500px;
 }
+
+.fb5h0k {
+    height: 24px;
+    margin: 8px;
+}
+
+.fb5h0m {
+    height: 24px;
+    width: 24px;
+}
+
+.fbXvm .fb5h0i {
+    max-width: 272px;
+    min-width: initial;
+    width: auto;
+}
+
+.fb5h0i {
+    height: 40px;
+}
+
+.fb5f0n {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table.fbBtnTable:focus {
+    outline: none !important;
+}
+
+table.fbBtnTable {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    outline: none;
+}
+
+table.fbBtnTable tr {
+    outline: none;
+}
+
+table.fbBtnTable td {
+    outline: none;
+}
+
+.fbBtn {
+    background-color: #4267b2;
+    border-radius: 4px;
+    color: #fff;
+    border: none;
+}

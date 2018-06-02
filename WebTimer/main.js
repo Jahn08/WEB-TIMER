@@ -1,27 +1,9 @@
-const express = require('express');
-let app = express();
+const startup = require('./startup');
 
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
+const app = startup.initialiseExpressApp();
+startup.initialisePassport(app);
+startup.configureAppRoutes(app);
 
-app.use('/components', express.static(__dirname + '/components'));
-app.use(express.static(__dirname + '/views'));
-app.use('/resources', express.static(__dirname + '/resources'));
-
-const routerModule = require('./routes/modules');
-app.use('/modules', routerModule);
-
-const routerProgram = require('./routes/programs');
-app.use('/programs', routerProgram);
-
-const https = require('https');
-const fs = require('fs');
 const config = require('./config');
-
-let server = https.createServer({
-    pfx: fs.readFileSync(config.server.pfx.path),
-    passphrase: config.server.pfx.password
-}, app);
-
-server.listen(config.server.port, config.server.host,
-    () => console.log('Server listening on port ', config.server.port));
+startup.initialiseDbConnection(config.db.uri);
+startup.startHttpsServerListening(app, config.server);

@@ -3,18 +3,30 @@
 <head>
     <meta charset="utf-8" />
     <title>Web Timer</title>
+    <!--TODO: Credit the author of the icon: 
+        <div>Icons made by 
+            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from 
+            <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by 
+            <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+        </div>-->
+    <link rel="icon" href="/resources/images/favicon.ico" />
 </head>
 <body>
     <!--TODO: Use minified version-->
     <link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link href="/resources/css/common.css" rel="stylesheet" />
 
+    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script src="/modules/jquery/jquery.js"></script>
 
     <script src="/modules/bootstrap/js/bootstrap.js"></script>
     <script src="/modules/vue/vue.js"></script>
     <script src="/modules/vue-router/vue-router.js"></script>
 
+    <script src="/components/component-initialiser.js"></script>
+    <script src="/components/facebook-auth-button.js"></script>
+    <script src="/components/main-menu.js"></script>
+    <script src="/components/tab-menu.js"></script>
     <script src="/components/watch.js"></script>
     <script src="/components/banner.js"></script>
     <script src="/components/audio-list.js"></script>
@@ -24,36 +36,33 @@
     <script src="/components/timer-customised.js"></script>
 
     <div id="app">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <router-link class="nav-link" to="/stopwatch" active-class="active">Stopwatch</router-link>
-            </li>
-            <li class="nav-item">
-                <router-link class="nav-link" to="/timer" active-class="active">Timer</router-link>
-            </li>
-            <li class="nav-item">
-                <router-link class="nav-link" to="/timerCustomised" active-class="active">Timer With Stages</router-link>
-            </li>
-        </ul>
-
-        <div class="mt-2">
-            <router-view></router-view>
-        </div>
+        <main-menu>
+            <facebook-auth-button slot="logInBtn"></facebook-auth-button>
+        </main-menu>
     </div>
 
     <script>
-        const router = new VueRouter({
-            routes: [
-                { path: '/', redirect: '/stopwatch' },
-                { path: '/stopwatch', component: Components.stopwatch },
-                { path: '/timer', component: Components.timer },
-                { path: '/timerCustomised', component: Components.timerCustomised }
-            ]
-        });
-
         new Vue({
+            router: new VueRouter({
+                routes: [
+                    {
+                        path: '/home',
+                        component: Components.tabMenu,
+                        children: [
+                            { path: '/', redirect: '/stopwatch' },
+                            { path: '/stopwatch', component: Components.stopwatch },
+                            { path: '/timer', component: Components.timer },
+                            { path: '/timerCustomised', component: Components.timerCustomised }
+                        ]
+                    },
+                    { path: '/', redirect: '/home' }
+                ]
+            }),
             el: "#app",
-            router: router
+            components: {
+                mainMenu: Components.mainMenu,
+                facebookAuthButton: Components.facebookAuthButton
+            }
         });
     </script>
 </body>
