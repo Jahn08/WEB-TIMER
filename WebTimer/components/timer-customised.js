@@ -117,7 +117,8 @@ Components.timerCustomised = {
             $.ajax('/programs/default')
                 .then(res => {
                     this.programs = res;
-                    this.programNames = res.map((val, i) => { return { name: val.name, id: i }; });
+                    this.programNames = res.sort((a, b) => a.name > b.name)
+                        .map((val, i) => { return { name: val.name, id: i }; });
 
                     if (this.programs.length)
                         this.renderProgram(this.programs[0]);
