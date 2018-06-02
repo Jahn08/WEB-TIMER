@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 const programs = require('../models/program');
 let router = express.Router();
 
-const defaultPrograms = require('../models/programDefault');
+const defaultPrograms = require('../models/default-program');
 
 router.route('/')
     // TODO: Available to it's author only

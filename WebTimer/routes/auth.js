@@ -9,22 +9,24 @@ let router = express.Router();
 
 const facebokAuth = require('../facebook-auth'); 
 
-const errorFormatter = require('../error-formatter');
+const ResponseError = require('../response-error').ResponseError;
 
 router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
+    let respErr = new ResponseError(res);
+
     if (!req.user)
-        return errorFormatter.respondWithUserIsNotFoundError(res);
+        return respErr.respondWithUserIsNotFoundError();
 
     User.findOne({ facebookId: req.user.facebookId }, (err, user) => {
         if (err)
-            return errorFormatter.respondWithAuthenticationError(res, err);
+            return respErr.respondWithAuthenticationError(err);
 
         if (!user)
-            return errorFormatter.respondWithUserIsNotFoundError(res);
+            return respErr.respondWithUserIsNotFoundError();
 
         user.update({ lastLogin: Date.now() }, (err) => {
             if (err)
-                return errorFormatter.respondWithAuthenticationError(res, err);
+                return respErr.respondWithAuthenticationError(err);
 
             res.end('Successfully logged in.');
             next();

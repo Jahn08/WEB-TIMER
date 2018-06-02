@@ -1,52 +1,57 @@
-﻿const express = require('express');
+﻿
+exports.ExpressApp = function () {
+    const express = require('express');
 
-exports.initialiseExpressApp = function () {
-    let app = express();
+    let initialisation = function() {
+        let _app = express();
 
-    const bodyParser = require('body-parser');
-    app.use(bodyParser.json());
+        const bodyParser = require('body-parser');
+        _app.use(bodyParser.json());
 
-    return app;
-};
+        return _app;
+    };
 
-exports.initialisePassport = function (app) {
-    const passport = require('passport');
-    app.use(passport.initialize());
-};
+    let app = initialisation();
+    
+    this.initialisePassport = function () {
+        const passport = require('passport');
+        app.use(passport.initialize());
+    };
 
-exports.configureAppRoutes = function (app) {
-    app.use('/components', express.static(__dirname + '/components'));
-    app.use(express.static(__dirname + '/views'));
-    app.use('/resources', express.static(__dirname + '/resources'));
+    this.configureRoutes = function () {
+        app.use('/components', express.static(__dirname + '/components'));
+        app.use(express.static(__dirname + '/views'));
+        app.use('/resources', express.static(__dirname + '/resources'));
 
-    const routerAuth = require('./routes/auth');
-    app.use('/auth', routerAuth);
+        const routerAuth = require('./routes/auth');
+        app.use('/auth', routerAuth);
 
-    const routerModule = require('./routes/modules');
-    app.use('/modules', routerModule);
+        const routerModule = require('./routes/modules');
+        app.use('/modules', routerModule);
 
-    const routerProgram = require('./routes/programs');
-    app.use('/programs', routerProgram);
-};
+        const routerProgram = require('./routes/programs');
+        app.use('/programs', routerProgram);
+    };
+    
+    this.startHttpsServerListening = function (serverOptions) {
+        const https = require('https');
+        const fs = require('fs');
 
-exports.initialiseDbConnection = function (uri) {
+        const pfxConfig = serverOptions.pfx;
+
+        let server = https.createServer({
+            pfx: fs.readFileSync(pfxConfig.path),
+            passphrase: pfxConfig.password
+        }, app);
+
+        server.listen(serverOptions.port, serverOptions.host,
+            () => console.log('Server listening on port ', serverOptions.port));
+    };
+}
+
+module.exports.connectToDb = function (uri) {
     const mongoose = require('mongoose');
     mongoose.connect(uri).then(resp => {
         console.log(`Connected to the ${resp.connection.db.databaseName} database`);
     });
-};
-
-exports.startHttpsServerListening = function (app, serverOptions) {
-    const https = require('https');
-    const fs = require('fs');
-
-    const pfxConfig = serverOptions.pfx;
-
-    let server = https.createServer({
-        pfx: fs.readFileSync(pfxConfig.path),
-        passphrase: pfxConfig.password
-    }, app);
-
-    server.listen(serverOptions.port, serverOptions.host,
-        () => console.log('Server listening on port ', serverOptions.port));
 };

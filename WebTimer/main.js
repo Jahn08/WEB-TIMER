@@ -1,9 +1,11 @@
 const startup = require('./startup');
 
-const app = startup.initialiseExpressApp();
-startup.initialisePassport(app);
-startup.configureAppRoutes(app);
+let app = new startup.ExpressApp();
+app.initialisePassport();
+app.configureRoutes();
 
 const config = require('./config');
-startup.initialiseDbConnection(config.db.uri);
-startup.startHttpsServerListening(app, config.server);
+
+app.startHttpsServerListening(config.server);
+
+startup.connectToDb(config.db.uri);
