@@ -3,6 +3,9 @@
     "version": "0.0.0",
     "description": "web-timer",
     "main": "main.js",
+    "scripts": {
+        "test": "mocha \"tests\""
+    },
     "author": {
         "name": "jahn_08"
     },
@@ -11,6 +14,7 @@
         "bootstrap": "^4.0.0",
         "express": "^4.16.3",
         "jquery": "^3.3.1",
+        "mocha": "^5.2.0",
         "mongoose": "^5.0.11",
         "passport": "^0.4.0",
         "passport-facebook-token": "^3.3.0",

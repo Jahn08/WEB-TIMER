@@ -1,5 +1,4 @@
-﻿
-exports.ExpressApp = function () {
+﻿exports.ExpressApp = function () {
     const express = require('express');
 
     let initialisation = function() {

@@ -65,6 +65,10 @@
     <Compile Include="routes\users.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tests\infrastructure\randomiser.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tests\response-error-test.js" />
     <Content Include="components\facebook-auth-button.js" />
     <Content Include="components\main-menu.js" />
     <Content Include="components\watch.js" />
@@ -88,10 +92,12 @@
   <ItemGroup>
     <Folder Include="models\" />
     <Folder Include="components\" />
+    <Folder Include="tests\" />
     <Folder Include="resources\" />
     <Folder Include="resources\audio\" />
     <Folder Include="resources\css\" />
     <Folder Include="resources\images\" />
+    <Folder Include="tests\infrastructure\" />
     <Folder Include="views\" />
     <Folder Include="routes\" />
   </ItemGroup>
