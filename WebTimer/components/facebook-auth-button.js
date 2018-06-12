@@ -85,6 +85,7 @@ Components.facebookAuthButton = {
         },
         setUserStateLoggedIn() {
             this.loggedIn = true;
+            this.$emit('logged-in');
         },
         logOut() {
             let component = this;
@@ -95,6 +96,7 @@ Components.facebookAuthButton = {
         },
         setUserStateLoggedOut() {
             this.loggedIn = false;
+            this.$emit('logged-out');
         },
         checkLoginState() {
             let component = this;
