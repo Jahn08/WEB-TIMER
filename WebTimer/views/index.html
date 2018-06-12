@@ -34,6 +34,8 @@
     <script src="/components/stopwatch.js"></script>
     <script src="/components/timer.js"></script>
     <script src="/components/timer-customised.js"></script>
+    <script src="/components/user-timers.js"></script>
+    <script src="/components/user-settings.js"></script>
 
     <div id="app">
         <main-menu>
@@ -75,12 +77,12 @@
                             { path: '/profile', redirect: '/profile/userTimers' },
                             {
                                 path: '/profile/userTimers',
-                                component: { template: '<h1>USER TIMERS</h1>' },
+                                component: Components.userTimers,
                                 meta: { requiresAuth: true }
                             },
                             {
                                 path: '/profile/userSettings',
-                                component: { template: '<h1>USER SETTINGS</h1>' },
+                                component: Components.userSettings,
                                 meta: { requiresAuth: true }
                             }
                         ]

@@ -189,7 +189,7 @@ Components.timerCustomised = {
     },
     template: `
         <div>
-            <banner heading="Timer">
+            <banner heading="Timer With Stages">
                 <hr/>
                 <div class="text-center">
                     <h2 :class="{'d-none':!isRun}">{{ programTitle }}</h2>

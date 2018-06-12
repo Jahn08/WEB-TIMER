@@ -31,6 +31,9 @@
   <ItemGroup>
     <Compile Include="components\component-initialiser.js" />
     <Compile Include="components\tab-menu.js" />
+    <Compile Include="components\user-timers.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="response-error.js" />
     <Compile Include="facebook-auth.js" />
     <Compile Include="components\audio-list.js">
@@ -71,6 +74,7 @@
     <Compile Include="tests\response-error-test.js" />
     <Content Include="components\facebook-auth-button.js" />
     <Content Include="components\main-menu.js" />
+    <Content Include="components\user-settings.js" />
     <Content Include="components\watch.js" />
     <Content Include="models\default-program.js" />
     <Content Include="resources\audio\alarm_classic.mp3" />
