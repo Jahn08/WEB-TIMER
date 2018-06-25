@@ -52,5 +52,5 @@ module.exports.connectToDb = function (uri) {
     const mongoose = require('mongoose');
     mongoose.connect(uri).then(resp => {
         console.log(`Connected to the ${resp.connection.db.databaseName} database`);
-    });
+    }, reason => console.log(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
 };
