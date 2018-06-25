@@ -1,4 +1,4 @@
-Components.mainMenu = {
+const mainMenu = {
     template: `
         <div>
 		    <nav class="navbar navbar-expand-lg navbar-light bg-info">
@@ -28,3 +28,5 @@ Components.mainMenu = {
             <router-view></router-view> 
         </div>`
 };
+
+export default mainMenu;

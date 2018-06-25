@@ -1,4 +1,8 @@
-Components.stageSwitch = {
+import watch from '/components/watch.js';
+import audioList from '/components/audio-list.js';
+import banner from '/components/banner.js';
+
+const stageSwitch = {
     data() {
         return {
             tabs: [],
@@ -80,12 +84,12 @@ Components.stageSwitch = {
         </span>`
 };
 
-Components.timerCustomised = {
+const timerCustomised = {
     components: {
-        'watch': Components.watch,
-        'audioList': Components.audioList,
-        'banner': Components.banner,
-        'stage-switch': Components.stageSwitch
+        watch,
+        audioList,
+        banner,
+        stageSwitch
     },
     data() {
         return {
@@ -227,3 +231,5 @@ Components.timerCustomised = {
             </div>
         </div>`
 };
+
+export default timerCustomised;

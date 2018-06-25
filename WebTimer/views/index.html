@@ -14,28 +14,17 @@
 <body>
     <!--TODO: Use minified version-->
     <link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="/modules/multiple-select/multiple-select.css" rel="stylesheet" />
     <link href="/resources/css/common.css" rel="stylesheet" />
 
-    <script id="facebook-jssdk" src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script src="/modules/jquery/jquery.js"></script>
 
     <script src="/modules/bootstrap/js/bootstrap.js"></script>
+    <script src="/modules/multiple-select/multiple-select.js"></script>
     <script src="/modules/vue/vue.js"></script>
     <script src="/modules/vue-router/vue-router.js"></script>
 
-    <script src="/components/component-initialiser.js"></script>
-    <script src="/components/facebook-auth-button.js"></script>
-    <script src="/components/main-menu.js"></script>
-    <script src="/components/tab-menu.js"></script>
-    <script src="/components/watch.js"></script>
-    <script src="/components/banner.js"></script>
-    <script src="/components/audio-list.js"></script>
-    <script src="/components/time-switch.js"></script>
-    <script src="/components/stopwatch.js"></script>
-    <script src="/components/timer.js"></script>
-    <script src="/components/timer-customised.js"></script>
-    <script src="/components/user-timers.js"></script>
-    <script src="/components/user-settings.js"></script>
+    <script type="module" src="/components/component-initialiser.js"></script>
 
     <div id="app">
         <main-menu>
@@ -43,78 +32,5 @@
             </facebook-auth-button>
         </main-menu>
     </div>
-
-    <script>
-        new Vue({
-            router: new VueRouter({
-                routes: [
-                    {
-                        path: '/home',
-                        component: Components.tabMenu,
-                        props: {
-                            tabs: [
-                                { name: 'Stopwatch', route: '/stopwatch' },
-                                { name: 'Timer', route: '/timer' },
-                                { name: 'Timer With Stages', route: '/timerCustomised' }
-                            ]
-                        },
-                        children: [
-                            { path: '/', redirect: '/stopwatch' },
-                            { path: '/stopwatch', component: Components.stopwatch },
-                            { path: '/timer', component: Components.timer },
-                            { path: '/timerCustomised', component: Components.timerCustomised }
-                        ]
-                    }, {
-                        path: '/profile',
-                        component: Components.tabMenu,
-                        props: {
-                            tabs: [
-                                { name: 'Timers', route: '/profile/userTimers' },
-                                { name: 'Settings', route: '/profile/userSettings' }
-                            ]
-                        },
-                        children: [
-                            { path: '/profile', redirect: '/profile/userTimers' },
-                            {
-                                path: '/profile/userTimers',
-                                component: Components.userTimers,
-                                meta: { requiresAuth: true }
-                            },
-                            {
-                                path: '/profile/userSettings',
-                                component: Components.userSettings,
-                                meta: { requiresAuth: true }
-                            }
-                        ]
-                    },
-                    { path: '/', redirect: '/home' }
-                ]
-            }),
-            data() {
-                return {
-                    authenticated: false
-                };
-            },
-            mounted() {
-                this.$router.beforeEach((to, from, next) => {
-                    next(to.matched.some(i => i.meta.requiresAuth) && !this.authenticated ? { path: '/' } : undefined);
-                });
-            },
-            methods: {
-                setAuthenticationState(state) {
-                    let previousState = this.authenticated;
-                    this.authenticated = state;
-
-                    if (previousState && !state)
-                        this.$router.go('/');
-                }
-            },
-            el: "#app",
-            components: {
-                mainMenu: Components.mainMenu,
-                facebookAuthButton: Components.facebookAuthButton
-            }
-        });
-    </script>
 </body>
 </html>

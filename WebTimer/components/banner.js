@@ -1,4 +1,4 @@
-﻿Components.banner = {
+﻿const banner = {
     props: {
         heading: {
             type: String,
@@ -10,4 +10,6 @@
             <h1 class="alert-heading">{{ heading }}</h1>
             <slot></slot>
         </div>`
-}
+};
+
+export default banner;

@@ -1,7 +1,10 @@
-Components.stopwatch = {
+import watch from '/components/watch.js';
+import banner from '/components/banner.js';
+
+const stopwatch = {
     components: {
-        'watch': Components.watch,
-        'banner': Components.banner
+        watch,
+        banner
     },
     template: `
         <div>
@@ -10,3 +13,5 @@ Components.stopwatch = {
         </div>
     `
 };
+
+export default stopwatch;

@@ -174,3 +174,12 @@ table.fbBtnTable td {
     color: #fff;
     border: none;
 }
+
+.ms-choice {
+    border: none;
+    outline: none !important;
+}
+
+.ms-choice > span {
+    position: relative;
+}

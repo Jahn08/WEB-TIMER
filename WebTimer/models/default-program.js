@@ -1,5 +1,6 @@
 const defaultPrograms = [{
     name: 'Test program',
+    active: true,
     stages: [{
         order: 0,
         duration: 5000,
@@ -15,6 +16,7 @@ const defaultPrograms = [{
     }]
 }, {
     name: 'Roasting peanuts in oven',
+    active: true,
     stages: [{
         order: 0,
         duration: 30000,
@@ -46,6 +48,7 @@ const defaultPrograms = [{
     }]
 }, {
 	name: 'Cooking tomato soup with tinned chickpeas',
+    active: true,
 	stages: [{
 		order: 0,
 		duration: 120000,

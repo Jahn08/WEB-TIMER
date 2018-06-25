@@ -1,4 +1,4 @@
-Components.facebookAuthButton = {
+const facebookAuthButton = {
     data() {
         return {
             loggedIn: null,
@@ -160,3 +160,5 @@ Components.facebookAuthButton = {
             </div>
         </div>`
 };
+
+export default facebookAuthButton;

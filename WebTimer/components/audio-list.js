@@ -1,4 +1,4 @@
-﻿Components.audioList = {
+﻿const audioList = {
     props: {
         repeat: {
             type: Boolean,
@@ -66,3 +66,5 @@
             <button class="btn btn-info btn-sm" @click="play(true)" title="Try out the sound" v-if="optedSoundSrc">&#9835;</button>
         </div>`
 };
+
+export default audioList;

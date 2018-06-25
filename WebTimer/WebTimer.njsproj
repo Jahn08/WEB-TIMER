@@ -30,6 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="components\component-initialiser.js" />
+    <Compile Include="components\global.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="components\tab-menu.js" />
     <Compile Include="components\user-timers.js">
       <SubType>Code</SubType>

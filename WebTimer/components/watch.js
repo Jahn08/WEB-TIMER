@@ -1,4 +1,6 @@
-Components.rowSection = {
+import { globalVm } from '/components/global.js';
+
+const rowSection = {
     props: {
         marginTop: Number,
         textCentered: {
@@ -22,9 +24,9 @@ Components.rowSection = {
     `
 };
 
-Components.borderedRowSection = {
+const borderedRowSection = {
     components: {
-        'row-section': Components.rowSection
+        rowSection
     },
     props: {
         active: Boolean, 
@@ -54,7 +56,7 @@ Components.borderedRowSection = {
     `
 };
 
-Components.watch = {
+const watch = {
     props: {
         clockwise: {
             type: Boolean,
@@ -117,7 +119,7 @@ Components.watch = {
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
 
-        Components.globalVm.$off('watchKeyDown'); // Remove all listeners
+        globalVm.$off('watchKeyDown'); // Remove all listeners
     },
     methods: {
         initialiseStages() {
@@ -200,7 +202,7 @@ Components.watch = {
                 event.preventDefault();
             }
             else {
-                Components.globalVm.$emit('watchKeyDown', event);
+                globalVm.$emit('watchKeyDown', event);
             }
         },
         timeToText(timeVal) {
@@ -286,8 +288,8 @@ Components.watch = {
         }
     },
     components: {
-        'bordered-row-section': Components.borderedRowSection,
-        'row-section': Components.rowSection
+        borderedRowSection,
+        rowSection
     },
     template: `<div class="container">
 		<bordered-row-section :active="isRun">
@@ -309,3 +311,5 @@ Components.watch = {
         </bordered-row-section>
     </div>`
 };
+
+export default watch;

@@ -1,4 +1,6 @@
-﻿Components.timeSwitchBlock = {
+﻿import { globalVm } from '/components/global.js';
+
+const timeSwitchBlock = {
     props: {
         figure: {
             type: Number,
@@ -19,12 +21,12 @@
         };
     },
     mounted() {
-        Components.globalVm.$on('watchKeyDown', this.onKeyDown);
+        globalVm.$on('watchKeyDown', this.onKeyDown);
 
         this.setFigure(this.figure);
     },
     beforeDestroy() {
-        Components.globalVm.$off('watchKeyDown', this.onKeyDown);
+        globalVm.$off('watchKeyDown', this.onKeyDown);
     },
     watch: {
         figure() {
@@ -70,7 +72,7 @@
         </span>`
 };
 
-Components.timeSwitch = {
+const timeSwitch = {
     data() {
         return {
             input: [],
@@ -100,7 +102,7 @@ Components.timeSwitch = {
         }
     },
     components: {
-        'block': Components.timeSwitchBlock
+        'block': timeSwitchBlock
     },
     methods: {
         renderText() {
@@ -152,3 +154,5 @@ Components.timeSwitch = {
             </span>
         </span>`
 };
+
+export default timeSwitch;

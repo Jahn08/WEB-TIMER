@@ -1,4 +1,4 @@
-Components.tabMenu = {
+const tabMenu = {
     props: {
         tabs: {
             required: true
@@ -17,3 +17,5 @@ Components.tabMenu = {
             </div>
         </div>`
 };
+
+export default tabMenu;
