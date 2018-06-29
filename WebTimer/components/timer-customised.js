@@ -1,6 +1,7 @@
 import watch from '/components/watch.js';
 import audioList from '/components/audio-list.js';
 import banner from '/components/banner.js';
+import modal from '/components/modal.js';
 
 const stageSwitch = {
     data() {
@@ -89,7 +90,8 @@ const timerCustomised = {
         watch,
         audioList,
         banner,
-        stageSwitch
+        stageSwitch,
+        modal
     },
     data() {
         return {
@@ -109,11 +111,6 @@ const timerCustomised = {
     },
     mounted() {
         this.bannerBlink();
-
-        $('#modal').on('hide.bs.modal', e => {
-            this.shouldPlaySound = false;
-        });
-
         this.initialiseTemplateList();
     },
     methods: {
@@ -175,7 +172,6 @@ const timerCustomised = {
         onEnd(hasNextStage) {
             if (!hasNextStage) {
                 this.shouldPlaySound = true;
-                $('#modal').modal();
             }
             else
                 this.updateSwitchStage(++this.curStage);
@@ -184,11 +180,13 @@ const timerCustomised = {
             this.isRun = false;
         },
         bannerBlink() {
-            $('#alertHeading').fadeOut(1000)
-                .fadeIn(1000);
+            $('#alertHeading').fadeOut(1000).fadeIn(1000);
         },
         updateSwitchStage(stage) {
             this.switchStage = this.switchStage == stage ? --stage: stage;
+        },
+        onModalHiding() {
+            this.shouldPlaySound = false;
         }
     },
     template: `
@@ -211,24 +209,9 @@ const timerCustomised = {
                     <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage"></stage-switch></span>
                 </div>
             </watch>
-            <div class="modal fade" id="modal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header alert alert-info">
-                            <h2 class="modal-title">Time is over</h2>
-                            <button type="button" class="close" data-dismiss="modal">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body text-primary">
-                            <p>Close the window to set timer again</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <modal :show="shouldPlaySound" title="Time is over" @hiding="onModalHiding()">
+                <p>Close the window to set timer again</p>
+            </modal>
         </div>`
 };
 
