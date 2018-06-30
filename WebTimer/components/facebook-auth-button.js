@@ -1,3 +1,5 @@
+import ApiHelper from '/components/api-helper.js';
+
 const facebookAuthButton = {
     data() {
         return {
@@ -70,22 +72,13 @@ const facebookAuthButton = {
         sendUserDataToServer(token) {
             let component = this;
 
-            $.ajax('/auth/logIn', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                } 
-            }).then(function (resp) {
-                component.setUserStateLoggedIn();
-            }).catch(function (err) 
-            {
-                alert(`An authentication error has occured: ${err.statusText}`);
-                component.logOut();
-            });
+            const apiHelper = new ApiHelper();
+            apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token))
+                .catch(err => component.logOut());
         },
-        setUserStateLoggedIn() {
+        setUserStateLoggedIn(token) {
             this.loggedIn = true;
-            this.$emit('logged-in');
+            this.$emit('logged-in', token);
         },
         logOut() {
             let component = this;

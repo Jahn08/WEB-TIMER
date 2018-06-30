@@ -29,8 +29,9 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="components\api-helper.js" />
     <Compile Include="components\component-initialiser.js" />
-    <Compile Include="components\global.js">
+    <Compile Include="components\event-bus.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="components\modal.js" />

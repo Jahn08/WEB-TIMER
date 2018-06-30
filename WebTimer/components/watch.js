@@ -1,4 +1,4 @@
-import { globalVm } from '/components/global.js';
+import { eventBus } from '/components/event-bus.js';
 
 const rowSection = {
     props: {
@@ -70,7 +70,7 @@ const watch = {
         }
     },
     data() {
-        return {
+        return { 
             buttons: [{
                 name: 'Start|Stop',
                 shortcut: 'Space',
@@ -118,8 +118,7 @@ const watch = {
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
-
-        globalVm.$off('watchKeyDown'); // Remove all listeners
+        eventBus.removeAllWatchKeyDownListeners();
     },
     methods: {
         initialiseStages() {
@@ -202,7 +201,7 @@ const watch = {
                 event.preventDefault();
             }
             else {
-                globalVm.$emit('watchKeyDown', event);
+                eventBus.emitWatchKeyDownEvent(event);
             }
         },
         timeToText(timeVal) {

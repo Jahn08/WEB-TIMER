@@ -2,6 +2,7 @@ import watch from '/components/watch.js';
 import audioList from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import modal from '/components/modal.js';
+import ApiHelper from '/components/api-helper.js';
 
 const stageSwitch = {
     data() {
@@ -115,16 +116,15 @@ const timerCustomised = {
     },
     methods: {
         initialiseTemplateList() {
-            $.ajax('/programs/default')
-                .then(res => {
-                    this.programs = res;
-                    this.programNames = res.sort((a, b) => a.name > b.name)
-                        .map((val, i) => { return { name: val.name, id: i }; });
+            const apiHelper = new ApiHelper();
+            apiHelper.getDefaultPrograms().then(res => {
+                this.programs = res;
+                this.programNames = res.sort((a, b) => a.name > b.name)
+                    .map((val, i) => { return { name: val.name, id: i }; });
 
-                    if (this.programs.length)
-                        this.renderProgram(this.programs[0]);
-                })
-                .catch(err => alert('An error has occured while getting a list of default timer programs available: ' + err));
+                if (this.programs.length)
+                    this.renderProgram(this.programs[0]);
+            });
         },
         changeProgram(event) {
             let obj;

@@ -1,4 +1,4 @@
-﻿import { globalVm } from '/components/global.js';
+﻿import { eventBus } from '/components/event-bus.js';
 
 const timeSwitchBlock = {
     props: {
@@ -21,12 +21,12 @@ const timeSwitchBlock = {
         };
     },
     mounted() {
-        globalVm.$on('watchKeyDown', this.onKeyDown);
+        eventBus.addWatchKeyDownListener(this.onKeyDown);
 
         this.setFigure(this.figure);
     },
     beforeDestroy() {
-        globalVm.$off('watchKeyDown', this.onKeyDown);
+        eventBus.removeWatchKeyDownListener(this.onKeyDown);
     },
     watch: {
         figure() {
@@ -137,13 +137,20 @@ const timeSwitch = {
                 let id = event.id.slice(-1);
                 this.input[id] = '' + event.value;
                 this.values[id].val = event.value;
-                
+
                 if (event.entered)
                     this.curIndex = this.getCurrentIndex(this.curIndex);
 
-                this.changedInternally = true;
-                this.$emit('change', this.input.join(''));
+                const computedText = this.computeInputText();
+
+                if (computedText !== this.text) {
+                    this.changedInternally = true;
+                    this.$emit('change', computedText);
+                }
             }
+        },
+        computeInputText() {
+            return this.input.join('');
         }
     },
     template: `
