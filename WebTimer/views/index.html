@@ -25,10 +25,10 @@
     <script src="/modules/vue-router/vue-router.js"></script>
 
     <script type="module" src="/components/component-initialiser.js"></script>
-
+    
     <div id="app">
         <main-menu>
-            <facebook-auth-button slot="logInBtn" @logged-in="setAuthenticationState(true)" @logged-out="setAuthenticationState(false)">
+            <facebook-auth-button slot="logInBtn" @logged-in="setAuthenticationState" @logged-out="setAuthenticationState">
             </facebook-auth-button>
         </main-menu>
     </div>

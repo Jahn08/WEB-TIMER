@@ -1,24 +1,25 @@
-﻿function EventBus()
-{
-    const vm = new Vue();
+﻿const EventHelper = function(vueVar, eventName) {
+    const _addEventListener = (_eventName, callback) => vueVar.$on(_eventName, callback);
+    const _removeEventListener = (_eventName, callback) => vueVar.$off(_eventName, callback);
+    const _emitEvent = (_eventName, args) => vueVar.$emit(_eventName, args);
 
-    const watchKeyDownEventName = 'watchKeyDown';
-    this.addWatchKeyDownListener = function(callback) {
-        vm.$on(watchKeyDownEventName, callback);
+    this.addListener = function(callback) {
+        _addEventListener(eventName, callback);
     };
-
-    this.removeWatchKeyDownListener = function(callback) {
-        vm.$off(watchKeyDownEventName, callback);
+    this.removeListener = function(callback) {
+        _removeEventListener(eventName, callback);
     };
-
-    this.removeAllWatchKeyDownListeners = function() {
-        vm.$off(watchKeyDownEventName);
+    this.removeAllListeners = function() {
+        _removeEventListener(eventName);
     };
-
-    this.emitWatchKeyDownEvent = function(args) {
-        vm.$emit(watchKeyDownEventName, args);
+    this.emitEvent = function(args) {
+        _emitEvent(eventName, args);
     };
 };
 
-const eventBus = new EventBus();
-export default eventBus;
+const vm = new Vue();       
+
+const watchKeyDownEventHelper = new EventHelper(vm, 'watchKeyDown');
+const authEventHelper = new EventHelper(vm, 'authenticated');
+
+export { watchKeyDownEventHelper, authEventHelper };

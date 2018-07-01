@@ -1,4 +1,4 @@
-﻿import { eventBus } from '/components/event-bus.js';
+﻿import { watchKeyDownEventHelper } from '/components/event-bus.js';
 
 const timeSwitchBlock = {
     props: {
@@ -21,12 +21,12 @@ const timeSwitchBlock = {
         };
     },
     mounted() {
-        eventBus.addWatchKeyDownListener(this.onKeyDown);
+        watchKeyDownEventHelper.addListener(this.onKeyDown);
 
         this.setFigure(this.figure);
     },
     beforeDestroy() {
-        eventBus.removeWatchKeyDownListener(this.onKeyDown);
+        watchKeyDownEventHelper.removeListener(this.onKeyDown);
     },
     watch: {
         figure() {

@@ -6,6 +6,8 @@ import stopwatch from '/components/stopwatch.js';
 import timer from '/components/timer.js';
 import timerCustomised from '/components/timer-customised.js';
 import userSettings from '/components/user-settings.js';
+import AuthSession from '/components/auth-session.js';
+import { authEventHelper } from '/components/event-bus.js';
 
 new Vue({
     router: new VueRouter({
@@ -62,12 +64,20 @@ new Vue({
             next(to.matched.some(i => i.meta.requiresAuth) && !this.authenticated ? { path: '/' } : undefined);
         });
     },
+    beforeDestroy() {
+        authEventHelper.removeAllListeners();
+    },
     methods: {
-        setAuthenticationState(state) {
+        setAuthenticationState(token) {
             let previousState = this.authenticated;
-            this.authenticated = state;
+            this.authenticated = token != null;
 
-            if (previousState && !state)
+            const authSession = new AuthSession();
+            authSession.setToken(token);
+
+            authEventHelper.emitEvent(token);
+            
+            if (previousState && !this.authenticated)
                 this.$router.go('/');
         }
     },

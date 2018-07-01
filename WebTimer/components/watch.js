@@ -1,4 +1,4 @@
-import { eventBus } from '/components/event-bus.js';
+import { watchKeyDownEventHelper } from '/components/event-bus.js';
 
 const rowSection = {
     props: {
@@ -118,7 +118,7 @@ const watch = {
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
-        eventBus.removeAllWatchKeyDownListeners();
+        watchKeyDownEventHelper.removeAllListeners();
     },
     methods: {
         initialiseStages() {
@@ -201,7 +201,7 @@ const watch = {
                 event.preventDefault();
             }
             else {
-                eventBus.emitWatchKeyDownEvent(event);
+                watchKeyDownEventHelper.emitEvent(event);
             }
         },
         timeToText(timeVal) {

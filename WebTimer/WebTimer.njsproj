@@ -77,6 +77,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\response-error-test.js" />
+    <Content Include="components\auth-session.js" />
     <Content Include="components\facebook-auth-button.js" />
     <Content Include="components\main-menu.js" />
     <Content Include="components\user-settings.js" />
