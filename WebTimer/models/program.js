@@ -12,14 +12,16 @@ let programStage = new mongoose.Schema({
     },
     descr: {
         type: String,
-        required: true
+        required: true,
+        maxlength: 1024
     }
 });
 
 let program = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        maxlength: 256
     },
     userId: {
         type: mongoose.SchemaTypes.ObjectId,

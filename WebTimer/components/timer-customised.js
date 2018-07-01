@@ -146,7 +146,7 @@ const timerCustomised = {
             let orderedStages = program.stages.sort((a, b) => a.order > b.order);
 
             this.stageDescr = orderedStages.map(val => val.descr);
-            this.stagesInMs = orderedStages.map(val => val.duration);
+            this.stagesInMs = orderedStages.map(val => val.duration * 1000);
 
             this.programTitle = program.name;
         },
