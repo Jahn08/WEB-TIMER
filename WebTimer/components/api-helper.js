@@ -26,7 +26,19 @@ function ApiHelper() {
             $.ajax('/programs/default')
                 .then(resp => resolve(resp))
                 .catch(err => {
-                    alert('An error has occured while getting a list of default timer programs available: ' + err);
+                    alert('An error has occured while getting a list of default timer programs available: ' + err.statusText);
+                    reject(err);
+                });
+        });
+
+        return promise;
+    };
+    
+    this.getUserPrograms = function(token) {
+        const promise = new Promise((resolve, reject) => {
+            $.ajax('/programs', formQueryOptions(token)).then(resp => resolve(resp))
+                .catch(err => {
+                    alert('An error has occured while getting a list of your timer programs: ' + err.statusText);
                     reject(err);
                 });
         });
@@ -34,13 +46,19 @@ function ApiHelper() {
         return promise;
     };
 
-    this.getUserPrograms = function(token) {
+    this.postUserPrograms = function(token, programs) {
         const promise = new Promise((resolve, reject) => {
-            $.ajax('/programs', formQueryOptions(token)).then(resp => resolve(resp))
-                .catch(err => {
-                    alert('An error has occured while getting a list of your timer programs: ' + err);
-                    reject(err);
-                });
+            let options = formQueryOptions(token, 'POST');
+            options.data = JSON.stringify({ programs });
+            options.contentType = 'application/json';
+
+            $.ajax('/programs', options).then(resp => {
+                alert('All changes have been successfully saved');
+                resolve(resp);
+            }).catch(err => {
+                alert('An error has occured while saving changes to your timer programs: ' + err.statusText);
+                reject(err);
+            });
         });
 
         return promise;

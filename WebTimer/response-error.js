@@ -12,4 +12,9 @@ exports.ResponseError = function (response) {
         response.statusCode = 404;
         response.end(formatAuthenticationErrorMsg('user is not found'));
     };
+
+    this.respondWithDatabaseError = function (err) {
+        response.statusCode = 400;
+        response.end(`An error while dealing with database: ${err.toString()}`);
+    };
 };

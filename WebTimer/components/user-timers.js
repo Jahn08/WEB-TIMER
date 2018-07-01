@@ -1,4 +1,7 @@
 ﻿import banner from '/components/banner.js';
+import ApiHelper from '/components/api-helper.js';
+import AuthSession from '/components/auth-session.js';
+import { authEventHelper } from '/components/event-bus.js';
 
 const cardSection = {
     props: {
@@ -21,74 +24,35 @@ const userTimers = {
         banner,
         cardSection
     },
+    props: {
+        authSettings: null
+    },
     data() {
         return {
             curProgram: null,
             curStage: null,
-            programs: [{
-                    id: 1,
-                    name: 'Test program',
-                    active: true,
-                    stages: [{
-                        order: 0,
-                        duration: 5000,
-                        descr: 'First stage with rather a long description which should be cut to not look ugly on the timer form'
-                    }, {
-                        order: 1,
-                        duration: 3000,
-                        descr: 'Merely the second stage'
-                    }, {
-                        order: 2,
-                        duration: 3000,
-                        descr: 'The final step'
-                    }]
-                }, {
-                    id: 2,
-                    name: 'Roasting peanuts in oven',
-                    active: false,
-                    stages: [{
-                        order: 0,
-                        duration: 30000,
-                        descr: 'Heat an oven'
-                    }, {
-                        order: 1,
-                        duration: 300000,
-                        descr: 'Roast firstly'
-                    }, {
-                        order: 2,
-                        duration: 10000,
-                        descr: 'Stir it up'
-                    }, {
-                        order: 3,
-                        duration: 300000,
-                        descr: 'Roast secondly'
-                    }, {
-                        order: 4,
-                        duration: 10000,
-                        descr: 'Stir it up'
-                    }, {
-                        order: 5,
-                        duration: 300000,
-                        descr: 'Final roasting'
-                    }, {
-                        order: 6,
-                        duration: 300000,
-                        descr: 'Let it ripen with the oven turned off'
-                    }]
-                }]
+            programs: [],
+            authToken: null,
+            apiHelper: new ApiHelper(),
+            durationMax: 3600,
+            durationMin: 1,
+            programNameMaxLength: 256,
+            stageDescrMaxLength: 1024,
+            hasError: false,
+            saving: false
         };
     },
     mounted() {
-        let $programListObj = this.getProgramListJQuerySelector();
+        const authSession = new AuthSession();
+        const authToken = authSession.getToken();
 
-        $programListObj.multipleSelect({
-            filter: true,
-            single: true,
-            allSelected: false
-        });
-
-        $programListObj.change((event) => this.onProgramChange($(event.target)));
-        this.onProgramChange($programListObj);
+        if (authToken)
+            this.onAuthenticationChange(authToken);
+        else
+            authEventHelper.addListener(this.onAuthenticationChange);
+    },
+    beforeDestroy() {
+        authEventHelper.removeListener(this.onAuthenticationChange);
     },
     computed: {
         noSelectedStage() {
@@ -102,27 +66,52 @@ const userTimers = {
         }
     },
     methods: {
+        onAuthenticationChange(authToken) {
+            this.authToken = authToken;
+            this.getUserProgramsFromServer();
+        },
+        getUserProgramsFromServer() {
+            if (this.authToken)
+                this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp));
+        },
+        initialiseProgramList(programs) {
+            this.programs = programs;
+            
+            this.$nextTick(() => {
+                let $programListObj = this.getProgramListJQuerySelector();
+
+                $programListObj.multipleSelect({
+                    filter: true,
+                    single: true,
+                    allSelected: false,
+                    onFocus: this.onOpeningProgramList
+                });
+
+                $programListObj.change((event) => this.onProgramChange($(event.target)));
+                this.onProgramChange($programListObj);
+            });
+        },
         getProgramListJQuerySelector() {
             return $('#programs');
         },
+        onOpeningProgramList()
+        {
+            if (!this.hasError)
+                this.getProgramListJQuerySelector().multipleSelect('enable');
+            else
+                this.getProgramListJQuerySelector().multipleSelect('disable');
+        },
         onProgramChange($programListObj) {
             let selectedVal = $programListObj.multipleSelect('getSelects')[0];
-            this.setCurrentProgram(this.programs.find(val => val.id == selectedVal));
+            this.setCurrentProgram(this.programs.find(val => val._id == selectedVal));
         },
         setCurrentProgram(newProgram) {
             if (!newProgram)
                 this.curProgram = null;
-            else if (!this.curProgram || newProgram.id != this.curProgram.id) {
-                this.convertDurationToSeconds(newProgram);
+            else if (!this.curProgram || newProgram._id != this.curProgram._id) {
                 this.curProgram = newProgram;
 
                 this.switchCurrentStage(this.getActiveStageOnForm(this.curProgram));
-            }
-        },
-        convertDurationToSeconds(program) {
-            if (!program.inSeconds) {
-                program.stages.forEach(val => val.duration /= 1000);
-                program.inSeconds = true;
             }
         },
         getActiveStageOnForm(program) {
@@ -135,12 +124,6 @@ const userTimers = {
                 return;
 
             return program.stages[$activeStage.attr('id')];
-        },
-        convertDurationToMilliseconds(program) {
-            if (program.inSeconds) {
-                program.stages.forEach(val => val.duration *= 1000);
-                program.inSeconds = false;
-            }
         },
         moveStageUp() {
             this.alterStageOrderBy(this.curStage, -1);
@@ -170,12 +153,21 @@ const userTimers = {
                 }
 
                 this.curStage.order = -1;
-                this.switchCurrentStage(null);
+                this.switchCurrentStage();
             }
         },
-        switchCurrentStage(newStage) {
-            if (this.curProgram)
+        switchCurrentStage(newStage, event) {
+            if (!this.hasError)
                 this.curStage = this.curStage == newStage ? null : newStage;
+            else
+                this.stopEvent(event);
+        },
+        stopEvent(event) {
+            if (event)
+            {
+                event.preventDefault();
+                event.stopPropagation();
+            }
         },
         addStage() {
             let stages = this.curProgramAllStages;
@@ -193,10 +185,10 @@ const userTimers = {
         },
         addProgram() {
             const programCount = this.programs.length;
-            const tempId = (programCount > 0 ? this.programs[programCount - 1].id : 0) + 1;
+            const tempId = programCount + 1;
 
             this.programs.push({
-                id: tempId,
+                _id: tempId,
                 name: `New timer program ${tempId}`,
                 active: false,
                 stages: []
@@ -215,36 +207,79 @@ const userTimers = {
         },
         deleteProgram() {
             if (this.curProgram) {
-                this.programs = this.programs.filter(p => p.id != this.curProgram.id);
+                this.programs = this.programs.filter(p => p._id != this.curProgram._id);
 
                 this.$nextTick(() => {
                     this.refreshProgramList();
                 });
             }
+        },
+        saveChanges() {
+            this.programs.forEach(p => {
+                p.stages = p.stages.filter(s => s.order !== -1)
+            });
+            
+            if (this.validateFormData()) {
+                this.saving = true;
+                this.apiHelper.postUserPrograms(this.authToken, this.programs)
+                    .then(resp => {
+                        this.saving = false;
+                        this.initialiseProgramList(resp);
+                    })
+                    .catch(() => this.saving = false);
+            }
+        },
+        validateFormData() {
+            this.hasError = false;
+
+            if (this.curProgram) {      
+                if (!this.curProgram.name)
+                    this.hasError = true;
+
+                if (this.curStage) {
+                    if (!this.curStage.descr)
+                        this.hasError = true;
+
+                    const duration = this.curStage.duration;
+                    if (duration < this.durationMin || duration > this.durationMax)
+                        this.hasError = true;
+                }
+            }
+            
+            return !this.hasError;
+        },
+        onProgramNameCtrlFocusOut() {
+            this.onCtrlFocusOut();
+            this.refreshProgramList();
+        },
+        onCtrlFocusOut() {
+            this.validateFormData();
         }
     },
     template: `
-        <div>
+        <div v-if="authToken">
             <banner heading="User Timers"></banner>
-            <div class="container">
+            <div v-if="saving">Please wait...</div>
+            <div v-else class="container">
                 <div class="row">
                     <div class="col-3">
                         <div class="btn-group" role="group" aria-label="Actions for Timer Programs">
-                            <button title="Add Program" @click="addProgram()" type="button" class="btn btn-info">&#43</button>
-                            <button title="Remove Program" @click="deleteProgram()"  type="button" class="btn btn-info">&#x2717</button>
-                            <button title="Save All Changes" type="button" class="btn btn-info">&#128190</button>
+                            <button :disabled="hasError" title="Add Program" @click="addProgram()" type="button" class="btn btn-info">&#43</button>
+                            <button :disabled="hasError" title="Remove Program" @click="deleteProgram()"  type="button" class="btn btn-info">&#x2717</button>
+                            <button :disabled="hasError" title="Save All Changes" @click="saveChanges()" type="button" class="btn btn-info">&#128190</button>
                         </div>
                         <select id="programs" class="form-control">
-                            <option v-for="pr in programs" :value="pr.id">{{ pr.name }}</option>
+                            <option v-for="pr in programs" :value="pr._id">{{ pr.name }}</option>
                         </select>
                     </div>
                     <div class="col-1"></div>
-                    <div class="col-8" v-if="curProgram">
+                    <div class="col-8" v-if="curProgram" :class="{ 'was-validated': hasError }">
                         <card-section header="Basic Info">
                             <div class="form-group row">
                                 <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
                                 <div>
-                                    <input type="text" class="form-control" id="timerNameTxt" @focusout="refreshProgramList()" v-model="curProgram.name" />
+                                    <input type="text" class="form-control" :maxlength="programNameMaxLength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
+                                    <div class="invalid-feedback">Please provide a program name</div>
                                 </div>
                             </div>
                             <div class="form-check">
@@ -256,13 +291,13 @@ const userTimers = {
                             <div class="btn-group" role="group" aria-label="Actions for Stages">
                                 <button :disabled="noSelectedStage" @click="moveStageUp()" title="Move Stage Up" type="button" class="btn btn-info">&#x21a5</button>
                                 <button :disabled="noSelectedStage" @click="moveStageDown()" title="Move Stage Down" type="button" class="btn btn-info">&#x21a7</button>
-                                <button :disabled="noSelectedStage" @click="deleteStage()" title="Remove Stage" type="button" class="btn btn-info">&#x2717</button>
-                                <button title="Add Stage" @click="addStage()" type="button" class="btn btn-info">&#43</button>
+                                <button :disabled="noSelectedStage || hasError" @click="deleteStage()" title="Remove Stage" type="button" class="btn btn-info">&#x2717</button>
+                                <button :disabled="hasError" title="Add Stage" @click="addStage()" type="button" class="btn btn-info">&#43</button>
                             </div>
                             <div class="row">
                                 <div class="col-4">
                                     <div class="list-group" id="stages">
-                                        <a v-for="st, i in curProgramAvailableStages" :id="i" @click="switchCurrentStage(st)" :class='{ "active": curStage == st }' class="list-group-item list-group-item-action" :href="'#stage' + i" data-toggle="list" :title="st.descr">Stage {{ st.order + 1 }}</a>
+                                        <a v-for="st, i in curProgramAvailableStages" :id="i" @click="switchCurrentStage(st, $event)" :class='{ "active": curStage == st }' class="list-group-item list-group-item-action" :href="'#stage' + i" data-toggle="list" :title="st.descr">Stage {{ st.order + 1 }}</a>
                                     </div>
                                 </div>
                                 <div class="col-8">
@@ -271,13 +306,15 @@ const userTimers = {
                                             <div class="form-group row">
                                                 <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
                                                 <div>
-                                                    <input type="number" class="form-control" id="timerDurationNum" v-model="st.duration" />
+                                                    <input :max="durationMax" :min="durationMin" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
+                                                    <div class="invalid-feedback">A duration must be from {{ durationMin }} to {{ durationMax }} seconds</div>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-5 col-form-label" for="timerDescriptionTxt">Description</label>
                                                 <div>
-                                                    <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr"></textarea>
+                                                    <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" required :maxlength="stageDescrMaxLength"></textarea>
+                                                    <div class="invalid-feedback">Please provide a program stage name</div>
                                                 </div>
                                             </div>
                                         </div>

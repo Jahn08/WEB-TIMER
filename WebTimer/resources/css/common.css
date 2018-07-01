@@ -180,6 +180,11 @@ table.fbBtnTable td {
     outline: none !important;
 }
 
+.ms-choice.disabled {
+    border: none !important;
+    background-color: white !important;
+}
+
 .ms-choice > span {
     position: relative;
 }
