@@ -4,7 +4,7 @@ exports.ResponseError = function (response) {
     };
 
     this.respondWithAuthenticationError = function (msg) {
-        response.statusCode = 500;
+        response.statusCode = 401;
         response.end(formatAuthenticationErrorMsg(msg));
     };
 
@@ -14,7 +14,12 @@ exports.ResponseError = function (response) {
     };
 
     this.respondWithDatabaseError = function (err) {
-        response.statusCode = 400;
+        response.statusCode = 500;
         response.end(`An error while dealing with database: ${err.toString()}`);
+    };
+
+    this.respondWithUnexpectedError = function (err) {
+        response.statusCode = 500;
+        response.end(`An unexpected error has happened: ${err.toString()}`);
     };
 };

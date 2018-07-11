@@ -8,4 +8,5 @@ const config = require('./config');
 
 app.startHttpsServerListening(config.server);
 
-startup.connectToDb(config.db.uri);
+const dbConnection = new startup.DatabaseConnection();
+dbConnection.connect(config.db.uri);

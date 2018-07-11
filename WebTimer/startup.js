@@ -30,6 +30,15 @@
 
         const routerProgram = require('./routes/programs');
         app.use('/programs', routerProgram);
+
+        const ResponseError = require('./tools/response-error').ResponseError;
+
+        app.use((err, req, res, next) => {
+            if (err) {
+                const respErr = new ResponseError(res);
+                respErr.respondWithUnexpectedError(err);
+            }
+        });
     };
     
     this.startHttpsServerListening = function (serverOptions) {
@@ -48,9 +57,18 @@
     };
 }
 
-module.exports.connectToDb = function (uri) {
+module.exports.DatabaseConnection = function () {
     const mongoose = require('mongoose');
-    mongoose.connect(uri).then(resp => {
-        console.log(`Connected to the ${resp.connection.db.databaseName} database`);
-    }, reason => console.log(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
+    
+    this.connect = function (uri) {
+        mongoose.connect(uri)
+            .then(resp => console.log(`Connected to the ${resp.connection.db.databaseName} database`))
+            .catch(reason => console.log(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
+    };
+
+    this.disconnect = function () {
+        mongoose.disconnect()
+            .then(() => console.log('All connections have been disconnected'))
+            .catch(reason => console.log(`Unable to disconnect all connections due to the reason: ${reason}`));
+    };
 };

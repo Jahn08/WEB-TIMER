@@ -4,12 +4,16 @@ let app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-const User = require('../models/user');
 let router = express.Router();
 
 const facebokAuth = require('../facebook-auth'); 
 
-const ResponseError = require('../response-error').ResponseError;
+const ResponseError = require('../tools/response-error').ResponseError;
+
+const dbModelHelper = require('../tools/db-model-helpers');
+const UserModelHelper = dbModelHelper.UserModelHelper;
+
+const User = require('../models/user');
 
 router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
     let respErr = new ResponseError(res);
@@ -17,10 +21,8 @@ router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
     if (!req.user)
         return respErr.respondWithUserIsNotFoundError();
 
-    User.findOne({ facebookId: req.user.facebookId }, (err, user) => {
-        if (err)
-            return respErr.respondWithAuthenticationError(err);
-
+    const userModelHelper = new UserModelHelper(User);
+    userModelHelper.findUserOrEmpty(req.user.facebookId).then(user => {
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
@@ -31,7 +33,7 @@ router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
             res.end('Successfully logged in.');
             next();
         });
-    });
+    }).catch(err => respErr.respondWithAuthenticationError(err));
 });
 
 module.exports = router;

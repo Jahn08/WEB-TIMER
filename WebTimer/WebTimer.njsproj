@@ -39,7 +39,11 @@
     <Compile Include="components\user-timers.js">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="response-error.js" />
+    <Compile Include="tests\infrastructure\mock.js" />
+    <Compile Include="tools\db-model-helpers.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tools\response-error.js" />
     <Compile Include="facebook-auth.js" />
     <Compile Include="components\audio-list.js">
       <SubType>Code</SubType>
@@ -93,6 +97,7 @@
     </Content>
     <Content Include="resources\images\favicon-navbar.ico" />
     <Content Include="resources\images\favicon.ico" />
+    <Content Include="tests\user-model-helper-test.js" />
     <Content Include="views\index.html">
       <SubType>Code</SubType>
     </Content>
@@ -102,6 +107,7 @@
   <ItemGroup>
     <Folder Include="models\" />
     <Folder Include="components\" />
+    <Folder Include="tools\" />
     <Folder Include="tests\" />
     <Folder Include="resources\" />
     <Folder Include="resources\audio\" />

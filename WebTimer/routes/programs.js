@@ -4,83 +4,58 @@ let app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-const Program = require('../models/program');
-const defaultPrograms = require('../models/default-program');
-
-const User = require('../models/user');
-
 const router = express.Router();
 const facebokAuth = require('../facebook-auth');
 
-const ResponseError = require('../response-error').ResponseError;
+const defaultPrograms = require('../models/default-program');
+
+const dbModelHelper = require('../tools/db-model-helpers');
+const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
+const UserModelHelper = dbModelHelper.UserModelHelper;
+
+const Program = require('../models/program');
+const User = require('../models/user');
 
 router.route('/')
     .get(facebokAuth.verifyUser, (req, res, next) => {
-        let respErr = new ResponseError(res);
-        
-        User.findOne({ facebookId: req.user.facebookId }, (err, user) => {
-            if (err)
-                return respErr.respondWithDatabaseError(err);
+        const userModelHelper = new UserModelHelper(User);
+        userModelHelper.setReponse(res);
 
-            Program.find({ userId: user.id }, (err, programs) => {
-                if (err)
-                    return respErr.respondWithDatabaseError(err);
+        userModelHelper.findUser(req.user.facebookId).then(user => {
+            const programModelHelper = new ProgramModelHelper(Program, res);
 
+            programModelHelper.findUserPrograms(user.id).then(programs => {
                 res.status(200).json(programs);
             });
         });
     })
     .post(facebokAuth.verifyUser, (req, res, next) => {
-        let respErr = new ResponseError(res);
+        const userModelHelper = new UserModelHelper(User);
+        userModelHelper.setReponse(res);
 
-        const checkDbErrorCallback = (err, resp) => {
-            if (err)
-                return respErr.respondWithDatabaseError(err);
-        };
+        userModelHelper.findUser(req.user.facebookId).then(user => {
+            const programModelHelper = new ProgramModelHelper(Program, res);
+            const userId = user.id;
 
-        User.findOne({ facebookId: req.user.facebookId }, (err, user) => {
-            if (err)
-                return respErr.respondWithDatabaseError(err);
+            programModelHelper.findUserPrograms(userId).then(dbPrograms => {
+                let requestPrograms = req.body.programs;
 
-            let newPrograms = [];
+                programModelHelper.reduceProgramsToList(dbPrograms, requestPrograms)
+                    .then(reducedProgramList => {
+                        let newPrograms = [];
 
-            Program.find({ userId: user.id }, (err, foundPrograms) => {
-                if (err)
-                    return respErr.respondWithDatabaseError(err);
+                        requestPrograms.forEach(newProgram => {
+                            let item = reducedProgramList.find(pr => pr._id.toString() === newProgram._id);
 
-                let bodyPrograms = req.body.programs;
+                            if (item)
+                                programModelHelper.updateProgram(item, newProgram);
+                            else
+                                newPrograms.push(newProgram);
+                        });
 
-                bodyPrograms.forEach((newProgram) => {
-                    let item = foundPrograms.find(pr => pr._id.toString() === newProgram._id);
-
-                    if (item) {
-                        item.name = newProgram.name;
-                        item.stages = newProgram.stages;
-                        item.active = newProgram.active;
-
-                        item.save(checkDbErrorCallback);
-                    }
-                    else {
-                        newProgram._id = undefined;
-                        newProgram.userId = user.id;
-
-                        newPrograms.push(newProgram);
-                    }
-                });
-
-                if (newPrograms.length > 0) {
-                    Program.create(newPrograms, checkDbErrorCallback);
-                }
-
-                const actualPrograms = bodyPrograms.filter(p => p._id);
-                foundPrograms.forEach((serverProgram) => {
-                    if (actualPrograms.every(p => p._id !== serverProgram._id.toString()))
-                        serverProgram.remove(checkDbErrorCallback);
-                });
-
-                res.redirect(req.baseUrl);
+                        programModelHelper.createPrograms(newPrograms, userId).then(() => res.redirect(req.baseUrl));
+                    });
             });
-
         });
     });
 
