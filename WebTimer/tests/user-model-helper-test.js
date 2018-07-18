@@ -1,36 +1,22 @@
 const assert = require('assert');
 
-const DbConnector = function (testsShouldBeRun) {
-    let testsWereRun = 0;
-
-    const DatabaseConnection = require('../startup').DatabaseConnection;
-    const dbConnection = new DatabaseConnection();
-
-    const testUri = require('../config').db.testUri;
-    dbConnection.connect(testUri);
-    
-    this.increaseRunTestNumber = function () {
-        testsWereRun++;
-    };
-
-    const interval = setInterval(() => {
-        if (testsWereRun === testsShouldBeRun) {
-            dbConnection.disconnect();
-            clearInterval(interval);
-        }
-    }, 1000);
-};
-
-const testsOverall = 8;
-const dbConnector = new DbConnector(testsOverall);
-
 const User = require('../models/user');
 const UserModelHelper = require('../tools/db-model-helpers').UserModelHelper;
 
 const randomiser = require('./infrastructure/randomiser');
 const mock = require('./infrastructure/mock');
+const expectation = require('./infrastructure/expectation');
 
 describe('UserModelHelper', function () {
+    let dbConnector;
+
+    before(() => {
+        const DbConnector = require('./infrastructure/db-connector').DbConnector;
+        dbConnector = new DbConnector();
+    });
+
+    after(() => dbConnector.disconnect());
+
     this.timeout(3000);
 
     const getString = (obj) => obj ? obj.toString() : '';
@@ -54,13 +40,12 @@ describe('UserModelHelper', function () {
                 assert.equal(user.facebookId, facebookId);
 
                 const removeUserAndFinish = respErr => user.remove(err => {
-                    assert(!err, 'An error while removing a test user: ' + getString(err));
-                    dbConnector.increaseRunTestNumber();
+                    expectation.tryCatchForPromise(resolve, reject, () => {
+                        assert(!err, 'An error while removing a test user: ' + getString(err));
 
-                    if (respErr)
-                        reject(respErr);
-                    else
-                        resolve();
+                        if (respErr)
+                            throw new Error(respErr.toString());
+                    });
                 });
 
                 callback(facebookId)
@@ -74,7 +59,7 @@ describe('UserModelHelper', function () {
         const testCallback = (facebookId) => {
 
             return new Promise((resolve, reject) => {
-                const userModelHelper = new UserModelHelper(User);
+                const userModelHelper = new UserModelHelper();
 
                 let response;
 
@@ -91,13 +76,13 @@ describe('UserModelHelper', function () {
                 };
 
                 invokeMethodByName(methodToInvoke, facebookId).then(foundUser => {
-                    assert(foundUser);
-                    assert.equal(foundUser.facebookId, facebookId);
+                    expectation.tryCatchForPromise(resolve, reject, () => {
+                        assert(foundUser);
+                        assert.equal(foundUser.facebookId, facebookId);
 
-                    if (useResponse)
-                        assert(!response.text);
-
-                    resolve();
+                        if (useResponse)
+                            assert(!response.text);
+                    });
                 }).catch(err => {
                     reject(err);
                 });
@@ -116,29 +101,13 @@ describe('UserModelHelper', function () {
 
         it('should reject and write an error message to a response while trying to find a non existent user in a database', () => {
             const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper(User);
+            const userModelHelper = new UserModelHelper();
 
             const response = mock.mockResponse();
             userModelHelper.setReponse(response);
-            
-            return new Promise((resolve, reject) => {
-                userModelHelper.findUser(facebookId).then(foundUser => {
-                    dbConnector.increaseRunTestNumber();
-                    reject(`The program shouldn't have been here, since the user with facebookId=${facebookId} is not supposed to exist`);
-                }).catch(err => {
-                    dbConnector.increaseRunTestNumber();
 
-                    try {
-                        assert(err);
-                        assert(response.text && response.statusCode === 404);
-
-                        resolve();
-                    }
-                    catch (ex) {
-                        reject(ex);
-                    }
-                });
-            });            
+            return expectation.expectRejection(() => userModelHelper.findUser(facebookId),
+                () => assert(response.text && response.statusCode === 404));
         });
 
         it('should find an existent user in a database without using a response object', () => {
@@ -147,24 +116,9 @@ describe('UserModelHelper', function () {
 
         it('should reject without using a response object', () => {
             const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper(User);
+            const userModelHelper = new UserModelHelper();
             
-            return new Promise((resolve, reject) => {
-                userModelHelper.findUser(facebookId).then(foundUser => {
-                    dbConnector.increaseRunTestNumber();
-                    reject(`The program shouldn't have been here, since the user with facebookId=${facebookId} is not supposed to exist`);
-                }).catch(err => {
-                    dbConnector.increaseRunTestNumber();
-
-                    try {
-                        assert(err);
-                        resolve();
-                    }
-                    catch (e) {
-                        reject(e);
-                    }
-                });
-            });
+            return expectation.expectRejection(() => userModelHelper.findUser(facebookId));
         });
     });
 
@@ -177,28 +131,18 @@ describe('UserModelHelper', function () {
 
         it('should return an empty user without rejecting and an error in a response', () => {
             const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper(User);
+            const userModelHelper = new UserModelHelper();
 
             const response = mock.mockResponse();
             userModelHelper.setReponse(response);
 
             return new Promise((resolve, reject) => {
                 userModelHelper.findUserOrEmpty(facebookId).then(foundUser => {
-                    dbConnector.increaseRunTestNumber();
-
-                    try {
+                    expectation.tryCatchForPromise(resolve, reject, () => {
                         assert(!foundUser);
                         assert(!response.text && !response.statusCode);
-
-                        resolve();
-                    }
-                    catch (ex) {
-                        reject(ex);
-                    }
-                }).catch(err => {
-                    dbConnector.increaseRunTestNumber();
-                    reject(err);
-                });
+                    });
+                }).catch(err => reject(err));
             });
         });
 
@@ -208,23 +152,12 @@ describe('UserModelHelper', function () {
 
         it('should return an empty user without using a response object', () => {
             const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper(User);
+            const userModelHelper = new UserModelHelper();
 
             return new Promise((resolve, reject) => {
-                userModelHelper.findUserOrEmpty(facebookId).then(foundUser => {
-                    dbConnector.increaseRunTestNumber();
-
-                    try {
-                        assert(!foundUser);
-                        resolve();
-                    }
-                    catch (e) {
-                        reject(e);
-                    }
-                }).catch(err => {
-                    dbConnector.increaseRunTestNumber();
-                    reject(err);
-                });
+                userModelHelper.findUserOrEmpty(facebookId).then(foundUser =>
+                    expectation.tryCatchForPromise(resolve, reject, () => assert(!foundUser)))
+                    .catch(err => reject(err));
             });
         });
 

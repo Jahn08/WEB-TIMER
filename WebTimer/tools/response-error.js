@@ -1,4 +1,7 @@
 exports.ResponseError = function (response) {
+    if (!response)
+        throw new Error('A required argument response is undefined');
+
     let formatAuthenticationErrorMsg = function (msg) {
         return `User is not logged in: ${msg}.`;
     };

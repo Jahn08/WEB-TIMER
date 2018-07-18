@@ -13,15 +13,13 @@ const ResponseError = require('../tools/response-error').ResponseError;
 const dbModelHelper = require('../tools/db-model-helpers');
 const UserModelHelper = dbModelHelper.UserModelHelper;
 
-const User = require('../models/user');
-
 router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
     let respErr = new ResponseError(res);
 
     if (!req.user)
         return respErr.respondWithUserIsNotFoundError();
 
-    const userModelHelper = new UserModelHelper(User);
+    const userModelHelper = new UserModelHelper();
     userModelHelper.findUserOrEmpty(req.user.facebookId).then(user => {
         if (!user)
             return respErr.respondWithUserIsNotFoundError();

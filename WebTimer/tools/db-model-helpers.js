@@ -1,6 +1,8 @@
 ﻿const ResponseError = require('./response-error').ResponseError;
 
-exports.UserModelHelper = function (UserModel) {
+exports.UserModelHelper = function () {
+    const UserModel = require('../models/user');
+
     let respErr;
 
     this.setReponse = function (response) {
@@ -37,7 +39,9 @@ exports.UserModelHelper = function (UserModel) {
     };
 };
 
-exports.ProgramModelHelper = function (ProgramModel, response) {
+exports.ProgramModelHelper = function (response) {
+    const ProgramModel = require('../models/program');
+
     const respErr = new ResponseError(response);
 
     this.findUserPrograms = function (userId) {
@@ -55,9 +59,13 @@ exports.ProgramModelHelper = function (ProgramModel, response) {
 
     this.updateProgram = function (programForUpdate, newProgramData) {
         return new Promise((resolve, reject) => {
-            programForUpdate.name = newProgramData.name;
-            programForUpdate.stages = newProgramData.stages;
-            programForUpdate.active = newProgramData.active;
+            newProgramData = newProgramData || {};
+
+            if (newProgramData.name)
+                programForUpdate.name = newProgramData.name;
+
+            programForUpdate.stages = newProgramData.stages || [];
+            programForUpdate.active = newProgramData.active || false;
 
             programForUpdate.save((err, resp) => {
                 if (err) {
@@ -65,15 +73,22 @@ exports.ProgramModelHelper = function (ProgramModel, response) {
                     reject(err);
                 }
                 else
-                    resolve()
+                    resolve(resp);
             });
         });
     };
-
+    
     this.createPrograms = function (programs, userId) {
         return new Promise((resolve, reject) => {
+            if (!userId) {
+                const errMsg = 'A required parameter userId is undefined';
+                respErr.respondWithUnexpectedError(errMsg);
+                reject(errMsg);
+                return;
+            }
+
             if (!programs || !programs.length) {
-                resolve();
+                resolve([]);
                 return;
             }
 
@@ -88,14 +103,14 @@ exports.ProgramModelHelper = function (ProgramModel, response) {
                     reject(err);
                 }
                 else
-                    resolve();
+                    resolve(programs);
             });
         });
     };
 
     this.reduceProgramsToList = function (dbPrograms, reductionList) {
         return new Promise((resolve, reject) => {
-            if (!dbPrograms || !reductionList) {
+            if (!dbPrograms || !dbPrograms.length || !reductionList || !reductionList.length) {
                 resolve(dbPrograms);
                 return;
             }

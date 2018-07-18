@@ -13,16 +13,13 @@ const dbModelHelper = require('../tools/db-model-helpers');
 const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
 const UserModelHelper = dbModelHelper.UserModelHelper;
 
-const Program = require('../models/program');
-const User = require('../models/user');
-
 router.route('/')
     .get(facebokAuth.verifyUser, (req, res, next) => {
-        const userModelHelper = new UserModelHelper(User);
+        const userModelHelper = new UserModelHelper();
         userModelHelper.setReponse(res);
 
         userModelHelper.findUser(req.user.facebookId).then(user => {
-            const programModelHelper = new ProgramModelHelper(Program, res);
+            const programModelHelper = new ProgramModelHelper(res);
 
             programModelHelper.findUserPrograms(user.id).then(programs => {
                 res.status(200).json(programs);
@@ -30,11 +27,11 @@ router.route('/')
         });
     })
     .post(facebokAuth.verifyUser, (req, res, next) => {
-        const userModelHelper = new UserModelHelper(User);
+        const userModelHelper = new UserModelHelper();
         userModelHelper.setReponse(res);
 
         userModelHelper.findUser(req.user.facebookId).then(user => {
-            const programModelHelper = new ProgramModelHelper(Program, res);
+            const programModelHelper = new ProgramModelHelper(res);
             const userId = user.id;
 
             programModelHelper.findUserPrograms(userId).then(dbPrograms => {

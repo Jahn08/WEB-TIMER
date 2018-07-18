@@ -3,6 +3,7 @@ const ResponseError = require('../tools/response-error').ResponseError;
 
 const randomiser = require('./infrastructure/randomiser');
 const mock = require('./infrastructure/mock');
+const expectation = require('./infrastructure/expectation');
 
 describe('ResponseError', function () {
     const describeTestForWritingErrorMessage = function (methodName, httpCode) {
@@ -58,5 +59,9 @@ describe('ResponseError', function () {
 
             assert.ok(response.statusCode == 404 && response.text && response.text.length);
         });
+    });
+
+    it('should spark an error when trying to build the object without passing the response argument', () => {
+        expectation.expectError(() => new ResponseError());
     });
 });

@@ -12,7 +12,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
     clientID: config.auth.facebook.clientId,
     clientSecret: config.auth.facebook.clientSecret
 }, (accessToken, refreshToken, profile, done) => {
-    const userModelHelper = new UserModelHelper(User);
+    const userModelHelper = new UserModelHelper();
     userModelHelper.findUserOrEmpty(profile.id).then(user => {
         if (user)
             done(null, user);
