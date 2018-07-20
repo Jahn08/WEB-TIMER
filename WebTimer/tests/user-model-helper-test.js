@@ -37,7 +37,7 @@ describe('UserModelHelper', function () {
         return new Promise((resolve, reject) => {
             newUser.save((err, user) => {
                 assert(!err, 'An error while creating a test user: ' + getString(err));
-                assert.equal(user.facebookId, facebookId);
+                assert.strictEqual(user.facebookId, facebookId.toString());
 
                 const removeUserAndFinish = respErr => user.remove(err => {
                     expectation.tryCatchForPromise(resolve, reject, () => {
@@ -78,7 +78,7 @@ describe('UserModelHelper', function () {
                 invokeMethodByName(methodToInvoke, facebookId).then(foundUser => {
                     expectation.tryCatchForPromise(resolve, reject, () => {
                         assert(foundUser);
-                        assert.equal(foundUser.facebookId, facebookId);
+                        assert.strictEqual(foundUser.facebookId, facebookId.toString());
 
                         if (useResponse)
                             assert(!response.text);
