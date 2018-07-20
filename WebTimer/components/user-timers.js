@@ -152,6 +152,9 @@ const userTimers = {
                     stages[i].order -= 1;
                 }
 
+                if (stages.length === 1 && this.curProgram)
+                    this.curProgram.active = false;
+
                 this.curStage.order = -1;
                 this.switchCurrentStage();
             }
@@ -283,7 +286,7 @@ const userTimers = {
                                 </div>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" />
+                                <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" :disabled="!curProgramAvailableStages.length" />
                                 <label class="form-check-label" for="timerActiveCheck">Active</label>
                             </div>
                         </card-section>

@@ -52,7 +52,7 @@ exports.ProgramModelHelper = function (response) {
                     reject(err);
                 }
                 else
-                    resolve(programs);
+                    resolve(programs.sort((a, b) => a.name > b.name));
             });
         });
     };
