@@ -205,7 +205,7 @@ const watch = {
             }
         },
         timeToText(timeVal) {
-            var t = new Date(timeVal ? timeVal: this.time);
+            let t = new Date(timeVal ? timeVal: this.time);
             
             let hours = (t.getUTCDate() - 1) * 24;
             return `${this.format(hours + t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
@@ -275,7 +275,7 @@ const watch = {
             if (!num || (str = num.toString()).length < figures) {
                 let tempStr = '';
 
-                for (var i = 0; i < figures; ++i)
+                for (let i = 0; i < figures; ++i)
                     tempStr += '0';
 
                 outcome = (tempStr + num).slice(-figures);

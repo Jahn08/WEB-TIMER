@@ -236,7 +236,7 @@ describe('ProgramModelHelper', function () {
         });
 
         it('should accept an undefined list for reduction and resolve with the first passed argument', () => {
-            var programs = [createTestProgram(), createTestProgram()];
+            const programs = [createTestProgram(), createTestProgram()];
             return testReducingProgramListArguments(programs, []);
         });
 
