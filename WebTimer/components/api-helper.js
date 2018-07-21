@@ -21,29 +21,27 @@ function ApiHelper() {
         return promise;
     };
 
-    this.getDefaultPrograms = function() {
-        const promise = new Promise((resolve, reject) => {
-            $.ajax('/programs/default')
+    const getPrograms = (action, token) => {
+        return new Promise((resolve, reject) => {
+            $.ajax('/programs/' + action, token ? formQueryOptions(token) : undefined)
                 .then(resp => resolve(resp))
                 .catch(err => {
-                    alert('An error has occured while getting a list of default timer programs available: ' + err.statusText);
+                    alert('An error has occured while getting a list of timer programs available: ' + err.statusText);
                     reject(err);
                 });
         });
-
-        return promise;
     };
-    
-    this.getUserPrograms = function(token) {
-        const promise = new Promise((resolve, reject) => {
-            $.ajax('/programs', formQueryOptions(token)).then(resp => resolve(resp))
-                .catch(err => {
-                    alert('An error has occured while getting a list of your timer programs: ' + err.statusText);
-                    reject(err);
-                });
-        });
 
-        return promise;
+    this.getDefaultPrograms = function () {
+        return getPrograms('default');
+    };
+
+    this.getActivePrograms = function (token) {
+        return getPrograms('active', token);
+    };
+
+    this.getUserPrograms = function (token) {
+        return getPrograms('', token);
     };
 
     this.postUserPrograms = function(token, programs) {

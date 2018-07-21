@@ -1,12 +1,13 @@
 const AuthSession = function () {
 	const tokenParamName = 'authToken';
 
-	this.setToken = function (token) {
-		sessionStorage.setItem(tokenParamName, token);
+    this.setToken = function (token) {
+        sessionStorage.setItem(tokenParamName, token);
 	};
 
 	this.getToken = function () {
-		return sessionStorage.getItem(tokenParamName);
+        const token = sessionStorage.getItem(tokenParamName);
+        return token == undefined + '' ? null : token;
 	};
 };
 

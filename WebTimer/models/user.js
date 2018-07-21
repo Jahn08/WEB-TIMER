@@ -19,7 +19,8 @@ let user = new mongoose.Schema({
     },
     facebookId: String,
     lastLogin: Date,
-    administrator: Boolean
+    administrator: Boolean,
+    hideDefaultPrograms: Boolean
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", user);

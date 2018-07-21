@@ -41,12 +41,17 @@ exports.UserModelHelper = function () {
 
 exports.ProgramModelHelper = function (response) {
     const ProgramModel = require('../models/program');
-
+    
     const respErr = new ResponseError(response);
 
-    this.findUserPrograms = function (userId) {
+    const searchForPrograms = (userId, active) => {
         return new Promise((resolve, reject) => {
-            ProgramModel.find({ userId }, (err, programs) => {
+            let filter = { userId };
+
+            if (active != null)
+                filter.active = active;
+
+            ProgramModel.find(filter, (err, programs) => {
                 if (err) {
                     respErr.respondWithDatabaseError(err);
                     reject(err);
@@ -55,6 +60,14 @@ exports.ProgramModelHelper = function (response) {
                     resolve(programs.sort((a, b) => a.name > b.name));
             });
         });
+    };
+
+    this.findUserPrograms = function (userId) {
+        return searchForPrograms(userId);
+    };
+
+    this.findUserActivePrograms = function (userId) {
+        return searchForPrograms(userId, true);
     };
 
     this.updateProgram = function (programForUpdate, newProgramData) {

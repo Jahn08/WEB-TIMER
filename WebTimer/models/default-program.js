@@ -69,7 +69,7 @@ const defaultPrograms = [{
 		order: 4,
 		duration: 300,
 		descr: 'Turn off the cooker and let the meal calm down'
-	}]
-}];
+    }]
+}].sort((a, b) => a.name > b.name);
 
 module.exports = defaultPrograms;

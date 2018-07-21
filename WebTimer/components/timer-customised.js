@@ -3,6 +3,8 @@ import audioList from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import modal from '/components/modal.js';
 import ApiHelper from '/components/api-helper.js';
+import AuthSession from '/components/auth-session.js';
+import { authEventHelper } from '/components/event-bus.js';
 
 const stageSwitch = {
     data() {
@@ -107,24 +109,41 @@ const timerCustomised = {
             switchStage: 0, // a stage for the switcher
             programNames: [],
             programs: [],
-            programTitle: ''
+            programTitle: '',
+            shouldRemoveListener: false
         };
     },
     mounted() {
+        const currentToken = new AuthSession().getToken();
+        this.initialiseTemplateList(currentToken);
+
+        if (!currentToken) {
+            this.shouldRemoveListener = true;
+            authEventHelper.addListener(this.initialiseTemplateList);
+        }
+
         this.bannerBlink();
-        this.initialiseTemplateList();
+    },
+    beforeDestroy() {
+        if (this.shouldRemoveListener)
+            authEventHelper.removeListener(this.initialiseTemplateList);
     },
     methods: {
-        initialiseTemplateList() {
-            const apiHelper = new ApiHelper();
-            apiHelper.getDefaultPrograms().then(res => {
-                this.programs = res;
-                this.programNames = res.sort((a, b) => a.name > b.name)
-                    .map((val, i) => { return { name: val.name, id: i }; });
+        initialiseTemplateList(token) {
+            const setProgramList = (programs) => {
+                this.programs = programs;
+                this.programNames = programs.map((val, i) => { return { name: val.name, id: i }; });
 
                 if (this.programs.length)
                     this.renderProgram(this.programs[0]);
-            });
+            };
+
+            const apiHelper = new ApiHelper();
+            
+            if (token)
+                apiHelper.getActivePrograms(token).then(setProgramList);
+            else
+                apiHelper.getDefaultPrograms().then(setProgramList);
         },
         changeProgram(event) {
             let obj;
@@ -143,7 +162,7 @@ const timerCustomised = {
                 return;
             }
 
-            let orderedStages = program.stages.sort((a, b) => a.order > b.order);
+            let orderedStages = program.stages;
 
             this.stageDescr = orderedStages.map(val => val.descr);
             this.stagesInMs = orderedStages.map(val => val.duration * 1000);
@@ -197,14 +216,14 @@ const timerCustomised = {
                     <h2 :class="{'d-none':!isRun}">{{ programTitle }}</h2>
                     <div :class="{'d-none':isRun}">
                         <h2 id="alertHeading">{{ tipText }}</h2>
-                        <select @change="changeProgram" class="text-primary">
+                        <select v-if="programNames.length" @change="changeProgram" class="text-primary">
                             <option v-for="p in programNames" :value="p.id">{{ p.name }}</option>
                         </select>
                         <audio-list :active="shouldPlaySound"></audio-list>
                     </div>
                  </div>
             </banner>
-            <watch :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime='inputMsTime'>    
+            <watch v-if="programNames.length" :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime='inputMsTime'>    
                 <div :title="isRun ? '': tipText" slot-scope="scope">
                     <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage"></stage-switch></span>
                 </div>

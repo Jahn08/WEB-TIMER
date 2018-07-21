@@ -12,10 +12,10 @@ const defaultPrograms = require('../models/default-program');
 const dbModelHelper = require('../tools/db-model-helpers');
 const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
 const UserModelHelper = dbModelHelper.UserModelHelper;
+const userModelHelper = new UserModelHelper();
 
 router.route('/')
     .get(facebokAuth.verifyUser, (req, res, next) => {
-        const userModelHelper = new UserModelHelper();
         userModelHelper.setReponse(res);
 
         userModelHelper.findUser(req.user.facebookId).then(user => {
@@ -27,7 +27,6 @@ router.route('/')
         });
     })
     .post(facebokAuth.verifyUser, (req, res, next) => {
-        const userModelHelper = new UserModelHelper();
         userModelHelper.setReponse(res);
 
         userModelHelper.findUser(req.user.facebookId).then(user => {
@@ -55,6 +54,24 @@ router.route('/')
             });
         });
     });
+
+router.route('/active').get(facebokAuth.verifyUser, (req, res, next) => {
+    userModelHelper.setReponse(res);
+    
+    userModelHelper.findUser(req.user.facebookId).then(user => {
+        const programModelHelper = new ProgramModelHelper(res);
+
+        programModelHelper.findUserActivePrograms(user.id).then(programs => {
+            let overallPrograms = programs;
+
+            if (programs.length && !user.hideDefaultPrograms)
+                overallPrograms = defaultPrograms.concat(programs).sort((a, b) => a.name > b.name);
+
+            res.status(200).json(overallPrograms);
+        });
+    });
+
+});
 
 router.route('/default').get((req, res, next) => {
     res.status(200).json(defaultPrograms);

@@ -22,11 +22,12 @@ describe('ProgramModelHelper', function () {
 
     this.timeout(7000);
 
-    const createTestProgramModel = (userId) => {
+    const createTestProgramModel = (userId, active = false) => {
         return new Program({
             name: 'TEST',
             stages: [],
-            userId
+            userId,
+            active
         });
     };
 
@@ -48,7 +49,7 @@ describe('ProgramModelHelper', function () {
         const anotherUserId = generateObjectId();
 
         return new Promise((resolve, reject) => {
-            const newPrograms = [createTestProgramModel(userId), createTestProgramModel(userId), createTestProgramModel(anotherUserId)];
+            const newPrograms = [createTestProgramModel(userId), createTestProgramModel(userId, true), createTestProgramModel(anotherUserId, true)];
             Program.create(newPrograms, (err, programs) => {
                 assert(!err, 'An error while creating test programs: ' + getString(err));
                 assert.strictEqual(programs.length, 3);
@@ -80,36 +81,77 @@ describe('ProgramModelHelper', function () {
         return new ProgramModelHelper(mockedResponse);
     };
 
-    describe('#findUserPrograms', () => {
-        it('should return a user\'s programs', () => {
-            const programModelHelper = initProgramModelHelper();
+    const assertProgramsAreInState = (programs, onlyActive) => {
+        let haveActiveProgram;
+        let haveInactiveProgram;
 
-            const callback = (userId, newPrograms) => {
-                return new Promise((resolve, reject) => {
-                    programModelHelper.findUserPrograms(userId).then(programs => {
-                        expectation.tryCatchForPromise(resolve, reject, () => {
-                            const expectedLength = 2;
-                            assert(programs && programs.length === expectedLength);
+        programs.forEach(p => {
+            if (p.active)
+                haveActiveProgram = true;
+            else
+                haveInactiveProgram = true;
+        });
 
-                            const strUserId = userId.toString();
-                            assert.strictEqual(programs.filter(p => p.userId.toString() === strUserId).length, expectedLength);
-                        });
-                    }).catch(err => reject(err));
-                });
-            };
+        if (!onlyActive)
+            assert(haveActiveProgram && haveInactiveProgram);
+        else
+            assert(haveActiveProgram && !haveInactiveProgram);
+    };
 
-            return usingTestProgramModels(callback);
+    const testFindingUserPrograms = (searchingMethodName, onlyActive) => {
+        const programModelHelper = initProgramModelHelper();
+
+        const callback = (userId, newPrograms) => {
+            return new Promise((resolve, reject) => {
+                programModelHelper[searchingMethodName](userId).then(programs => {
+                    expectation.tryCatchForPromise(resolve, reject, () => {
+                        const expectedLength = onlyActive ? 1 : 2;
+                        assert(programs && programs.length === expectedLength);
+
+                        const strUserId = userId.toString();
+                        assert.strictEqual(programs.filter(p => p.userId.toString() === strUserId).length, expectedLength);
+
+                        assertProgramsAreInState(programs, onlyActive);
+                    });
+                }).catch(err => reject(err));
+            });
+        };
+
+        return usingTestProgramModels(callback);
+    };
+
+    const testFindingWrongUserPrograms = (searchingMethodName) => {
+        const programModelHelper = initProgramModelHelper();
+        const userId = generateObjectId();
+
+        return new Promise((resolve, reject) => {
+            programModelHelper[searchingMethodName](userId).then(programs =>
+                expectation.tryCatchForPromise(resolve, reject, () => assert(programs && !programs.length)))
+                .catch(err => reject(err));
+        });
+    };
+
+    const findUserProgramsMethodName = 'findUserPrograms';
+
+    describe('#' + findUserProgramsMethodName, () => {
+        it('should return a user\'s programs irrespective of them being active', () => {
+            return testFindingUserPrograms(findUserProgramsMethodName);
         });
 
         it('should return an empty list of programs', () => {
-            const programModelHelper = initProgramModelHelper();
-            const userId = generateObjectId();
+            return testFindingWrongUserPrograms(findUserProgramsMethodName);
+        });
+    });
 
-            return new Promise((resolve, reject) => {
-                programModelHelper.findUserPrograms(userId).then(programs =>
-                    expectation.tryCatchForPromise(resolve, reject, () => assert(programs && !programs.length)))
-                    .catch(err => reject(err));
-            });
+    const findUserActiveProgramsMethodName = 'findUserActivePrograms';
+
+    describe('#' + findUserActiveProgramsMethodName, () => {
+        it('should return a user\'s only active programs', () => {
+            return testFindingUserPrograms(findUserActiveProgramsMethodName, true);
+        });
+
+        it('should return an empty list of programs', () => {
+            return testFindingWrongUserPrograms(findUserActiveProgramsMethodName);
         });
     });
 

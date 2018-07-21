@@ -69,7 +69,7 @@ new Vue({
     },
     methods: {
         setAuthenticationState(token) {
-            let previousState = this.authenticated;
+            let wasAuthenticated = this.authenticated;
             this.authenticated = token != null;
 
             const authSession = new AuthSession();
@@ -77,7 +77,7 @@ new Vue({
 
             authEventHelper.emitEvent(token);
             
-            if (previousState && !this.authenticated)
+            if (wasAuthenticated && !this.authenticated)
                 this.$router.go('/');
         }
     },
