@@ -39,6 +39,7 @@
     <Compile Include="components\user-timers.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="models\constants.js" />
     <Compile Include="tests\infrastructure\db-connector.js" />
     <Compile Include="tests\infrastructure\expectation.js" />
     <Compile Include="tests\infrastructure\mock.js" />

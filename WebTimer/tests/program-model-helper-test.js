@@ -351,6 +351,27 @@ describe('ProgramModelHelper', function () {
             return testReducingProgramList(() => { return reductionList = [createTestProgram(), createTestProgram()] },
                 (reducedPrograms) => assert(reducedPrograms && reducedPrograms.length === 0));
         });
-
     });
+
+    describe('#getShemaRestrictions', () => {
+        it('should return correct restrictions to the Program schema model', () => {
+            const restrictions = initProgramModelHelper().getShemaRestrictions();
+
+            const lookIntoPath = (restriction, pathObj) => {
+                if (pathObj.schema) {
+                    for (let option in restriction) {
+                        lookIntoPath(restrictions[option], pathObj.schema.path(option));
+                    }
+                }
+                else {
+                    for (let option in restriction) {
+                        assert.strictEqual(pathObj.options[option], restriction[option]);
+                    }
+                }
+            };
+
+            lookIntoPath(restrictions, Program);
+        });
+    });
+
 });

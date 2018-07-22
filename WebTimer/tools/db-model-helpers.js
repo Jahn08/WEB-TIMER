@@ -8,6 +8,18 @@ exports.UserModelHelper = function () {
     this.setReponse = function (response) {
         respErr = new ResponseError(response);
     };
+
+    const getMaxLengthForSchemaPath = (path) => {
+        const schema = UserModel.schema;
+        return { maxlength: schema.path(path).options.maxlength };
+    }
+
+    this.getShemaRestrictions = () => {
+        return {
+            name: getMaxLengthForSchemaPath('name'),
+            email: getMaxLengthForSchemaPath('email')
+        };
+    };
     
     const internalUserSearch = function (facebookId, rejectIfEmpty) {
         return new Promise((resolve, reject) => {
@@ -43,6 +55,36 @@ exports.ProgramModelHelper = function (response) {
     const ProgramModel = require('../models/program');
     
     const respErr = new ResponseError(response);
+
+    const getOptionForSchemaPath = (paths, optionNames = ['maxlength']) => {
+        let pathObj;
+
+        let schema = ProgramModel.schema;
+
+        do {
+            let path = paths.shift();
+            pathObj = schema.path(path);
+
+            schema = pathObj.schema;
+        } while (paths.length);
+        
+        let options = {};
+        optionNames.forEach(op => options[op] = pathObj.options[op])
+
+        return options;
+    }
+
+    ProgramModel.schema.path('stages').schema.path('descr').options
+
+    this.getShemaRestrictions = () => {
+        return {
+            name: getOptionForSchemaPath(['name']),
+            stages: {
+                descr: getOptionForSchemaPath(['stages', 'descr']),
+                duration: getOptionForSchemaPath(['stages', 'duration'], ['max', 'min'])
+            } 
+        };
+    };
 
     const searchForPrograms = (userId, active) => {
         return new Promise((resolve, reject) => {

@@ -26,7 +26,7 @@ describe('UserModelHelper', function () {
         const facebookId = randomiser.getRandomIntUpToMaxInteger();
 
         const newUser = new User({
-            userName: testStr,
+            name: testStr,
             firstName: testStr,
             lastName: testStr,
             email: testStr,
@@ -160,6 +160,18 @@ describe('UserModelHelper', function () {
                     .catch(err => reject(err));
             });
         });
-
     });
+
+    describe('#getShemaRestrictions', () => {
+        it('should return correct restrictions to the User schema model', () => {
+            const restrictions = new UserModelHelper().getShemaRestrictions();
+            
+            for (let path in restrictions) {
+                for (let option in restrictions[path]) {
+                    assert.strictEqual(User.schema.path(path).options[option], restrictions[path][option]);
+                }
+            }
+        });
+    });
+
 });

@@ -1,5 +1,7 @@
 ﻿const mongoose = require('mongoose');
 
+const constants = require('./constants');
+
 let programStage = new mongoose.Schema({
     order: {
         type: Number,
@@ -7,13 +9,13 @@ let programStage = new mongoose.Schema({
     },
     duration: {
         type: Number,
-        min: 1,
-        max: 3600
+        min: constants.MIN_MINUTES,
+        max: constants.MAX_MINUTES
     },
     descr: {
         type: String,
         required: true,
-        maxlength: 1024
+        maxlength: constants.TEXT_LENGTH
     }
 });
 
@@ -21,7 +23,7 @@ let program = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        maxlength: 256
+        maxlength: constants.NAME_LENGTH
     },
     userId: {
         type: mongoose.SchemaTypes.ObjectId,

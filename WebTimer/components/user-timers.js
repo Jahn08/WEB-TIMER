@@ -34,10 +34,20 @@ const userTimers = {
             programs: [],
             authToken: null,
             apiHelper: new ApiHelper(),
-            durationMax: 3600,
-            durationMin: 1,
-            programNameMaxLength: 256,
-            stageDescrMaxLength: 1024,
+            restrictions: {
+                name: {
+                    maxlength: 0
+                },
+                stages: {
+                    duration: {
+                        max: 0,
+                        min: 0
+                    },
+                    descr: {
+                        maxlength: 0
+                    }
+                }
+            },
             hasError: false,
             saving: false
         };
@@ -63,6 +73,15 @@ const userTimers = {
         },
         curProgramAllStages() {
             return this.curProgram ? this.curProgram.stages.sort((a, b) => a.order > b.order) : [];
+        },
+        durationMinLimit() {
+            return this.restrictions.stages.duration.min;
+        },
+        durationMaxLimit() {
+            return this.restrictions.stages.duration.max;
+        },
+        stageDescrMaxLength() {
+            return this.restrictions.stages.descr.maxlength;
         }
     },
     methods: {
@@ -74,9 +93,10 @@ const userTimers = {
             if (this.authToken)
                 this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp));
         },
-        initialiseProgramList(programs) {
-            this.programs = programs;
-            
+        initialiseProgramList(response) {
+            this.programs = response.programs;
+            this.restrictions = response.schemaRestrictions;
+
             this.$nextTick(() => {
                 let $programListObj = this.getProgramListJQuerySelector();
 
@@ -244,7 +264,7 @@ const userTimers = {
                         this.hasError = true;
 
                     const duration = this.curStage.duration;
-                    if (duration < this.durationMin || duration > this.durationMax)
+                    if (duration < this.durationMinLimit || duration > this.durationMaxLimit)
                         this.hasError = true;
                 }
             }
@@ -281,7 +301,7 @@ const userTimers = {
                             <div class="form-group row">
                                 <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
                                 <div>
-                                    <input type="text" class="form-control" :maxlength="programNameMaxLength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
+                                    <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
                                     <div class="invalid-feedback">Please provide a program name</div>
                                 </div>
                             </div>
@@ -309,8 +329,8 @@ const userTimers = {
                                             <div class="form-group row">
                                                 <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
                                                 <div>
-                                                    <input :max="durationMax" :min="durationMin" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
-                                                    <div class="invalid-feedback">A duration must be from {{ durationMin }} to {{ durationMax }} seconds</div>
+                                                    <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
+                                                    <div class="invalid-feedback">A duration must be from {{ durationMinLimit }} to {{ durationMaxLimit }} seconds</div>
                                                 </div>
                                             </div>
                                             <div class="form-group row">

@@ -1,9 +1,12 @@
 ﻿const mongoose = require('mongoose');
 
+const constants = require('./constants');
+
 let user = new mongoose.Schema({
-    userName: {
+    name: {
         type: String,
-        required: true
+        required: true,
+        maxlength: constants.NAME_LENGTH
     },
     firstName: {
         type: String,
@@ -15,7 +18,8 @@ let user = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        maxlength: constants.NAME_LENGTH
     },
     facebookId: String,
     lastLogin: Date,

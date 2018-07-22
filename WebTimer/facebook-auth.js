@@ -18,7 +18,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
             done(null, user);
         else {
             let newUser = new User({
-                userName: profile.displayName,
+                name: profile.displayName,
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName,
                 email: profile.emails[0].value,

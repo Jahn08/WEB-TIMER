@@ -22,7 +22,7 @@ router.route('/')
             const programModelHelper = new ProgramModelHelper(res);
 
             programModelHelper.findUserPrograms(user.id).then(programs => {
-                res.status(200).json(programs);
+                res.status(200).json({ programs, schemaRestrictions: programModelHelper.getShemaRestrictions() });
             });
         });
     })
