@@ -28,7 +28,7 @@ router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
             if (err)
                 return respErr.respondWithAuthenticationError(err);
 
-            res.end('Successfully logged in.');
+            res.status(200).json({ hasAdminRole: true });
             next();
         });
     }).catch(err => respErr.respondWithAuthenticationError(err));

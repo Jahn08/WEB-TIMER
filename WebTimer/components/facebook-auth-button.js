@@ -4,7 +4,8 @@ const facebookAuthButton = {
     data() {
         return {
             loggedIn: null,
-            userName: null
+            userName: null,
+            userPhoto: null
         };
     },
     beforeCreate() {
@@ -51,13 +52,16 @@ const facebookAuthButton = {
 
             FB.login(function (response) {
                 component.statusChangeCallback(response);
-            }, { scope: 'public_profile, email' });
+            }, { scope: 'public_profile, email, user_gender, user_location' });
         },
         setUserName() {
             let component = this;
 
-            FB.api('/me', function (response) {
+            FB.api('/me?fields=name,picture', function (response) {
                 component.userName = response.name;
+
+                if (response.picture && response.picture.data)
+                    component.userPhoto = response.picture.data;
             });
         },
         statusChangeCallback(response) {
@@ -73,12 +77,12 @@ const facebookAuthButton = {
             let component = this;
 
             const apiHelper = new ApiHelper();
-            apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token))
+            apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token, resp.hasAdminRole))
                 .catch(err => component.logOut());
         },
-        setUserStateLoggedIn(token) {
+        setUserStateLoggedIn(token, hasAdminRole) {
             this.loggedIn = true;
-            this.$emit('logged-in', token);
+            this.$emit('logged-in', token, hasAdminRole);
         },
         logOut() {
             let component = this;
@@ -137,11 +141,12 @@ const facebookAuthButton = {
             </div>
             <div v-if="loggedIn === true && userName">
                 <ul class="navbar-nav mr-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true">
+                <li class="dropdown dropleft">
+                    <img v-if="userPhoto" :src="userPhoto.url" :height="userPhoto.height" id="navbarDropdown" :width="userPhoto.width" role="button" data-toggle="dropdown" class="img-thumbnail dropdown-toggle" aria-haspopup="true" :aria-label="userName" /> 
+                    <a v-else class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true">
                          {{ userName }}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    </a>               
+                    <div class="dropdown-menu " aria-labelledby="navbarDropdown">
 	                    <router-link class="dropdown-item" to="/profile">
                             Profile
                         </router-link>
