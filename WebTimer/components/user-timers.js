@@ -2,22 +2,7 @@
 import ApiHelper from '/components/api-helper.js';
 import AuthSession from '/components/auth-session.js';
 import { authEventHelper } from '/components/event-bus.js';
-
-const cardSection = {
-    props: {
-        header: {
-            required: true,
-            type: String
-        }
-    },
-    template: `
-        <div class="card border-info">
-            <h2 class="card-header">{{ header }}</h2>
-            <div class="card-body">
-                <slot></slot>
-            </div>
-        </div>`
-};
+import { cardSection } from '/components/bootstrap-controls.js';
 
 const userTimers = {
     components: {

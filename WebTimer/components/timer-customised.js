@@ -1,7 +1,7 @@
 import watch from '/components/watch.js';
 import audioList from '/components/audio-list.js';
 import banner from '/components/banner.js';
-import modal from '/components/modal.js';
+import { modal } from '/components/bootstrap-controls.js';
 import ApiHelper from '/components/api-helper.js';
 import AuthSession from '/components/auth-session.js';
 import { authEventHelper } from '/components/event-bus.js';

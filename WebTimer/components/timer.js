@@ -2,7 +2,7 @@ import watch from '/components/watch.js';
 import audioList from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import timeSwitch from '/components/time-switch.js';
-import modal from '/components/modal.js';
+import { modal } from '/components/bootstrap-controls.js';
 
 const timer = {
     components: {

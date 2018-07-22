@@ -6,6 +6,7 @@ import stopwatch from '/components/stopwatch.js';
 import timer from '/components/timer.js';
 import timerCustomised from '/components/timer-customised.js';
 import userSettings from '/components/user-settings.js';
+import userStatistics from '/components/user-statistics.js';
 import AuthSession from '/components/auth-session.js';
 import { authEventHelper } from '/components/event-bus.js';
 
@@ -34,7 +35,8 @@ new Vue({
                 props: {
                     tabs: [
                         { name: 'Timers', route: '/profile/userTimers' },
-                        { name: 'Settings', route: '/profile/userSettings' }
+                        { name: 'Settings', route: '/profile/userSettings' },
+                        { name: 'Statistics', route: '/profile/userStatistics', requiresAdminRole: true }
                     ]
                 },
                 children: [
@@ -48,6 +50,11 @@ new Vue({
                         path: '/profile/userSettings',
                         component: userSettings,
                         meta: { requiresAuth: true }
+                    },
+                    {
+                        path: '/profile/userStatistics',
+                        component: userStatistics,
+                        meta: { requiresAdminRole: true }
                     }
                 ]
             },
@@ -56,26 +63,37 @@ new Vue({
     }),
     data() {
         return {
-            authenticated: false
+            authenticated: false,
+            hasAdminRole: false
         };
     },
     mounted() {
         this.$router.beforeEach((to, from, next) => {
-            next(to.matched.some(i => i.meta.requiresAuth) && !this.authenticated ? { path: '/' } : undefined);
+            let nextRoute;
+            const defaultRoute = { path: '/' };
+
+            if (to.matched.some(i => i.meta.requiresAuth || i.meta.requiresAdminRole) && !this.authenticated)
+                nextRoute = defaultRoute;
+            else if (to.matched.some(i => i.meta.requiresAdminRole) && !this.hasAdminRole)
+                nextRoute = defaultRoute;
+
+            next(nextRoute);
         });
     },
     beforeDestroy() {
         authEventHelper.removeAllListeners();
     },
     methods: {
-        setAuthenticationState(token) {
+        setAuthenticationState(token, hasAdminRole) {
             let wasAuthenticated = this.authenticated;
+
             this.authenticated = token != null;
+            this.hasAdminRole = hasAdminRole != null;
 
             const authSession = new AuthSession();
             authSession.setToken(token);
 
-            authEventHelper.emitEvent(token);
+            authEventHelper.emitEvent(token, hasAdminRole);
             
             if (wasAuthenticated && !this.authenticated)
                 this.$router.go('/');

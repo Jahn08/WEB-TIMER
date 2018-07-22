@@ -34,8 +34,11 @@
     <Compile Include="components\event-bus.js">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="components\modal.js" />
+    <Compile Include="components\bootstrap-controls.js" />
     <Compile Include="components\tab-menu.js" />
+    <Compile Include="components\user-statistics.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="components\user-timers.js">
       <SubType>Code</SubType>
     </Compile>

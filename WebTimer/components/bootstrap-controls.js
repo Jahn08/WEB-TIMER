@@ -59,4 +59,20 @@ const modal = {
             </div>`
 };
 
-export default modal;
+const cardSection = {
+    props: {
+        header: {
+            required: true,
+            type: String
+        }
+    },
+    template: `
+        <div class="card border-info">
+            <h2 class="card-header">{{ header }}</h2>
+            <div class="card-body">
+                <slot></slot>
+            </div>
+        </div>`
+};
+
+export { modal, cardSection };
