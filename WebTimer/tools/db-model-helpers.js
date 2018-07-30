@@ -2,6 +2,7 @@
 
 exports.UserModelHelper = function () {
     const UserModel = require('../models/user');
+    const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 
     let respErr;
 
@@ -20,22 +21,21 @@ exports.UserModelHelper = function () {
             email: getMaxLengthForSchemaPath('email')
         };
     };
-    
+
+    const processError = (err, reject, respErrMethodName = 'respondWithDatabaseError') => {
+        if (respErr)
+            respErr[respErrMethodName](err);
+
+        reject(err);
+    };
+
     const internalUserSearch = function (facebookId, rejectIfEmpty) {
         return new Promise((resolve, reject) => {
             UserModel.findOne({ facebookId }, (err, user) => {
-                if (err) {
-                    if (respErr)
-                        respErr.respondWithDatabaseError(err);
-
-                    reject(err);
-                }
-                else if (rejectIfEmpty && !user) {
-                    if (respErr)
-                        respErr.respondWithUserIsNotFoundError();
-
-                    reject('User is not found');
-                }
+                if (err)
+                    processError(err, reject);
+                else if (rejectIfEmpty && !user)
+                    processError('User is not found', reject, 'respondWithUserIsNotFoundError');
                 else
                     resolve(user);
             });
@@ -48,6 +48,52 @@ exports.UserModelHelper = function () {
 
     this.findUserOrEmpty = function (facebookId) {
         return internalUserSearch(facebookId);
+    };
+
+    const buildRegexQuery = (fieldName, pattern) => {
+        let query = { };
+        query[fieldName] = { $regex: pattern, $options: 'i' };
+
+        return query;
+    };
+
+    const buildQueryForPage = (searchFor) => {
+        let query;
+
+        if (searchFor) {
+            query = UserModel.find({
+                $or: [buildRegexQuery('name', searchFor),
+                    buildRegexQuery('gender', searchFor),
+                    buildRegexQuery('location', searchFor)]
+            });
+        }
+        else
+            query = UserModel.find();
+
+        return query;
+    };
+
+    this.getUsersForPage = function (pageNum, searchFor, sortOption) {
+        return new Promise((resolve, reject) => {
+            buildQueryForPage(searchFor).count((err, count) => {
+                if (err)
+                    processError(err, reject);
+                else {
+                    const query = buildQueryForPage(searchFor);
+
+                    if (sortOption && Object.keys(sortOption).filter(k => k).length > 0)
+                        query.sort(sortOption);
+
+                    query.skip(ITEMS_PER_PAGE * (pageNum - 1)).limit(ITEMS_PER_PAGE).exec((err, users) => {
+                        if (err)
+                            processError(err, reject);
+                        else
+                            resolve({ users, count });
+                    });
+                }
+            });
+
+        });
     };
 };
 
@@ -110,6 +156,19 @@ exports.ProgramModelHelper = function (response) {
 
     this.findUserActivePrograms = function (userId) {
         return searchForPrograms(userId, true);
+    };
+
+    this.getNumberOfUserActivePrograms = function (userId) {
+        return new Promise((resolve, reject) => {
+            ProgramModel.count({ userId, active: true }, (err, count) => {
+                if (err) {
+                    respErr.respondWithDatabaseError(err);
+                    reject(err);
+                }
+                else
+                    resolve(count);
+            });
+        });
     };
 
     this.updateProgram = function (programForUpdate, newProgramData) {

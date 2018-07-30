@@ -31,6 +31,9 @@
         const routerProgram = require('./routes/programs');
         app.use('/programs', routerProgram);
 
+        const routerUser = require('./routes/users');
+        app.use('/users', routerUser);
+
         const ResponseError = require('./tools/response-error').ResponseError;
 
         app.use((err, req, res, next) => {
