@@ -1,13 +1,13 @@
 ﻿import banner from '/components/banner.js';
+import authListener from '/components/auth-listener.js';
 import ApiHelper from '/components/api-helper.js';
-import AuthSession from '/components/auth-session.js';
-import { authEventHelper } from '/components/event-bus.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
 const userTimers = {
     components: {
         banner,
-        cardSection
+        cardSection,
+        authListener
     },
     props: {
         authSettings: null
@@ -36,18 +36,6 @@ const userTimers = {
             hasError: false,
             saving: false
         };
-    },
-    mounted() {
-        const authSession = new AuthSession();
-        const authToken = authSession.getToken();
-
-        if (authToken)
-            this.onAuthenticationChange(authToken);
-        else
-            authEventHelper.addListener(this.onAuthenticationChange);
-    },
-    beforeDestroy() {
-        authEventHelper.removeListener(this.onAuthenticationChange);
     },
     computed: {
         noSelectedStage() {
@@ -265,74 +253,76 @@ const userTimers = {
         }
     },
     template: `
-        <div v-if="authToken">
+        <div>
             <banner heading="User Timers"></banner>
-            <div v-if="saving">Please wait...</div>
-            <div v-else class="container">
-                <div class="row">
-                    <div class="col-3">
-                        <div class="btn-group" role="group" aria-label="Actions for Timer Programs">
-                            <button :disabled="hasError" title="Add Program" @click="addProgram()" type="button" class="btn btn-info">&#43</button>
-                            <button :disabled="hasError" title="Remove Program" @click="deleteProgram()"  type="button" class="btn btn-info">&#x2717</button>
-                            <button :disabled="hasError" title="Save All Changes" @click="saveChanges()" type="button" class="btn btn-info">&#128190</button>
+            <auth-listener @change="onAuthenticationChange">
+                <div v-if="saving">Please wait...</div>
+                <div v-else class="container">
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="btn-group" role="group" aria-label="Actions for Timer Programs">
+                                <button :disabled="hasError" title="Add Program" @click="addProgram()" type="button" class="btn btn-info">&#43</button>
+                                <button :disabled="hasError" title="Remove Program" @click="deleteProgram()"  type="button" class="btn btn-info">&#x2717</button>
+                                <button :disabled="hasError" title="Save All Changes" @click="saveChanges()" type="button" class="btn btn-info">&#128190</button>
+                            </div>
+                            <select id="programs" class="form-control">
+                                <option v-for="pr in programs" :value="pr._id">{{ pr.name }}</option>
+                            </select>
                         </div>
-                        <select id="programs" class="form-control">
-                            <option v-for="pr in programs" :value="pr._id">{{ pr.name }}</option>
-                        </select>
-                    </div>
-                    <div class="col-1"></div>
-                    <div class="col-8" v-if="curProgram" :class="{ 'was-validated': hasError }">
-                        <card-section header="Basic Info">
-                            <div class="form-group row">
-                                <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
-                                <div>
-                                    <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
-                                    <div class="invalid-feedback">Please provide a program name</div>
-                                </div>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" :disabled="!curProgramAvailableStages.length" />
-                                <label class="form-check-label" for="timerActiveCheck">Active</label>
-                            </div>
-                        </card-section>
-                        <card-section header="Stages">
-                            <div class="btn-group" role="group" aria-label="Actions for Stages">
-                                <button :disabled="noSelectedStage" @click="moveStageUp()" title="Move Stage Up" type="button" class="btn btn-info">&#x21a5</button>
-                                <button :disabled="noSelectedStage" @click="moveStageDown()" title="Move Stage Down" type="button" class="btn btn-info">&#x21a7</button>
-                                <button :disabled="noSelectedStage || hasError" @click="deleteStage()" title="Remove Stage" type="button" class="btn btn-info">&#x2717</button>
-                                <button :disabled="hasError" title="Add Stage" @click="addStage()" type="button" class="btn btn-info">&#43</button>
-                            </div>
-                            <div class="row">
-                                <div class="col-4">
-                                    <div class="list-group" id="stages">
-                                        <a v-for="st, i in curProgramAvailableStages" :id="i" @click="switchCurrentStage(st, $event)" :class='{ "active": curStage == st }' class="list-group-item list-group-item-action" :href="'#stage' + i" data-toggle="list" :title="st.descr">Stage {{ st.order + 1 }}</a>
+                        <div class="col-1"></div>
+                        <div class="col-8" v-if="curProgram" :class="{ 'was-validated': hasError }">
+                            <card-section header="Basic Info">
+                                <div class="form-group row">
+                                    <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
+                                    <div>
+                                        <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
+                                        <div class="invalid-feedback">Please provide a program name</div>
                                     </div>
                                 </div>
-                                <div class="col-8">
-                                    <div class="tab-content">
-                                        <div v-for="st, i in curProgramAvailableStages" class="tab-pane fade show" :class='{ "active": curStage == st }' :id="'stage' + i">
-                                            <div class="form-group row">
-                                                <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
-                                                <div>
-                                                    <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
-                                                    <div class="invalid-feedback">A duration must be from {{ durationMinLimit }} to {{ durationMaxLimit }} seconds</div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" :disabled="!curProgramAvailableStages.length" />
+                                    <label class="form-check-label" for="timerActiveCheck">Active</label>
+                                </div>
+                            </card-section>
+                            <card-section header="Stages">
+                                <div class="btn-group" role="group" aria-label="Actions for Stages">
+                                    <button :disabled="noSelectedStage" @click="moveStageUp()" title="Move Stage Up" type="button" class="btn btn-info">&#x21a5</button>
+                                    <button :disabled="noSelectedStage" @click="moveStageDown()" title="Move Stage Down" type="button" class="btn btn-info">&#x21a7</button>
+                                    <button :disabled="noSelectedStage || hasError" @click="deleteStage()" title="Remove Stage" type="button" class="btn btn-info">&#x2717</button>
+                                    <button :disabled="hasError" title="Add Stage" @click="addStage()" type="button" class="btn btn-info">&#43</button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="list-group" id="stages">
+                                            <a v-for="st, i in curProgramAvailableStages" :id="i" @click="switchCurrentStage(st, $event)" :class='{ "active": curStage == st }' class="list-group-item list-group-item-action" :href="'#stage' + i" data-toggle="list" :title="st.descr">Stage {{ st.order + 1 }}</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="tab-content">
+                                            <div v-for="st, i in curProgramAvailableStages" class="tab-pane fade show" :class='{ "active": curStage == st }' :id="'stage' + i">
+                                                <div class="form-group row">
+                                                    <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
+                                                    <div>
+                                                        <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
+                                                        <div class="invalid-feedback">A duration must be from {{ durationMinLimit }} to {{ durationMaxLimit }} seconds</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label class="col-5 col-form-label" for="timerDescriptionTxt">Description</label>
-                                                <div>
-                                                    <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" required :maxlength="stageDescrMaxLength"></textarea>
-                                                    <div class="invalid-feedback">Please provide a program stage name</div>
+                                                <div class="form-group row">
+                                                    <label class="col-5 col-form-label" for="timerDescriptionTxt">Description</label>
+                                                    <div>
+                                                        <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" required :maxlength="stageDescrMaxLength"></textarea>
+                                                        <div class="invalid-feedback">Please provide a program stage name</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </card-section>
+                            </card-section>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </auth-listener>
         </div>`
 };
 

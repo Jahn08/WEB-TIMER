@@ -30,6 +30,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="components\api-helper.js" />
+    <Compile Include="components\auth-listener.js" />
     <Compile Include="components\component-initialiser.js" />
     <Compile Include="components\event-bus.js">
       <SubType>Code</SubType>
