@@ -6,12 +6,14 @@ const FacebookTokenPassport = require('passport-facebook-token');
 const dbModelHelper = require('./tools/db-model-helpers');
 const UserModelHelper = dbModelHelper.UserModelHelper;
 
+const ResponseError = require('./tools/response-error').ResponseError;
+
 const User = require('./models/user');
 
 const facebookTokenStrategy = new FacebookTokenPassport({
     clientID: config.auth.facebook.clientId,
     clientSecret: config.auth.facebook.clientSecret,
-    profileFields: ['email', 'first_name', 'last_name', 'gender', 'location']
+    profileFields: ['email', 'displayName', 'gender', 'location']
 }, (accessToken, refreshToken, profile, done) => {
     const userModelHelper = new UserModelHelper();
     userModelHelper.findUserOrEmpty(profile.id).then(user => {
@@ -20,8 +22,6 @@ const facebookTokenStrategy = new FacebookTokenPassport({
         else {
             let newUser = new User({
                 name: profile.displayName,
-                firstName: profile.name.givenName,
-                lastName: profile.name.familyName,
                 email: profile.emails[0].value,
                 facebookId: profile.id,
                 administrator: User.length == 0,
@@ -47,3 +47,13 @@ passport.use(facebookTokenStrategy);
 exports.verifyUser = passport.authenticate('facebook-token', {
     session: false
 });
+
+exports.verifyAdmin = (req, res, next) => {
+    if (!req.user || !req.user.administrator)
+    {
+        const respError = new ResponseError(res);
+        respError.respondWithAuthenticationError('Unauthorised');
+    }
+    else
+        next();
+};
