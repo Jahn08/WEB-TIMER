@@ -62,6 +62,20 @@ function ApiHelper() {
         return promise;
     };
 
+    this.getUserStatistics = function (token, data) {
+        return new Promise((resolve, reject) => {
+            let options = formQueryOptions(token);
+            options.data = data;
+
+            $.ajax('/users', options)
+                .then(resp => resolve(resp))
+                .catch(err => {
+                    alert('An error has occured while getting user statistics: ' + err.statusText);
+                    reject(err);
+                });
+        });
+    };
+
 };
 
 export default ApiHelper;

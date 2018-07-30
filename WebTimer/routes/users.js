@@ -4,7 +4,7 @@ let app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-const facebokAuth = require('../facebook-auth');
+const facebookAuth = require('../facebook-auth');
 
 const User = require('../models/user');
 
@@ -15,7 +15,7 @@ const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 
 const router = express.Router();
 router.route('/')
-    .get(facebokAuth.verifyUser, facebokAuth.verifyAdmin, (req, res, next) => {
+    .get(facebookAuth.verifyUser, facebookAuth.verifyAdmin, (req, res, next) => {
         if (req.query) {
             userModelHelper.setReponse(res);
 
