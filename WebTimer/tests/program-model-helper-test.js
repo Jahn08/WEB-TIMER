@@ -106,12 +106,20 @@ describe('ProgramModelHelper', function () {
                 programModelHelper[searchingMethodName](userId).then(programs => {
                     expectation.tryCatchForPromise(resolve, reject, () => {
                         const expectedLength = onlyActive ? 1 : 2;
-                        assert(programs && programs.length === expectedLength);
 
-                        const strUserId = userId.toString();
-                        assert.strictEqual(programs.filter(p => p.userId.toString() === strUserId).length, expectedLength);
+                        const count = Number.parseInt(programs);
 
-                        assertProgramsAreInState(programs, onlyActive);
+                        if (isNaN(count)) {
+                            assert(programs && programs.length === expectedLength);
+
+                            const strUserId = userId.toString();
+                            assert.strictEqual(programs.filter(p => p.userId.toString() === strUserId).length, expectedLength);
+
+                            assertProgramsAreInState(programs, onlyActive);
+                        }
+                        else {
+                            assert(count === expectedLength);
+                        }
                     });
                 }).catch(err => reject(err));
             });
@@ -126,8 +134,16 @@ describe('ProgramModelHelper', function () {
 
         return new Promise((resolve, reject) => {
             programModelHelper[searchingMethodName](userId).then(programs =>
-                expectation.tryCatchForPromise(resolve, reject, () => assert(programs && !programs.length)))
-                .catch(err => reject(err));
+                expectation.tryCatchForPromise(resolve, reject, () => {
+                    const count = Number.parseInt(programs);
+
+                    if (isNaN(count))
+                        assert(programs && !programs.length);
+                    else
+                        assert(count === 0);
+                }
+            ))
+            .catch(err => reject(err));
         });
     };
 
@@ -151,6 +167,18 @@ describe('ProgramModelHelper', function () {
         });
 
         it('should return an empty list of programs', () => {
+            return testFindingWrongUserPrograms(findUserActiveProgramsMethodName);
+        });
+    });
+
+    const getNumberOfUserActiveProgramsMethodName = 'getNumberOfUserActivePrograms';
+
+    describe('#' + getNumberOfUserActiveProgramsMethodName, () => {
+        it('should return a number of user\'s only active programs', () => {
+            return testFindingUserPrograms(findUserActiveProgramsMethodName, true);
+        });
+
+        it('should return a zero for a user not having any programs', () => {
             return testFindingWrongUserPrograms(findUserActiveProgramsMethodName);
         });
     });

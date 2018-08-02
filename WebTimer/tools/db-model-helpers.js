@@ -84,6 +84,8 @@ exports.UserModelHelper = function () {
                     if (sortOption && Object.keys(sortOption).filter(k => k).length > 0)
                         query.sort(sortOption);
 
+                    pageNum = pageNum || 1;
+
                     query.skip(ITEMS_PER_PAGE * (pageNum - 1)).limit(ITEMS_PER_PAGE).exec((err, users) => {
                         if (err)
                             processError(err, reject);

@@ -1,6 +1,8 @@
 const assert = require('assert');
 
 const User = require('../models/user');
+const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
+
 const UserModelHelper = require('../tools/db-model-helpers').UserModelHelper;
 
 const randomiser = require('./infrastructure/randomiser');
@@ -13,6 +15,15 @@ describe('UserModelHelper', function () {
     before(() => {
         const DbConnector = require('./infrastructure/db-connector').DbConnector;
         dbConnector = new DbConnector();
+
+        return new Promise((resolve, reject) => {
+            User.remove({}, err => {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
     });
 
     after(() => dbConnector.disconnect());
@@ -20,26 +31,24 @@ describe('UserModelHelper', function () {
     this.timeout(3000);
 
     const getString = (obj) => obj ? obj.toString() : '';
-    
-    const usingTestUser = function (callback) {
-        const testStr = 'TEST';
-        const facebookId = randomiser.getRandomIntUpToMaxInteger();
 
-        const newUser = new User({
-            name: testStr,
-            firstName: testStr,
-            lastName: testStr,
-            email: testStr,
-            administrator: false,
-            facebookId
-        });
+    const createTestUsers = (callback, numberOfUsers = 1, testFields = {}) => {
+        let users = [];
+
+        for (i = 0; i < numberOfUsers; ++i) {
+            users.push(new User({
+                name: testFields['name'] || randomiser.getRandomIntUpToMaxInteger().toString(),
+                email: testFields['email'] || randomiser.getRandomIntUpToMaxInteger().toString(),
+                administrator: false,
+                facebookId: randomiser.getRandomIntUpToMaxInteger()
+            }));
+        }
 
         return new Promise((resolve, reject) => {
-            newUser.save((err, user) => {
-                assert(!err, 'An error while creating a test user: ' + getString(err));
-                assert.strictEqual(user.facebookId, facebookId.toString());
+            User.insertMany(users, ((err, _users) => {
+                assert(!err, 'An error while creating test users: ' + getString(err));
 
-                const removeUserAndFinish = respErr => user.remove(err => {
+                const removeUsersAndFinish = respErr => User.remove({ _id: { $in: _users.map(u => u._id) } }, err => {
                     expectation.tryCatchForPromise(resolve, reject, () => {
                         assert(!err, 'An error while removing a test user: ' + getString(err));
 
@@ -48,13 +57,13 @@ describe('UserModelHelper', function () {
                     });
                 });
 
-                callback(facebookId)
-                    .then(removeUserAndFinish)
-                    .catch(removeUserAndFinish);
-            });
+                callback(_users)
+                    .then(removeUsersAndFinish)
+                    .catch(removeUsersAndFinish);
+            }));
         });
     };
-    
+        
     const useFindingUserMethodWithoutError = (methodToInvoke, useResponse) => {
         const testCallback = (facebookId) => {
 
@@ -89,7 +98,10 @@ describe('UserModelHelper', function () {
             });
         };
 
-        return usingTestUser(testCallback);
+        return createTestUsers(users => {
+            assert(users && users.length == 1);
+            return testCallback(users[0].facebookId);
+        });
     };
 
     const findUserMethodName = 'findUser';
@@ -174,4 +186,71 @@ describe('UserModelHelper', function () {
         });
     });
 
+    describe('#getUsersForPage', () => {
+
+        const testGettingUsersForPage = (pageNum, useSearch, sortEmailDirection) => {
+            const userModelHelper = new UserModelHelper();
+
+            let allUsers = [];
+
+            return createTestUsers(users1 => {
+
+                return createTestUsers(users2 => {
+                    allUsers.unshift(...users2);
+                    allUsers.unshift(...users1);
+
+                    return new Promise((resolve, reject) => {
+                        const sortOption = sortEmailDirection ? { email: sortEmailDirection } : undefined;
+                        const searchedName = useSearch ? 'eSt' : undefined;
+
+                        userModelHelper.getUsersForPage(pageNum, searchedName, sortOption).then(resp => {
+                            expectation.tryCatchForPromise(resolve, reject, () => {
+                                let correctUserNumber;
+                                let _users = resp.users;
+
+                                if (searchedName) {
+                                    const regExp = new RegExp(searchedName, 'i');
+                                    const filterBySearchedName = u => u.name.search(regExp) !== -1;
+
+                                    correctUserNumber = allUsers.filter(filterBySearchedName).length;
+                                    _users = _users.filter(filterBySearchedName);
+                                }
+                                else {
+                                    correctUserNumber = allUsers.length;
+                                }
+
+                                assert.strictEqual(correctUserNumber, resp.count);
+                                assert(_users);
+
+                                pageNum = pageNum || 1;
+                                const skippedItemNumber = (pageNum - 1) * ITEMS_PER_PAGE;
+                                const expectedResultLength = Math.min(correctUserNumber - skippedItemNumber, ITEMS_PER_PAGE);
+                                assert.strictEqual(_users.length, expectedResultLength);
+
+                                const usersCopy = _users.slice(skippedItemNumber, skippedItemNumber + expectedResultLength);
+
+                                if (sortEmailDirection) {
+                                    usersCopy.sort((a, b) => sortEmailDirection === -1 ? a.email < b.email : a.email > b.email);
+                                }
+
+                                assert(usersCopy.every((u, i) => u.email === _users[i].email));
+                            });
+                        });
+                    });
+                }, 8, { name: 'THE BEST NAME' });
+
+            }, 5, { name: 'THE WORST NAME' });
+        };
+
+        it('should return correct users according to all passed arguments', () => testGettingUsersForPage(2, true, -1));
+
+        it('should return correct users in accordance with a page length without searching by text fields',
+            () => testGettingUsersForPage(2, false, 1));
+
+        it('should return correct users fit in with a page length without sorting the result',
+            () => testGettingUsersForPage(1, true));
+
+        it('should return correct users for a first page without any passed parameters', () => testGettingUsersForPage());
+
+    });
 });
