@@ -33,7 +33,7 @@
 
         const routerUser = require('./routes/users');
         app.use('/users', routerUser);
-
+       
         const ResponseError = require('./tools/response-error').ResponseError;
 
         app.use((err, req, res, next) => {
@@ -46,14 +46,16 @@
     
     this.startHttpsServerListening = function (serverOptions) {
         const https = require('https');
+        const http = require('http');
+
         const fs = require('fs');
 
         const pfxConfig = serverOptions.pfx;
 
-        let server = https.createServer({
+        let server = serverOptions.useHttpsProtocol() ? https.createServer({
             pfx: fs.readFileSync(pfxConfig.path),
             passphrase: pfxConfig.password
-        }, app);
+        }, app) : http.createServer();
 
         server.listen(serverOptions.port, serverOptions.host,
             () => console.log('Server listening on port ', serverOptions.port));
