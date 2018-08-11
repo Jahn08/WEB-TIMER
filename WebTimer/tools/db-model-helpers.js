@@ -1,21 +1,20 @@
 ﻿const ResponseError = require('./response-error').ResponseError;
 
-exports.UserModelHelper = function () {
+exports.UserModelHelper = function (response = null) {
     const UserModel = require('../models/user');
     const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 
     let respErr;
 
-    this.setReponse = function (response) {
+    if (response)
         respErr = new ResponseError(response);
-    };
 
     const getMaxLengthForSchemaPath = (path) => {
         const schema = UserModel.schema;
         return { maxlength: schema.path(path).options.maxlength };
     }
 
-    this.getShemaRestrictions = () => {
+    this.getShemaRestrictions = function () {
         return {
             name: getMaxLengthForSchemaPath('name'),
             email: getMaxLengthForSchemaPath('email')
@@ -28,26 +27,16 @@ exports.UserModelHelper = function () {
 
         reject(err);
     };
-
-    const internalUserSearch = function (facebookId, rejectIfEmpty) {
+    
+    this.findUserOrEmpty = function (facebookId) {
         return new Promise((resolve, reject) => {
             UserModel.findOne({ facebookId }, (err, user) => {
                 if (err)
                     processError(err, reject);
-                else if (rejectIfEmpty && !user)
-                    processError('User is not found', reject, 'respondWithUserIsNotFoundError');
                 else
                     resolve(user);
             });
         });
-    };
-
-    this.findUser = function (facebookId) {
-        return internalUserSearch(facebookId, true);
-    };
-
-    this.findUserOrEmpty = function (facebookId) {
-        return internalUserSearch(facebookId);
     };
 
     const buildRegexQuery = (fieldName, pattern) => {
@@ -124,7 +113,7 @@ exports.ProgramModelHelper = function (response) {
 
     ProgramModel.schema.path('stages').schema.path('descr').options
 
-    this.getShemaRestrictions = () => {
+    this.getShemaRestrictions = function () {
         return {
             name: getOptionForSchemaPath(['name']),
             stages: {

@@ -11,66 +11,71 @@ const defaultPrograms = require('../models/default-program');
 
 const dbModelHelper = require('../tools/db-model-helpers');
 const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
-const UserModelHelper = dbModelHelper.UserModelHelper;
-const userModelHelper = new UserModelHelper();
+
+const ResponseError = require('../tools/response-error').ResponseError;
 
 router.route('/')
     .get(facebokAuth.verifyUser, (req, res, next) => {
-        userModelHelper.setReponse(res);
+        let respErr = new ResponseError(res);
+        const user = req.user;
 
-        userModelHelper.findUser(req.user.facebookId).then(user => {
-            const programModelHelper = new ProgramModelHelper(res);
+        if (!user)
+            return respErr.respondWithUserIsNotFoundError();
 
-            programModelHelper.findUserPrograms(user.id).then(programs => {
-                res.status(200).json({ programs, schemaRestrictions: programModelHelper.getShemaRestrictions() });
-            });
+        const programModelHelper = new ProgramModelHelper(res);
+
+        programModelHelper.findUserPrograms(user.id).then(programs => {
+            res.status(200).json({ programs, schemaRestrictions: programModelHelper.getShemaRestrictions() });
         });
     })
     .post(facebokAuth.verifyUser, (req, res, next) => {
-        userModelHelper.setReponse(res);
+        let respErr = new ResponseError(res);
+        const user = req.user;
 
-        userModelHelper.findUser(req.user.facebookId).then(user => {
-            const programModelHelper = new ProgramModelHelper(res);
-            const userId = user.id;
+        if (!user)
+            return respErr.respondWithUserIsNotFoundError();
 
-            programModelHelper.findUserPrograms(userId).then(dbPrograms => {
-                let requestPrograms = req.body.programs;
+        const programModelHelper = new ProgramModelHelper(res);
+        const userId = user.id;
 
-                programModelHelper.reduceProgramsToList(dbPrograms, requestPrograms)
-                    .then(reducedProgramList => {
-                        let newPrograms = [];
+        programModelHelper.findUserPrograms(userId).then(dbPrograms => {
+            let requestPrograms = req.body.programs;
 
-                        requestPrograms.forEach(newProgram => {
-                            let item = reducedProgramList.find(pr => pr._id.toString() === newProgram._id);
+            programModelHelper.reduceProgramsToList(dbPrograms, requestPrograms)
+                .then(reducedProgramList => {
+                    let newPrograms = [];
 
-                            if (item)
-                                programModelHelper.updateProgram(item, newProgram);
-                            else
-                                newPrograms.push(newProgram);
-                        });
+                    requestPrograms.forEach(newProgram => {
+                        let item = reducedProgramList.find(pr => pr._id.toString() === newProgram._id);
 
-                        programModelHelper.createPrograms(newPrograms, userId).then(() => res.redirect(req.baseUrl));
+                        if (item)
+                            programModelHelper.updateProgram(item, newProgram);
+                        else
+                            newPrograms.push(newProgram);
                     });
-            });
+
+                    programModelHelper.createPrograms(newPrograms, userId).then(() => res.redirect(req.baseUrl));
+                });
         });
     });
 
 router.route('/active').get(facebokAuth.verifyUser, (req, res, next) => {
-    userModelHelper.setReponse(res);
-    
-    userModelHelper.findUser(req.user.facebookId).then(user => {
-        const programModelHelper = new ProgramModelHelper(res);
+    let respErr = new ResponseError(res);
+    const user = req.user;
 
-        programModelHelper.findUserActivePrograms(user.id).then(programs => {
-            let overallPrograms = programs;
+    if (!user)
+        return respErr.respondWithUserIsNotFoundError();
 
-            if (programs.length && !user.hideDefaultPrograms)
-                overallPrograms = defaultPrograms.concat(programs).sort((a, b) => a.name > b.name);
+    const programModelHelper = new ProgramModelHelper(res);
 
-            res.status(200).json(overallPrograms);
-        });
+    programModelHelper.findUserActivePrograms(user.id).then(programs => {
+        let overallPrograms = programs;
+
+        if (programs.length && !user.hideDefaultPrograms)
+            overallPrograms = defaultPrograms.concat(programs).sort((a, b) => a.name > b.name);
+
+        res.status(200).json(overallPrograms);
     });
-
 });
 
 router.route('/default').get((req, res, next) => {

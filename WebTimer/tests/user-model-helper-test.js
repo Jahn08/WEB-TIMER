@@ -68,14 +68,15 @@ describe('UserModelHelper', function () {
         const testCallback = (facebookId) => {
 
             return new Promise((resolve, reject) => {
-                const userModelHelper = new UserModelHelper();
-
+                let userModelHelper;
                 let response;
 
                 if (useResponse) {
                     response = mock.mockResponse();
-                    userModelHelper.setReponse(response);
+                    userModelHelper = new UserModelHelper(response);
                 }
+                else
+                    userModelHelper = new UserModelHelper();
 
                 const invokeMethodByName = (methodName, arg) => {
                     const methodToInvoke = userModelHelper[methodName];
@@ -103,37 +104,7 @@ describe('UserModelHelper', function () {
             return testCallback(users[0].facebookId);
         });
     };
-
-    const findUserMethodName = 'findUser';
-
-    describe('#' + findUserMethodName, () => {
-        it('should find an existent user in a database without an error in a response', () => {
-            return useFindingUserMethodWithoutError(findUserMethodName, true);
-        });
-
-        it('should reject and write an error message to a response while trying to find a non existent user in a database', () => {
-            const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper();
-
-            const response = mock.mockResponse();
-            userModelHelper.setReponse(response);
-
-            return expectation.expectRejection(() => userModelHelper.findUser(facebookId),
-                () => assert(response.text && response.statusCode === 404));
-        });
-
-        it('should find an existent user in a database without using a response object', () => {
-            return useFindingUserMethodWithoutError(findUserMethodName, false);
-        });
-
-        it('should reject without using a response object', () => {
-            const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper();
-            
-            return expectation.expectRejection(() => userModelHelper.findUser(facebookId));
-        });
-    });
-
+        
     const findUserOrEmptyMethodName = 'findUserOrEmpty';
 
     describe('#' + findUserOrEmptyMethodName, () => {
@@ -142,11 +113,10 @@ describe('UserModelHelper', function () {
         });
 
         it('should return an empty user without rejecting and an error in a response', () => {
-            const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper();
-
             const response = mock.mockResponse();
-            userModelHelper.setReponse(response);
+            const userModelHelper = new UserModelHelper(response);
+
+            const facebookId = randomiser.getRandomIntUpToMaxInteger();
 
             return new Promise((resolve, reject) => {
                 userModelHelper.findUserOrEmpty(facebookId).then(foundUser => {
