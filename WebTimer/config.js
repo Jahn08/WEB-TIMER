@@ -29,7 +29,9 @@ module.exports = {
         }
     },
     mail: {
-        service: 'mail',
+        host: '',
+        port: 465,
+        secure: true,
         auth: {
             user: '',
             pass: ''

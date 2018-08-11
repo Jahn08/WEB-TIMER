@@ -12,13 +12,15 @@ function Mailer(config, response = null) {
 
     const transport = nodemailer.createTransport(mailTransportOptions);
 
-    const sendMsg = (to, subject, text) => {
+    const sendMsg = (to, processName, html) => {
+        const closing = '<br /><hr /><p>Sincerely yours, the team of Web Timer</p>';
+
         return new Promise((resolve, reject) => {
             transport.sendMail({
-                from: mailTransportOptions.auth.user,
+                from: `Web Timer <${mailTransportOptions.auth.user}>`,
+                html: html + closing,
                 to,
-                subject,
-                text
+                subject: `Web Timer Account ${processName}`  
             })
             .then(info => resolve(info))
             .catch(err => {
@@ -31,24 +33,24 @@ function Mailer(config, response = null) {
     };
 
     this.sendAccountCreationMsg = function (to, name) {
-        const text = `<div>
-            <b>Dear ${name}</b>, we are happy to welcome you on 
-                <a href='${appFullUrl}'>Web Timer</a> where your account has just been created
-            <br /> Now you can build your own customised timers for whatever process you need
-            <br /> We hope you enjoy your experience there
+        const html = `<div>
+            <p><b>Dear ${name}</b>, we are happy to welcome you on 
+                <a href='${appFullUrl}'>Web Timer</a> where your account has just been created.</p>
+            <p>Now you can build your own customised timers for whatever process you need!</p>
+            <p>We hope you enjoy your experience here!</p>
         </div>`;
 
-        return sendMsg(to, 'Web Timer Account Creation', text);
+        return sendMsg(to, 'Creation', html);
     };
 
-    this.sendAccountRemovalMsg = function (to) {
-        const text = `<div>
-            <b>Dear ${name}</b>, we are sorry to hear that you leave <a href='${appFullUrl}'>Web Timer</a>
-            <br /> You account has been deleted
-            <br /> We hope to see you soon
+    this.sendAccountRemovalMsg = function (to, name) {
+        const html = `<div>
+            <p><b>Dear ${name}</b>, we are sorry to hear that you leave <a href='${appFullUrl}'>Web Timer</a>.</p>
+            <p>You account has been deleted.</p>
+            <p>We hope to see you soon!</p>
         </div>`;
 
-        return sendMsg(to, 'Web Timer Account Removal', text);
+        return sendMsg(to, 'Removal', html);
     };
 };
 

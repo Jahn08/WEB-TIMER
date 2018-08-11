@@ -19,7 +19,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
 }, (accessToken, refreshToken, profile, done) => {
     const userModelHelper = new UserModelHelper();
     userModelHelper.findUserOrEmpty(profile.id).then(user => {
-        const proceed = () => done(null, user);
+        const proceed = (newUser) => done(null, newUser);
 
         const savingUser = (userInfo, isNew = false) => {
             userInfo.save((err, user) => {
@@ -27,9 +27,9 @@ const facebookTokenStrategy = new FacebookTokenPassport({
                     done(err);
                 else {
                     if (isNew)
-                        new Mailer(config).sendAccountCreationMsg(user.email, user.name).then(info => proceed());
+                        new Mailer(config).sendAccountCreationMsg(user.email, user.name).then(info => proceed(user));
                     else
-                        proceed();
+                        proceed(user);
                 }
             });
         };
@@ -42,7 +42,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
                 savingUser(user);
             }
             else
-                proceed();
+                proceed(user);
         }
         else {
             let newUser = new User({
