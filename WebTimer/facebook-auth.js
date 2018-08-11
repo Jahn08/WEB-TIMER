@@ -10,6 +10,8 @@ const ResponseError = require('./tools/response-error').ResponseError;
 
 const User = require('./models/user');
 
+const Mailer = require('./tools/mailer');
+
 const facebookTokenStrategy = new FacebookTokenPassport({
     clientID: config.auth.facebook.clientId,
     clientSecret: config.auth.facebook.clientSecret,
@@ -17,8 +19,31 @@ const facebookTokenStrategy = new FacebookTokenPassport({
 }, (accessToken, refreshToken, profile, done) => {
     const userModelHelper = new UserModelHelper();
     userModelHelper.findUserOrEmpty(profile.id).then(user => {
-        if (user)
-            done(null, user);
+        const proceed = () => done(null, user);
+
+        const savingUser = (userInfo, isNew = false) => {
+            userInfo.save((err, user) => {
+                if (err)
+                    done(err);
+                else {
+                    if (isNew)
+                        new Mailer(config).sendAccountCreationMsg(user.email, user.name).then(info => proceed());
+                    else
+                        proceed();
+                }
+            });
+        };
+
+        if (user) {
+            const facebookEmail = profile.emails[0].value;
+
+            if (user.email !== facebookEmail) {
+                user.email = facebookEmail;
+                savingUser(user);
+            }
+            else
+                proceed();
+        }
         else {
             let newUser = new User({
                 name: profile.displayName,
@@ -32,12 +57,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
             if (location)
                 newUser.location = location.name;
 
-            newUser.save((err, user) => {
-                if (err)
-                    done(err);
-                else
-                    done(null, user);
-            });
+            savingUser(newUser, true);
         }
     }).catch(err => done(err));
 });

@@ -48,9 +48,13 @@
     <Compile Include="tests\infrastructure\expectation.js" />
     <Compile Include="tests\infrastructure\mock.js" />
     <Compile Include="tests\program-model-helper-test.js" />
+    <Compile Include="tests\config-test.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tools\db-model-helpers.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="tools\mailer.js" />
     <Compile Include="tools\response-error.js" />
     <Compile Include="facebook-auth.js" />
     <Compile Include="components\audio-list.js">
