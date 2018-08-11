@@ -1,6 +1,6 @@
 ﻿import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
-import ApiHelper from '/components/api-helper.js';
+import { ApiHelper } from '/components/api-helper.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
 const userTimers = {

@@ -21,16 +21,18 @@ function ApiHelper() {
         return promise;
     };
 
-    const getPrograms = (action, token) => {
+    const getQuery = (path, token, entityDescription) => {
         return new Promise((resolve, reject) => {
-            $.ajax('/programs/' + action, token ? formQueryOptions(token) : undefined)
+            $.ajax(path, token ? formQueryOptions(token) : undefined)
                 .then(resp => resolve(resp))
                 .catch(err => {
-                    alert('An error has occured while getting a list of timer programs available: ' + err.statusText);
+                    alert(`An error has occured while getting ${entityDescription}: ${err.statusText}`);
                     reject(err);
                 });
         });
     };
+
+    const getPrograms = (action, token) => getQuery('/programs/' + action, token, 'a list of timer programs available');
 
     this.getDefaultPrograms = function () {
         return getPrograms('default');
@@ -44,22 +46,43 @@ function ApiHelper() {
         return getPrograms('', token);
     };
 
-    this.postUserPrograms = function(token, programs) {
-        const promise = new Promise((resolve, reject) => {
+    this.getUserProfileSettings = function (token) {
+        return getQuery('/users/profile', token, 'the user\'s profile settings');
+    };
+
+    this.postUserProfileSettings = function (token, settings) {
+        return postQuery('/users/profile', token, settings);
+    };
+
+    this.deleteUserProfile = function (token) {
+        return new Promise((resolve, reject) => {
+            $.ajax('/users/profile', formQueryOptions(token, 'DELETE'))
+                .then(resp => resolve(resp))
+                .catch(err => {
+                    alert(`An error has occured while deleting the user\'s profile: ${err.statusText}`);
+                    reject(err);
+                });
+        });
+    };
+
+    const postQuery = (path, token, data) => {
+        return new Promise((resolve, reject) => {
             let options = formQueryOptions(token, 'POST');
-            options.data = JSON.stringify({ programs });
+            options.data = JSON.stringify(data);
             options.contentType = 'application/json';
 
-            $.ajax('/programs', options).then(resp => {
+            $.ajax(path, options).then(resp => {
                 alert('All changes have been successfully saved');
                 resolve(resp);
             }).catch(err => {
-                alert('An error has occured while saving changes to your timer programs: ' + err.statusText);
+                alert('An error has occured while saving changes: ' + err.statusText);
                 reject(err);
             });
         });
+    };
 
-        return promise;
+    this.postUserPrograms = function (token, programs) {
+        return postQuery('/programs', token, { programs });
     };
 
     this.getUserStatistics = function (token, data) {
@@ -78,4 +101,60 @@ function ApiHelper() {
 
 };
 
-export default ApiHelper;
+const FbApiHelper = function () {
+
+    const runFBCallback = (reject, resolvingCallback) => {
+        if (window.FB) {
+            try {
+                resolvingCallback(window.FB);
+            }
+            catch (ex) {
+                reject(ex);
+            }
+        }
+        else
+            reject('FB API is undefined');
+    };
+
+    this.initialise = function () {
+        return new Promise((resolve, reject) => {
+            window.fbAsyncInit = function () {
+                runFBCallback(reject, fb => {
+                    fb.init({
+                        appId: '157829975071233',
+                        cookie: true,
+                        xfbml: true,
+                        version: 'v3.0'
+                    });
+
+                    fb.AppEvents.logPageView();
+                    fb.getLoginStatus(resp => resolve(resp));
+                });
+            };
+        });
+    };
+
+    this.logIn = function () {
+        return new Promise((resolve, reject) =>
+            runFBCallback(reject, fb => fb.login(resp => resolve(resp),
+                { scope: 'public_profile, email, user_gender, user_location' })));
+    };
+
+    this.logOut = function () {
+        return new Promise((resolve, reject) => runFBCallback(reject, fb => fb.logout(resp => resolve(resp))));
+    };
+
+    this.getLoginStatus = function () {
+        return new Promise((resolve, reject) => runFBCallback(reject, fb => fb.getLoginStatus(resp => resolve(resp))));
+    };
+
+    this.getUserInfo = function () {
+        return new Promise((resolve, reject) => runFBCallback(reject, fb =>
+            fb.api('/me?fields=name,picture', resp => {
+                resolve(resp);
+            })));
+    };
+
+}; 
+
+export { ApiHelper, FbApiHelper };

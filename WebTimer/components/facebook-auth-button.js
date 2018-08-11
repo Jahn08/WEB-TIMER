@@ -1,31 +1,20 @@
-import ApiHelper from '/components/api-helper.js';
+import { ApiHelper, FbApiHelper } from '/components/api-helper.js';
 
 const facebookAuthButton = {
     data() {
         return {
             loggedIn: null,
             userName: null,
-            userPhoto: null
+            userPhoto: null,
+            fbApiHelper: new FbApiHelper()
         };
     },
     beforeCreate() {
-        let component = this;
-
-        let initialiseFbSdk = function () {
-            window.fbAsyncInit = function () {
-                FB.init({
-                    appId: '157829975071233',
-                    cookie: true,
-                    xfbml: true,
-                    version: 'v3.0'
-                });
-
-                FB.AppEvents.logPageView();
-                FB.getLoginStatus(function (response) {
-                    if (component && component.statusChangeCallback)
-                        component.statusChangeCallback(response);
-                });
-            };
+        let initialiseFbSdk = () => {
+            const fbApiHelper = new FbApiHelper();
+            fbApiHelper.initialise().then(response => {
+                this.statusChangeCallback(response);
+            });
         };
 
         let insertingFbSdkScript = function () {
@@ -48,20 +37,14 @@ const facebookAuthButton = {
     },
     methods: {
         logIn() {
-            let component = this;
-
-            FB.login(function (response) {
-                component.statusChangeCallback(response);
-            }, { scope: 'public_profile, email, user_gender, user_location' });
+            this.fbApiHelper.logIn().then(response => this.statusChangeCallback(response));
         },
         setUserName() {
-            let component = this;
-
-            FB.api('/me?fields=name,picture', function (response) {
-                component.userName = response.name;
+            this.fbApiHelper.getUserInfo().then(response => {
+                this.userName = response.name;
 
                 if (response.picture && response.picture.data)
-                    component.userPhoto = response.picture.data;
+                    this.userPhoto = response.picture.data;
             });
         },
         statusChangeCallback(response) {
@@ -74,33 +57,23 @@ const facebookAuthButton = {
             }
         },
         sendUserDataToServer(token) {
-            let component = this;
-
             const apiHelper = new ApiHelper();
             apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token, resp.hasAdminRole))
-                .catch(err => component.logOut());
+                .catch(err => this.logOut());
         },
         setUserStateLoggedIn(token, hasAdminRole) {
             this.loggedIn = true;
             this.$emit('logged-in', token, hasAdminRole);
         },
         logOut() {
-            let component = this;
-
-            FB.logout(function (response) {
-                component.statusChangeCallback(response);
-            });
+            this.fbApiHelper.logOut().then(response => this.statusChangeCallback(response));
         },
         setUserStateLoggedOut() {
             this.loggedIn = false;
             this.$emit('logged-out');
         },
         checkLoginState() {
-            let component = this;
-
-            FB.getLoginStatus(function (response) {
-                component.statusChangeCallback(response);
-            });
+            this.fbApiHelper.getLoginStatus().then(response => this.statusChangeCallback(response));
         },
         authResponseIsSuccessful(response) {
             return response.authResponse && response.status === 'connected';
