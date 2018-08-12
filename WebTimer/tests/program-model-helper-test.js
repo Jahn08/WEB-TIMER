@@ -299,15 +299,10 @@ describe('ProgramModelHelper', function () {
         it('should accept an undefined list of programs and resolve with the first passed argument', () => {
             return testReducingProgramListArguments(undefined, []);
         });
-
-        it('should accept an empty list for reduction and resolve with the first passed argument', () => {
-            const programs = [createTestProgram(), createTestProgram()];
-            return testReducingProgramListArguments(programs, []);
-        });
-
+        
         it('should accept an undefined list for reduction and resolve with the first passed argument', () => {
             const programs = [createTestProgram(), createTestProgram()];
-            return testReducingProgramListArguments(programs, []);
+            return testReducingProgramListArguments(programs);
         });
 
         it('should be run with undefined parameters and resolve with undefined response', () => {
@@ -374,10 +369,13 @@ describe('ProgramModelHelper', function () {
         });
         
         it('should reduce a list of programs towards emptiness without changing passed arguments', () => {
-            let reductionList;
-
-            return testReducingProgramList(() => { return reductionList = [createTestProgram(), createTestProgram()] },
-                (reducedPrograms) => assert(reducedPrograms && reducedPrograms.length === 0));
+            return testReducingProgramList(() => [createTestProgram(), createTestProgram()],
+                reducedPrograms => assert(reducedPrograms && reducedPrograms.length === 0));
+        });
+        
+        it('should accept an empty list for reduction and resolve with an empty list of programs', () => {
+            return testReducingProgramList(() => [],
+                reducedPrograms => assert(reducedPrograms && reducedPrograms.length === 0));
         });
     });
 

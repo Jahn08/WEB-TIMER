@@ -215,17 +215,13 @@ exports.ProgramModelHelper = function (response) {
 
     this.reduceProgramsToList = function (dbPrograms, reductionList) {
         return new Promise((resolve, reject) => {
-            if (!dbPrograms || !dbPrograms.length || !reductionList || !reductionList.length) {
+            if (!dbPrograms || !dbPrograms.length || !reductionList) {
                 resolve(dbPrograms);
                 return;
             }
 
             const reductionIds = reductionList.filter(p => p._id).map(p => p._id);
-            if (reductionIds.length == 0) {
-                resolve(dbPrograms);
-                return;
-            }
-
+            
             let reducedProgramList = [];
             let idsForRemoval = [];
             dbPrograms.forEach(serverProgram => {
