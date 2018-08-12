@@ -150,11 +150,15 @@ const FbApiHelper = function () {
 
     this.getUserInfo = function () {
         return new Promise((resolve, reject) => runFBCallback(reject, fb =>
-            fb.api('/me?fields=name,picture', resp => {
-                resolve(resp);
+            fb.api('/me?fields=name,picture', resp => resolve(resp))));
+    };
+    
+    this.deletePermissions = function (userId) {
+        return new Promise((resolve, reject) => runFBCallback(reject, fb =>
+            fb.api(`/v3.1/${userId}/permissions`, 'delete', response => {
+                resolve(response);
             })));
     };
-
 }; 
 
 export { ApiHelper, FbApiHelper };
