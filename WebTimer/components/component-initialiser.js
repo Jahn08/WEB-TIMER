@@ -95,8 +95,10 @@ new Vue({
 
             authEventHelper.emitEvent(token, hasAdminRole);
             
-            if (wasAuthenticated && !this.authenticated)
-                this.$router.go('/');
+            if (wasAuthenticated && !this.authenticated) {
+                this.$router.push('/');
+                location.reload();
+            }
         }
     },
     el: "#app",

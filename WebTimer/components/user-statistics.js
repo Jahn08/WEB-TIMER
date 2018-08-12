@@ -100,13 +100,14 @@ const userStatistics = {
             this.getUsersInfoFromServer();
         },
         getUsersInfoFromServer() {
-            this.apiHelper.getUserStatistics(this.authToken, this.queryFilter).then(resp => {
-                if (resp) {
-                    this.users = resp.users;
-                    this.queryFilter = resp.queryFilter;
-                    this.pageCount = resp.pageCount;
-                }
-            });
+            if (this.authToken)
+                this.apiHelper.getUserStatistics(this.authToken, this.queryFilter).then(resp => {
+                    if (resp) {
+                        this.users = resp.users;
+                        this.queryFilter = resp.queryFilter;
+                        this.pageCount = resp.pageCount;
+                    }
+                });
         },
         searchForText() {
            this.getUsersInfoFromServer();
