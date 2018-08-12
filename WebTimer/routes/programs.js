@@ -71,7 +71,7 @@ router.route('/active').get(facebokAuth.verifyUser, (req, res, next) => {
     programModelHelper.findUserActivePrograms(user.id).then(programs => {
         let overallPrograms = programs;
 
-        if (programs.length && !user.hideDefaultPrograms)
+        if (!programs.length || !user.hideDefaultPrograms)
             overallPrograms = defaultPrograms.concat(programs).sort((a, b) => a.name > b.name);
 
         res.status(200).json(overallPrograms);
