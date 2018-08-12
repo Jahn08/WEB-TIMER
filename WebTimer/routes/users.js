@@ -6,8 +6,6 @@ app.use(bodyParser.json());
 
 const facebookAuth = require('../facebook-auth');
 
-const User = require('../models/user');
-
 const config = require('../config');
 
 const dbModelHelpers = require('../tools/db-model-helpers');
@@ -104,8 +102,15 @@ router.route('/profile')
         user.remove(err => {
             if (err)
                 respErr.respondWithDatabaseError(err);
-            else
-                new Mailer(config).sendAccountRemovalMsg(user.email, user.name).then(info => res.status(204).end());
+            else {
+                const programModelHelper = new dbModelHelpers.ProgramModelHelper(res);
+
+                programModelHelper.findUserPrograms(user.id).then(programs => {
+                    programModelHelper.reduceProgramsToList(programs, []).then(() => {
+                        new Mailer(config).sendAccountRemovalMsg(user.email, user.name).then(info => res.status(204).end());
+                    });
+                });
+            }
         });
     });
 

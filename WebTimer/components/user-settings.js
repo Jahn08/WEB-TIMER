@@ -20,21 +20,27 @@ const userSettings = {
     },
     methods: {
         update() {
+            this.startSaving();
+
+            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(this.finishSaving).catch(this.finishSaving);
+        },
+        startSaving() {
             this.saving = true;
-
-            const finishSaving = () => this.saving = false;
-
-            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(finishSaving).catch(finishSaving);
+        },
+        finishSaving() {
+            this.saving = false;
         },
         removeProfile() {
             if (confirm('You are going to delete your profile with all the timer programs you have created. Continue?')) {
+                this.startSaving();
+
                 this.apiHelper.deleteUserProfile(this.authToken).then((res) => {
                     this.fbApiHelper.getUserInfo().then(userInfo =>
                         this.fbApiHelper.deletePermissions(userInfo.id).then(resp => 
                             this.$router.push('/', arg => {
                                 location.reload();
                             })));
-                });
+                }).catch(this.finishSaving);
             }
         },
         onAuthenticationChange(authToken) {
