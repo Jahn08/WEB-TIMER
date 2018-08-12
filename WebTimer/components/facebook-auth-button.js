@@ -14,7 +14,7 @@ const facebookAuthButton = {
             const fbApiHelper = new FbApiHelper();
             fbApiHelper.initialise().then(response => {
                 this.statusChangeCallback(response);
-            });
+            }).catch(alert);
         };
 
         let insertingFbSdkScript = function () {
@@ -37,7 +37,7 @@ const facebookAuthButton = {
     },
     methods: {
         logIn() {
-            this.fbApiHelper.logIn().then(response => this.statusChangeCallback(response));
+            this.fbApiHelper.logIn().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         setUserName() {
             this.fbApiHelper.getUserInfo().then(response => {
@@ -45,7 +45,7 @@ const facebookAuthButton = {
 
                 if (response.picture && response.picture.data)
                     this.userPhoto = response.picture.data;
-            });
+            }).catch(alert);
         },
         statusChangeCallback(response) {
             if (this.authResponseIsSuccessful(response)) {
@@ -59,21 +59,24 @@ const facebookAuthButton = {
         sendUserDataToServer(token) {
             const apiHelper = new ApiHelper();
             apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token, resp.hasAdminRole))
-                .catch(err => this.logOut());
+                .catch(err => {
+                    alert(err);
+                    this.logOut();
+                });
         },
         setUserStateLoggedIn(token, hasAdminRole) {
             this.loggedIn = true;
             this.$emit('logged-in', token, hasAdminRole);
         },
         logOut() {
-            this.fbApiHelper.logOut().then(response => this.statusChangeCallback(response));
+            this.fbApiHelper.logOut().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         setUserStateLoggedOut() {
             this.loggedIn = false;
             this.$emit('logged-out');
         },
         checkLoginState() {
-            this.fbApiHelper.getLoginStatus().then(response => this.statusChangeCallback(response));
+            this.fbApiHelper.getLoginStatus().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         authResponseIsSuccessful(response) {
             return response.authResponse && response.status === 'connected';

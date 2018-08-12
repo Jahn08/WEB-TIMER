@@ -64,7 +64,7 @@ const userTimers = {
         },
         getUserProgramsFromServer() {
             if (this.authToken)
-                this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp));
+                this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp)).catch(alert);
         },
         initialiseProgramList(response) {
             this.programs = response.programs;
@@ -216,14 +216,23 @@ const userTimers = {
             });
             
             if (this.validateFormData()) {
-                this.saving = true;
+                this.startSaving();
                 this.apiHelper.postUserPrograms(this.authToken, this.programs)
                     .then(resp => {
-                        this.saving = false;
+                        this.finishSaving();
                         this.initialiseProgramList(resp);
                     })
-                    .catch(() => this.saving = false);
+                    .catch(err => {
+                        alert(err);
+                        this.finishSaving();
+                    });
             }
+        },
+        startSaving() {
+            this.saving = true;
+        },
+        finishSaving() {
+            this.saving = false;
         },
         validateFormData() {
             this.hasError = false;

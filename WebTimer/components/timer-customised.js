@@ -141,9 +141,9 @@ const timerCustomised = {
             const apiHelper = new ApiHelper();
             
             if (token)
-                apiHelper.getActivePrograms(token).then(setProgramList);
+                apiHelper.getActivePrograms(token).then(setProgramList).catch(alert);
             else
-                apiHelper.getDefaultPrograms().then(setProgramList);
+                apiHelper.getDefaultPrograms().then(setProgramList).catch(alert);
         },
         changeProgram(event) {
             let obj;

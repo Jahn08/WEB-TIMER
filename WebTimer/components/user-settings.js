@@ -22,7 +22,12 @@ const userSettings = {
         update() {
             this.startSaving();
 
-            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(this.finishSaving).catch(this.finishSaving);
+            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(this.finishSaving)
+                .catch(this.processError);
+        },
+        processError(err) {
+            alert(err);
+            this.finishSaving();
         },
         startSaving() {
             this.saving = true;
@@ -40,7 +45,7 @@ const userSettings = {
                             this.$router.push('/', arg => {
                                 location.reload();
                             })));
-                }).catch(this.finishSaving);
+                }).catch(this.processError);
             }
         },
         onAuthenticationChange(authToken) {
@@ -50,7 +55,7 @@ const userSettings = {
         },
         getUserSettingsFromServer() {
             if (this.authToken)
-                this.apiHelper.getUserProfileSettings(this.authToken).then(res => this.user = res);
+                this.apiHelper.getUserProfileSettings(this.authToken).then(res => this.user = res).catch(this.processError);
         }
     },
     template: `

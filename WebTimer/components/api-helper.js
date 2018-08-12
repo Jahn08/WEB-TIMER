@@ -8,27 +8,24 @@ function ApiHelper() {
             }
         };
     };
-    
-    this.logIn = function(token) {
-        const promise = new Promise((resolve, reject) => {
-            $.ajax('/auth/logIn', formQueryOptions(token, 'POST')).then(resp => resolve(resp))
-                .catch(function(err) {
-                    alert(`An authentication error has occured: ${err.statusText}`);
-                    reject(err);
-                });
-        });
 
-        return promise;
+    const processError = (reject, err) => {
+        console.error(err);
+        reject(err);
+    };
+
+    this.logIn = function(token) {
+        return new Promise((resolve, reject) => {
+            $.ajax('/auth/logIn', formQueryOptions(token, 'POST')).then(resp => resolve(resp))
+                .catch(err => processError(reject, `An authentication error has occured: ${err.statusText}`));
+        });
     };
 
     const getQuery = (path, token, entityDescription) => {
         return new Promise((resolve, reject) => {
             $.ajax(path, token ? formQueryOptions(token) : undefined)
                 .then(resp => resolve(resp))
-                .catch(err => {
-                    alert(`An error has occured while getting ${entityDescription}: ${err.statusText}`);
-                    reject(err);
-                });
+                .catch(err => processError(reject, `An error has occured while getting ${entityDescription}: ${err.statusText}`));
         });
     };
 
@@ -58,10 +55,7 @@ function ApiHelper() {
         return new Promise((resolve, reject) => {
             $.ajax('/users/profile', formQueryOptions(token, 'DELETE'))
                 .then(resp => resolve(resp))
-                .catch(err => {
-                    alert(`An error has occured while deleting the user\'s profile: ${err.statusText}`);
-                    reject(err);
-                });
+                .catch(err => processError(reject, `An error has occured while deleting the user\'s profile: ${err.statusText}`));
         });
     };
 
@@ -74,10 +68,7 @@ function ApiHelper() {
             $.ajax(path, options).then(resp => {
                 alert('All changes have been successfully saved');
                 resolve(resp);
-            }).catch(err => {
-                alert('An error has occured while saving changes: ' + err.statusText);
-                reject(err);
-            });
+            }).catch(err => processError(reject, 'An error has occured while saving changes: ' + err.statusText));
         });
     };
 
@@ -92,10 +83,7 @@ function ApiHelper() {
 
             $.ajax('/users', options)
                 .then(resp => resolve(resp))
-                .catch(err => {
-                    alert('An error has occured while getting user statistics: ' + err.statusText);
-                    reject(err);
-                });
+                .catch(err => processError(reject, 'An error has occured while getting user statistics: ' + err.statusText));
         });
     };
 
@@ -103,17 +91,22 @@ function ApiHelper() {
 
 const FbApiHelper = function () {
 
+    const processError = (reject, err) => {
+        console.error(err);
+        reject(err);
+    };
+
     const runFBCallback = (reject, resolvingCallback) => {
         if (window.FB) {
             try {
                 resolvingCallback(window.FB);
             }
             catch (ex) {
-                reject(ex);
+                processError(reject, 'An error has occured while dealing with FB API: ' + ex);
             }
         }
         else
-            reject('FB API is undefined');
+            processError(reject, 'FB API is undefined');
     };
 
     this.initialise = function () {

@@ -107,7 +107,7 @@ const userStatistics = {
                         this.queryFilter = resp.queryFilter;
                         this.pageCount = resp.pageCount;
                     }
-                });
+                }).catch(alert);
         },
         searchForText() {
            this.getUsersInfoFromServer();
