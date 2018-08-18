@@ -4,6 +4,17 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>WebTimer</Name>
     <RootNamespace>Vue-Node-Timer</RootNamespace>
+    <Environment>MONGO_HOST=mongodb://localhost:27017/
+SERVER_PORT=3443
+SERVER_HOST=localhost
+SERVER_PFX_PATH=../1.pfx
+MAIL_HOST=smtp.yandex.ru
+MAIL_SECURE_PORT=465
+AUTH_FACEBOOK_CLIENT_ID=
+AUTH_FACEBOOK_CLIENT_SECRET=
+SERVER_PFX_PASSWORD=
+MAIL_AUTH_USER=
+MAIL_AUTH_PASSWORD=</Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -20,7 +31,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <NodejsPort>1337</NodejsPort>
-    <StartWebBrowser>true</StartWebBrowser>
+    <StartWebBrowser>True</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
