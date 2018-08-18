@@ -8,9 +8,22 @@ function Mailer(config, response = null) {
         respErr = new ResponseError(response);
 
     const appFullUrl = config.server.getFullUrl();
-    const mailTransportOptions = config.mail;
 
-    const transport = nodemailer.createTransport(mailTransportOptions);
+    const mailTransportOptions = config.mail;
+    const authOptions = mailTransportOptions.auth;
+
+    let transport;
+
+    if (!mailTransportOptions.host || !authOptions.user || !authOptions.pass)
+        transport = {
+            sendMail: () => {
+                return new Promise((resolve, reject) => {
+                    resolve(false);
+                });
+            }
+        };
+    else
+        transport = nodemailer.createTransport(mailTransportOptions);
 
     const sendMsg = (to, processName, html) => {
         const closing = '<br /><hr /><p>Sincerely yours, the team of Web Timer</p>';
