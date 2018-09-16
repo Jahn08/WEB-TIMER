@@ -17,8 +17,8 @@
         app.use(passport.initialize());
     };
 
-    this.configureRoutes = function () {
-        app.use('/components', express.static(__dirname + '/components'));
+    this.configureRoutes = function () {		
+		app.use('/components', express.static(__dirname + '/components'));
         app.use(express.static(__dirname + '/views'));
         app.use('/resources', express.static(__dirname + '/resources'));
 
@@ -36,7 +36,7 @@
        
         const ResponseError = require('./tools/response-error').ResponseError;
 
-        app.use((err, req, res, next) => {
+        app.use((err, req, res, next) => {			
             if (err) {
                 const respErr = new ResponseError(res);
                 respErr.respondWithUnexpectedError(err);
@@ -55,10 +55,10 @@
         let server = serverOptions.useHttpsProtocol() ? https.createServer({
             pfx: fs.readFileSync(pfxConfig.path),
             passphrase: pfxConfig.password
-        }, app) : http.createServer();
+        }, app) : http.createServer(app);
 
         server.listen(serverOptions.port, serverOptions.host,
-            () => console.log('Server listening on port ', serverOptions.port));
+            () => console.log(`Server listening on ${serverOptions.host}:${serverOptions.port}`));
     };
 }
 
