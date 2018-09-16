@@ -4,7 +4,9 @@
     "description": "web-timer",
     "main": "main.js",
     "scripts": {
-        "test": "mocha \"tests\""
+        "start": "node main.js",
+        "test": "mocha \"tests\"",
+        "release": "npm test && npm start"
     },
     "author": {
         "name": "jahn_08"
