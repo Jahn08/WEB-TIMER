@@ -1,0 +1,40 @@
+version: "3.3"
+services:
+    mongo:
+        image: mongo:3.6
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo-data:/data/db
+        deploy:
+            restart_policy:
+                condition: on-failure
+    app:
+        image: jahn27/webtimer
+        ports: 
+            - "3443:443"
+        depends_on:
+            - mongo
+        environment:
+            - NODE_ENV=production
+            - MONGO_HOST=mongodb://mongo/
+            - SERVER_PORT=443
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 10s
+                max_attempts: 3
+                window: 20s
+        secrets:
+            - AUTH_FACEBOOK_CLIENT_ID
+            - AUTH_FACEBOOK_CLIENT_SECRET
+            - SERVER_PFX_PASSWORD
+volumes:
+    mongo-data:
+secrets:
+    AUTH_FACEBOOK_CLIENT_ID:
+        external: true
+    AUTH_FACEBOOK_CLIENT_SECRET:
+        external: true
+    SERVER_PFX_PASSWORD:
+        external: true
