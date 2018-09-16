@@ -14,7 +14,7 @@ const getSecret = (name) => {
 };
 
 const getMongoHost = () => {
-    const host = process.env.MONGO_HOST;
+    const host = process.env.MONGO_HOST || 'mongodb://localhost:27017/';
     return host && host.search(/\/$/, '') === -1 ? host + '/' : host;
 };
 
@@ -31,11 +31,11 @@ module.exports = {
     },
     server: {
         pfx: {
-            path: process.env.SERVER_PFX_PATH,
+            path: process.env.SERVER_PFX_PATH || '1.pfx',
             password: getSecret('SERVER_PFX_PASSWORD') || process.env.SERVER_PFX_PASSWORD
         },
-        port: process.env.SERVER_PORT,
-        host: process.env.SERVER_HOST,
+        port: process.env.SERVER_PORT || 3443,
+        host: process.env.SERVER_HOST || '0.0.0.0',
         getFullUrl: function () {
             const protocol = this.useHttpsProtocol() ? 'https' : 'http';
 
@@ -43,12 +43,12 @@ module.exports = {
             return url.toString();
         },
         useHttpsProtocol: function () {
-            return this.port.toString().endsWith('443');
+            return this.port ? this.port.toString().endsWith('443'): false;
         }
     },
     mail: {
         host: process.env.MAIL_HOST,
-        port:  process.env.MAIL_SECURE_PORT,
+        port:  process.env.MAIL_SECURE_PORT || 465,
         secure: true,
         auth: {
             user: getSecret('MAIL_AUTH_USER') || process.env.MAIL_AUTH_USER,
