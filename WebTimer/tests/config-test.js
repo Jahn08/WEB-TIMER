@@ -1,5 +1,7 @@
 ﻿const assert = require('assert');
 
+const URL = require('url').URL;
+
 const config = require('../config');
 
 describe('config.server', () => {
@@ -13,7 +15,7 @@ describe('config.server', () => {
             assert(url);
 
             const protocol = serverOptions.useHttpsProtocol() ? 'https' : 'http';
-            assert.deepStrictEqual(url, `${protocol}://${serverOptions.host}:${serverOptions.port}/`);
+            assert.deepStrictEqual(url, new URL(`${protocol}://${serverOptions.host}:${serverOptions.port}/`).toString());
         });
     });
 
