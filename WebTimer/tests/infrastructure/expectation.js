@@ -44,7 +44,7 @@ exports.expectRejection = (callback, onRejecting) => {
                     callIfFuncton(onRejecting);
 
                     assert(err);
-                    resolve();
+                    resolve(err);
                 }
                 catch (ex) {
                     reject(ex);

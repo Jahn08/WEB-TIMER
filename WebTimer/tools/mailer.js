@@ -16,9 +16,9 @@ function Mailer(config, response = null) {
 
     if (!mailTransportOptions.host || !authOptions.user || !authOptions.pass)
         transport = {
-            sendMail: () => {
+            sendMail: (msgData) => {
                 return new Promise((resolve, reject) => {
-                    resolve(false);
+                    resolve(msgData);
                 });
             }
         };
@@ -64,6 +64,16 @@ function Mailer(config, response = null) {
         </div>`;
 
         return sendMsg(to, 'Removal', html);
+    };
+
+    this.sendAdminRoleSwitchMsg = function (to, name, isAdmin) {
+        const html = `<div>
+            <p><b>Dear ${name}</b>, there have been changes made to your profile role on <a href='${appFullUrl}'>Web Timer</a>.</p>
+            <p>You have been ${isAdmin ? 'granted': 'deprived of'} the administrative role.</p>
+            <p>For more information visit your profile or pose your questions by replying to the message.</p>
+        </div>`;
+
+        return sendMsg(to, 'Administrative Role Change', html);
     };
 };
 

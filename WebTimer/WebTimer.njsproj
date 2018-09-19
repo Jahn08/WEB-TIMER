@@ -58,6 +58,7 @@ MAIL_AUTH_PASSWORD=</Environment>
     <Compile Include="tests\infrastructure\db-connector.js" />
     <Compile Include="tests\infrastructure\expectation.js" />
     <Compile Include="tests\infrastructure\mock.js" />
+    <Compile Include="tests\mailer-test.js" />
     <Compile Include="tests\program-model-helper-test.js" />
     <Compile Include="tests\config-test.js">
       <SubType>Code</SubType>
