@@ -87,6 +87,11 @@ function ApiHelper() {
         });
     };
 
+    this.postUserAdminRoleSwitch = function (token, userId) {
+        return postQuery('/users/adminSwitch', token, {
+            id: userId
+        });
+    };
 };
 
 const FbApiHelper = function () {

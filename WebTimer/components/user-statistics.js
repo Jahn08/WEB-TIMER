@@ -68,7 +68,8 @@ const userStatistics = {
                 { key: 'location', value: 'Location' },
                 { key: 'administrator', value: 'Administrator' },
                 { key: 'createdAt', value: 'Created' },
-                { key: 'lastLogin', value: 'Last Activity' }]
+                { key: 'lastLogin', value: 'Last Activity' }],
+            curUserId: null
         };
     },
     filters: {
@@ -103,6 +104,7 @@ const userStatistics = {
             if (this.authToken)
                 this.apiHelper.getUserStatistics(this.authToken, this.queryFilter).then(resp => {
                     if (resp) {
+                        this.curUserId = resp.curUserId;
                         this.users = resp.users;
                         this.queryFilter = resp.queryFilter;
                         this.pageCount = resp.pageCount;
@@ -120,6 +122,14 @@ const userStatistics = {
                 this.queryFilter.sortDirection = direction;
 
                 this.getUsersInfoFromServer();
+            }
+        },
+        switchAdminRole(user) {
+            if (confirm(`${user.name} will be ${user.administrator ? 'deprived of' : 'granted'} the administrative role. ` +
+                    'The user will get the respective message. Continue?')) {
+                this.apiHelper.postUserAdminRoleSwitch(this.authToken, user._id)
+                    .then(outcome => user.administrator = outcome.administrator)
+                    .catch(alert);
             }
         }
     },
@@ -143,7 +153,7 @@ const userStatistics = {
                             <td>{{ user.name }}</td>
                             <td>{{ user.gender }}</td>
                             <td>{{ user.location }}</td>
-                            <td>{{ user.administrator }}</td>
+                            <td>{{ user.administrator }} <button v-if="user._id !== curUserId" class="btn btn-link" @click="switchAdminRole(user)">(switch)</button></td>
                             <td>{{ user.createdAt | toShortDateFormat }}</td>
                             <td>{{ user.lastLogin | toShortDateFormat }}</td>
                             <td class="text-secondary">{{ user.activeProgramCount }}</td>

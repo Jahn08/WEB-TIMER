@@ -57,6 +57,7 @@ router.route('/')
                             sortField,
                             sortDirection
                         },
+                        curUserId: req.user._id,
                         users: sortDirection == 1 ? _users.sort((a, b) => a[sortField] > b[sortField]) :
                             _users.sort((a, b) => a[sortField] < b[sortField]),
                         pageCount
@@ -113,5 +114,37 @@ router.route('/profile')
             }
         });
     });
+
+router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAdmin, (req, res, next) => {
+    const userModelHelper = new dbModelHelpers.UserModelHelper(res);
+    const respErr = new ResponseError(res);
+
+    const user = req.user;
+
+    if (!user)
+        return respErr.respondWithUserIsNotFoundError();
+    
+    const changedUser = req.body;
+    let changedUserId;
+
+    if (changedUser && (changedUserId = changedUser.id)) {
+
+        if (user._id.toString() === changedUserId)
+            return respErr.respondWithUnexpectedError('Current user cannot change their own administrative role');
+
+        userModelHelper.findUserByIdOrEmpty(changedUserId).then(foundUser => {
+            if (!foundUser)
+                return respErr.respondWithUserIsNotFoundError();
+
+            const isAdmin = !foundUser.administrator;
+            const updateBody = { administrator: isAdmin };
+
+            foundUser.update({ $set: updateBody })
+                .then(() => new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin)
+                    .then(() => res.status(200).json(updateBody)))
+                .catch(err => respErr.respondWithUnexpectedError(err));
+        });
+    }
+});
 
 module.exports = router;
