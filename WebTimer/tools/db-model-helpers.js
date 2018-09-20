@@ -27,10 +27,10 @@ exports.UserModelHelper = function (response = null) {
 
         reject(err);
     };
-    
-    this.findUserOrEmpty = function (facebookId) {
+
+    const searchForUser = (searchMethodName, key) => {
         return new Promise((resolve, reject) => {
-            UserModel.findOne({ facebookId }, (err, user) => {
+            UserModel[searchMethodName](key, (err, user) => {
                 if (err)
                     processError(err, reject);
                 else
@@ -38,6 +38,10 @@ exports.UserModelHelper = function (response = null) {
             });
         });
     };
+
+    this.findUserByIdOrEmpty = (id) => searchForUser('findById', id);
+
+    this.findUserOrEmpty = (facebookId) => searchForUser('findOne', { facebookId });
 
     const buildRegexQuery = (fieldName, pattern) => {
         let query = { };

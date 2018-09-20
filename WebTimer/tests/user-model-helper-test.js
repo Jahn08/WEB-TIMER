@@ -1,5 +1,7 @@
 const assert = require('assert');
 
+const ObjectId = require('mongoose').Types.ObjectId;
+
 const User = require('../models/user');
 const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 
@@ -63,86 +65,94 @@ describe('UserModelHelper', function () {
             }));
         });
     };
-        
-    const useFindingUserMethodWithoutError = (methodToInvoke, useResponse) => {
-        const testCallback = (facebookId) => {
+    
+    const testSearchingForUser = (searchMethodName, searchPropertyName, seedIdCallback) => {
 
-            return new Promise((resolve, reject) => {
-                let userModelHelper;
-                let response;
+        const useFindingUserMethodWithoutError = (methodToInvoke, useResponse, propertyToCompare) => {
+            const testCallback = (key) => {
 
-                if (useResponse) {
-                    response = mock.mockResponse();
-                    userModelHelper = new UserModelHelper(response);
-                }
-                else
-                    userModelHelper = new UserModelHelper();
+                return new Promise((resolve, reject) => {
+                    let userModelHelper;
+                    let response;
 
-                const invokeMethodByName = (methodName, arg) => {
-                    const methodToInvoke = userModelHelper[methodName];
-                    assert(methodToInvoke);
+                    if (useResponse) {
+                        response = mock.mockResponse();
+                        userModelHelper = new UserModelHelper(response);
+                    }
+                    else
+                        userModelHelper = new UserModelHelper();
 
-                    return methodToInvoke(arg);
-                };
+                    const invokeMethodByName = (methodName, arg) => {
+                        const methodToInvoke = userModelHelper[methodName];
+                        assert(methodToInvoke);
 
-                invokeMethodByName(methodToInvoke, facebookId).then(foundUser => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
-                        assert(foundUser);
-                        assert.strictEqual(foundUser.facebookId, facebookId.toString());
+                        return methodToInvoke(arg);
+                    };
 
-                        if (useResponse)
-                            assert(!response.text);
+                    invokeMethodByName(methodToInvoke, key).then(foundUser => {
+                        expectation.tryCatchForPromise(resolve, reject, () => {
+                            assert(foundUser);
+                            assert.strictEqual(foundUser[propertyToCompare].toString(), key.toString());
+
+                            if (useResponse)
+                                assert(!response.text);
+                        });
+                    }).catch(err => {
+                        reject(err);
                     });
-                }).catch(err => {
-                    reject(err);
                 });
+            };
+
+            return createTestUsers(users => {
+                assert(users && users.length == 1);
+                return testCallback(users[0][propertyToCompare]);
             });
         };
 
-        return createTestUsers(users => {
-            assert(users && users.length == 1);
-            return testCallback(users[0].facebookId);
+        const generateRandomId = () => {
+            const randomNum = randomiser.getRandomIntUpToMaxInteger();
+
+            return seedIdCallback ? seedIdCallback(randomNum) : randomNum;
+        };
+
+        describe('#' + searchMethodName, () => {
+            it('should find an existent user in a database without an error in a response', () => {
+                return useFindingUserMethodWithoutError(searchMethodName, true, searchPropertyName);
+            });
+
+            it('should return an empty user without rejecting and an error in a response', () => {
+                const response = mock.mockResponse();
+                const userModelHelper = new UserModelHelper(response);
+                
+                return new Promise((resolve, reject) => {
+                    userModelHelper[searchMethodName](generateRandomId()).then(foundUser => {
+                        expectation.tryCatchForPromise(resolve, reject, () => {
+                            assert(!foundUser);
+                            assert(!response.text && !response.statusCode);
+                        });
+                    }).catch(err => reject(err));
+                });
+            });
+
+            it('should find an existent user in a database without using a response object', () => {
+                return useFindingUserMethodWithoutError(searchMethodName, false, searchPropertyName);
+            });
+
+            it('should return an empty user without using a response object', () => {
+                const userModelHelper = new UserModelHelper();
+
+                return new Promise((resolve, reject) => {
+                    userModelHelper[searchMethodName](generateRandomId()).then(foundUser =>
+                        expectation.tryCatchForPromise(resolve, reject, () => assert(!foundUser)))
+                        .catch(err => reject(err));
+                });
+            });
         });
     };
-        
-    const findUserOrEmptyMethodName = 'findUserOrEmpty';
 
-    describe('#' + findUserOrEmptyMethodName, () => {
-        it('should find an existent user in a database without an error in a response', () => {
-            return useFindingUserMethodWithoutError(findUserOrEmptyMethodName, true);
-        });
+    testSearchingForUser('findUserOrEmpty', 'facebookId');
 
-        it('should return an empty user without rejecting and an error in a response', () => {
-            const response = mock.mockResponse();
-            const userModelHelper = new UserModelHelper(response);
-
-            const facebookId = randomiser.getRandomIntUpToMaxInteger();
-
-            return new Promise((resolve, reject) => {
-                userModelHelper.findUserOrEmpty(facebookId).then(foundUser => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
-                        assert(!foundUser);
-                        assert(!response.text && !response.statusCode);
-                    });
-                }).catch(err => reject(err));
-            });
-        });
-
-        it('should find an existent user in a database without using a response object', () => {
-            return useFindingUserMethodWithoutError(findUserOrEmptyMethodName, false);
-        });
-
-        it('should return an empty user without using a response object', () => {
-            const facebookId = randomiser.getRandomIntUpToMaxInteger();
-            const userModelHelper = new UserModelHelper();
-
-            return new Promise((resolve, reject) => {
-                userModelHelper.findUserOrEmpty(facebookId).then(foundUser =>
-                    expectation.tryCatchForPromise(resolve, reject, () => assert(!foundUser)))
-                    .catch(err => reject(err));
-            });
-        });
-    });
+    testSearchingForUser('findUserByIdOrEmpty', '_id', (num) => new ObjectId(num));
 
     describe('#getShemaRestrictions', () => {
         it('should return correct restrictions to the User schema model', () => {
