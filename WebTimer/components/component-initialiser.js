@@ -7,6 +7,7 @@ import timer from '/components/timer.js';
 import timerCustomised from '/components/timer-customised.js';
 import userSettings from '/components/user-settings.js';
 import userStatistics from '/components/user-statistics.js';
+import about from '/components/about.js';
 import AuthSession from '/components/auth-session.js';
 import { authEventHelper } from '/components/event-bus.js';
 
@@ -58,6 +59,7 @@ new Vue({
                     }
                 ]
             },
+            { path: '/about', component: about },
             { path: '/', redirect: '/home' }
         ]
     }),

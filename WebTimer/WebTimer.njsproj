@@ -14,7 +14,8 @@ AUTH_FACEBOOK_CLIENT_ID=
 AUTH_FACEBOOK_CLIENT_SECRET=
 SERVER_PFX_PASSWORD=
 MAIL_AUTH_USER=
-MAIL_AUTH_PASSWORD=</Environment>
+MAIL_AUTH_PASSWORD=
+ABOUT_WEBSITE=</Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -40,6 +41,7 @@ MAIL_AUTH_PASSWORD=</Environment>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="components\about.js" />
     <Compile Include="components\api-helper.js" />
     <Compile Include="components\auth-listener.js" />
     <Compile Include="components\component-initialiser.js" />

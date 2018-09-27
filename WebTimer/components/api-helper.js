@@ -34,7 +34,7 @@ function ApiHelper() {
     this.getDefaultPrograms = function () {
         return getPrograms('default');
     };
-
+    
     this.getActivePrograms = function (token) {
         return getPrograms('active', token);
     };
@@ -45,6 +45,10 @@ function ApiHelper() {
 
     this.getUserProfileSettings = function (token) {
         return getQuery('/users/profile', token, 'the user\'s profile settings');
+    };
+
+    this.getAboutInfo = function () {
+        return getQuery('/modules/about', null, 'additional information about the application')
     };
 
     this.postUserProfileSettings = function (token, settings) {

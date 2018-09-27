@@ -11,4 +11,13 @@ router.use('/multiple-select', express.static(path.join(rootPath, 'multiple-sele
 router.use('/vue', express.static(path.join(rootPath, 'vue', 'dist')));
 router.use('/vue-router', express.static(path.join(rootPath, 'vue-router', 'dist')));
 
+const config = require('../config');
+
+router.route('/about').get((req, res, next) => {
+    res.status(200).json({
+        email: config.mail.auth.user,
+        website: config.about.website
+    });
+});
+
 module.exports = router;

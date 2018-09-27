@@ -51,8 +51,11 @@ module.exports = {
         port:  process.env.MAIL_SECURE_PORT || 465,
         secure: true,
         auth: {
-            user: getSecret('MAIL_AUTH_USER') || process.env.MAIL_AUTH_USER,
+            user: process.env.MAIL_AUTH_USER,
             pass: getSecret('MAIL_AUTH_PASSWORD') || process.env.MAIL_AUTH_PASSWORD
         }
+    },
+    about: {
+        website: process.env.ABOUT_WEBSITE
     }
 };
