@@ -20,10 +20,10 @@ const about = {
             },
             template: `
                  <div class="row">
-                    <div class="col-1">
+                    <div class="col">
                         <a :id="id" class="badge badge-info" :href="href" target="_blank"><slot></slot></a>
+                        <label class="text-primary" :for="id">{{ description }}</label>
                     </div>
-                    <label class="col-5 text-primary" :for="id">{{ description }}</label>
                 </div>`
         },
         banner
