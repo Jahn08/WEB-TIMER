@@ -3,26 +3,19 @@
 <head>
     <meta charset="utf-8" />
     <title>Web Timer</title>
-    <!--TODO: Credit the author of the icon: 
-        <div>Icons made by 
-            <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from 
-            <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by 
-            <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
-        </div>-->
     <link rel="icon" href="/resources/images/favicon.ico" />
 </head>
 <body>
-    <!--TODO: Use minified version-->
-    <link href="/modules/bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link href="/modules/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link href="/modules/multiple-select/multiple-select.css" rel="stylesheet" />
     <link href="/resources/css/common.css" rel="stylesheet" />
 
-    <script src="/modules/jquery/jquery.js"></script>
+    <script src="/modules/jquery/jquery.min.js"></script>
 
-    <script src="/modules/bootstrap/js/bootstrap.js"></script>
+    <script src="/modules/bootstrap/js/bootstrap.min.js"></script>
     <script src="/modules/multiple-select/multiple-select.js"></script>
-    <script src="/modules/vue/vue.js"></script>
-    <script src="/modules/vue-router/vue-router.js"></script>
+    <script src="/modules/vue/vue.min.js"></script>
+    <script src="/modules/vue-router/vue-router.min.js"></script>
 
     <script type="module" src="/components/component-initialiser.js"></script>
     
@@ -32,5 +25,19 @@
             </facebook-auth-button>
         </main-menu>
     </div>
+
+    <footer class="footer">
+        <div class="container text-left text-muted">
+            <div><small>© 2018 <a target="_blank" href="https://github.com/Jahn08">Jahn08</a></small></div>
+            <div>
+                <small>
+                    Icons made by
+                    <a target="_blank" href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from
+                    <a target="_blank" href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
+                    <a target="_blank" href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC 3.0 BY</a>
+                </small>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

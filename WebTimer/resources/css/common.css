@@ -188,3 +188,14 @@ table.fbBtnTable td {
 .ms-choice > span {
     position: relative;
 }
+
+#app {
+    min-height: 500px;
+}
+
+.footer {
+    margin-top: 60px;
+    position: relative;
+    width: 100%;
+    height: 60px;
+}
