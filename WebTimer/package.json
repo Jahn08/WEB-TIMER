@@ -1,6 +1,6 @@
 {
     "name": "web-timer",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "description": "web-timer",
     "main": "main.js",
     "scripts": {
@@ -11,18 +11,23 @@
     "author": {
         "name": "jahn_08"
     },
+    "license": "BSD-3-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Jahn08/WEB-TIMER.git"
+    },
     "dependencies": {
-        "body-parser": "^1.18.2",
-        "bootstrap": "^4.1.2",
-        "express": "^4.16.3",
-        "jquery": "^3.3.1",
-        "mocha": "^5.2.0",
-        "mongoose": "^5.0.11",
-        "multiple-select": "^1.2.1",
-        "nodemailer": "^4.6.7",
-        "passport": "^0.4.0",
-        "passport-facebook-token": "^3.3.0",
-        "vue": "^2.5.16",
-        "vue-router": "^3.0.1"
+        "body-parser": "~1.18.2",
+        "bootstrap": "~4.1.2",
+        "express": "~4.16.3",
+        "jquery": "~3.3.1",
+        "mocha": "~5.2.0",
+        "mongoose": "~5.0.11",
+        "multiple-select": "~1.2.1",
+        "nodemailer": "~4.6.7",
+        "passport": "~0.4.0",
+        "passport-facebook-token": "~3.3.0",
+        "vue": "~2.5.16",
+        "vue-router": "~3.0.1"
     }
 }
