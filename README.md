@@ -8,18 +8,18 @@ A web application to set a timer or stopwatch along with some customisation prov
 * Timer and stopwatch available without registration
 * Customised timers for registered users
 * OAuth authentication and registration by Facebook
-* Administration module to gather user statistics
-* MongoDB as a default DB model provider (Entity Framework) ([read more](#headDatabase))
+* Administration module to gather the users' statistics
+* MongoDB as a default DB model provider ([read more](#headDatabase))
 
 ## Installing / Getting started
 
 The application is dependent on Node.js ([read more](#headPrerequisites)) along with MongoDB ([read more](#headSettingUpDev)).
 
-There is a couple of ways to start the application in from inside the WebTimer directory (there must be a file package.json):
-1.npm start
-2.npm run release - starts the application after getting through the tests
+There is a couple of ways to start the application from inside the WebTimer directory (there must be a file package.json):
+1. npm start
+2. npm run release - starts the application after getting through testing
 
-The first user registered in the application will be granted a role of an administrator.
+The first user registered in the application will be granted the role of an administrator.
 
 ## Developing
 
@@ -27,16 +27,16 @@ The first user registered in the application will be granted a role of an admini
 
 * [express 4.16.3](https://www.npmjs.com/package/express/v/4.16.3)
 * [Vue 2.5.16](https://www.npmjs.com/package/vue/v/2.5.16)
-* [Vue-router 3.0.1](https://www.npmjs.com/package/vue-router/v/3.0.1)
+* [vue-router 3.0.1](https://www.npmjs.com/package/vue-router/v/3.0.1)
 * [Bootstrap 4.1.2](https://www.npmjs.com/package/bootstrap/v/4.1.2)
 * [jQuery 3.3.1](https://www.npmjs.com/package/jquery/v/3.3.1)
-* [mongoose 5.0.11](https://www.npmjs.com/package/mongoose/v/5.0.11)
+* [Mongoose 5.0.11](https://www.npmjs.com/package/mongoose/v/5.0.11)
 * [mocha 5.2.0](https://www.npmjs.com/package/mocha/v/5.2.0)
-* [passport 0.4.0](https://www.npmjs.com/package/passport/v/0.4.0)
+* [Passport 0.4.0](https://www.npmjs.com/package/passport/v/0.4.0)
 * [passport-facebook-token 3.3.0](https://www.npmjs.com/package/passport-facebook-token/v/3.3.0)
 * [body-parser 1.18.2](https://www.npmjs.com/package/body-parser/v/1.18.2)
-* [multiple-select 1.2.1](https://www.npmjs.com/package/multiple-select/v/1.2.1)
-* [nodemailer 4.6.7](https://www.npmjs.com/package/nodemailer/v/4.6.7)
+* [Multiple Select 1.2.1](https://www.npmjs.com/package/multiple-select/v/1.2.1)
+* [Nodemailer 4.6.7](https://www.npmjs.com/package/nodemailer/v/4.6.7)
 
 ### <a name="headPrerequisites"></a>Prerequisites
 
@@ -46,28 +46,28 @@ The first user registered in the application will be granted a role of an admini
 
 ### <a name="headSettingUpDev"></a>Setting up Dev
 
-Developing the application in VS 2017 Community requires turning on the Node.js development component while installing. Additionally, [Node JS Tools] (https://github.com/Microsoft/nodejstools/) is a requirement.
+Developing the application in VS 2017 Community requires turning on the Node.js development component while installing. Additionally, [Node JS Tools](https://github.com/Microsoft/nodejstools/) is a requirement.
 
 The developer computer has to have an access to a MongoDB server installed to deploy the database ([read more](#headDatabase)).
 
 ### Deploying / Publishing
 
 The stages to deploy the application in a docker container by command prompt:
-1.Run a command in the root folder of the project where the Dockerfile file is available: docker build -t jahn27/webtimer .
-2.Before the usage of the docker stack deploy command a swarm has to be initialised: docker swarm init
-3.Since the application relies on secret values they have to be entered the next way: echo 157829975071233|docker secret create <SECRET_NAME> -
-The list of all the possible secrets can be found in the docker-compose.yml file (their description in the [configuration section below](#headConfiguration)).
-4.In the same directory where the docker-compose.yml file lies run a command: docker stack deploy -c docker-compose.yml webtimer
+1. Run a command in the root folder of the project where the Dockerfile file is available: *docker build -t jahn27/webtimer .*
+2. Before the usage of the docker stack deploy command a swarm has to be initialised: *docker swarm init*
+3. Since the application relies on secret values they have to be entered the next way: *echo 157829975071233|docker secret create <SECRET_NAME> -*
+The list of all the possible secrets can be found in the docker-compose.yml file (more about them in the [configuration section below](#headConfiguration)).
+4. In the same directory where the docker-compose.yml file lies run a command: *docker stack deploy -c docker-compose.yml webtimer*
 
 ## <a name="headConfiguration"></a>Configuration
 
-All preferences are set in config.js in the WebTimer directory. Each option backed up by a secret parameter can also be determined through an environment variable with the same name for purposes of developing. The structure of the settings is next:
+All preferences are set in config.js inside the WebTimer directory. Each option supplemented with a secret parameter can also be determined through an environment variable with the same name for purposes of developing. The structure of the settings is next:
 * URLs for databases: *db.uri* and *db.testUri* are distinct in names for the main and test databases respectively, whereas the host for MongoDB is determined through an environment variable *MONGO_HOST* or *mongodb://localhost:27017/* by default
 * Parameters for the Facebook authentication: *auth.facebook.clientId* and *auth.facebook.secretId* (both are set by secrets  *AUTH_FACEBOOK_CLIENT_ID* and *AUTH_FACEBOOK_CLIENT_SECRET* accordingly)
 * To set a path to a certificate in a pfx-format along with its password when running the application on HTTPS: *server.pfx.path* (an environment variable *SERVER_PFX_PATH* or *1.pfx* by default) and *server.pfx.password* (a secret *SERVER_PFX_PASSWORD*)
 * *server.port* (an environment variable *SERVER_PORT* or *3443* by default) and *server.host* (an environment variable *SERVER_HOST* or *0.0.0.0* by default)
 * For sending automatic email messages: *mail.host* (an environment variable *MAIL_HOST*), *mail.port* (an environment variable *MAIL_SECURE_PORT* or *465*), *mail.auth.user* (an environment variable *MAIL_AUTH_USER*) and *mail.auth.pass* (a secret *MAIL_AUTH_PASSWORD*). The mechanism works out as long as the host and authentication options are set up 
-* Parameters for storing additional information: *about.website* (an environment variable *ABOUT_WEBSITE*) determines a URL for a home site on the about page
+* Parameters to store additional information: *about.website* (an environment variable *ABOUT_WEBSITE*) determines a URL for a home site on the about page
 
 ## API Reference
 
@@ -91,8 +91,8 @@ The user must be an administrator to have access to the methods:
 
 ## <a name="headDatabase"></a>Database
 
-The project database is built upon MongoDB([read more about its version](#headPrerequisites)). A default database server address used in the application is mongodb://localhost:27017/.
+The project database is built upon MongoDB ([read more about its version](#headPrerequisites)). A default database server address used in the application is mongodb://localhost:27017/.
 
 There are 2 tables altogether:
-* **User stores users' data such as: name, gender, location, email, preferences, etc.
-* **Program keeps all information about users' customised timers and their stages in an included schema (a duration, description and order)
+* **User** stores users' data such as: name, gender, location, email, preferences, etc.
+* **Program** keeps all information about users' customised timers and their stages in an included schema (a duration, description and order)
