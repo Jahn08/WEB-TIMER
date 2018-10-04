@@ -9,15 +9,15 @@ A web application to set a timer or stopwatch along with some customisation prov
 * Customised timers for registered users
 * OAuth authentication and registration by Facebook
 * Administration module to gather the users' statistics
-* MongoDB as a default DB model provider ([read more](#headDatabase))
+* MongoDB as a default DB model provider ([more about database](#headDatabase))
 
 ## Installing / Getting started
 
-The application is dependent on Node.js ([read more](#headPrerequisites)) along with MongoDB ([read more](#headSettingUpDev)).
+The application is dependent on Node.js ([more about its version](#headPrerequisites)) along with MongoDB ([more about its version](#headSettingUpDev)).
 
 There is a couple of ways to start the application from inside the WebTimer directory (there must be a file package.json):
-1. npm start
-2. npm run release - starts the application after getting through testing
+1. *npm start*
+2. *npm run release* - starts the application after getting through testing
 
 The first user registered in the application will be granted the role of an administrator.
 
@@ -38,6 +38,8 @@ The first user registered in the application will be granted the role of an admi
 * [Multiple Select 1.2.1](https://www.npmjs.com/package/multiple-select/v/1.2.1)
 * [Nodemailer 4.6.7](https://www.npmjs.com/package/nodemailer/v/4.6.7)
 
+Icons made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [www.flaticon.com](https://www.flaticon.com/) are licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
+
 ### <a name="headPrerequisites"></a>Prerequisites
 
 * [Node.js 8.9.4](https://nodejs.org/download/release/v8.9.4/)
@@ -48,7 +50,7 @@ The first user registered in the application will be granted the role of an admi
 
 Developing the application in VS 2017 Community requires turning on the Node.js development component while installing. Additionally, [Node JS Tools](https://github.com/Microsoft/nodejstools/) is a requirement.
 
-The developer computer has to have an access to a MongoDB server installed to deploy the database ([read more](#headDatabase)).
+The developer computer has to have an access to a MongoDB server installed to deploy the database ([more about database](#headDatabase)).
 
 ### Deploying / Publishing
 
@@ -76,22 +78,22 @@ Public API methods working for anonymous visitors:
 * **GET modules** sends static script files
 * **GET modules/about** to read basic contact information from the configuration: *{ email, website }* ([more about configuring](#headConfiguration))
 
-Some API methods are for authenticated users and that's why they require a Facebook token as a header Authorization: *Bearer <token>*. The methods:
-* **POST auth/logIn** returns the user's login time, returns whether the user is an administrator *{ hasAdminRole }*; provided it's a new user it sends an email to them, if the respective preferences are set ([more about configuring](#headConfiguration))
-* **GET programs** to get a user's customised programs returning an object *{ programs: { _id, name, userId, stages: [order, duration, descr], active }, schemaRestrictions }*, where *schemaRestrictions* describes restrictions imposed by the program schema
+Some API methods are for authenticated users and that's why they require a Facebook token as a header Authorization: *Bearer [token]*. The methods:
+* **POST auth/logIn** updates the user's login time and returns whether the user is an administrator *{ hasAdminRole }*; provided it's a new user it sends an email to them if the respective preferences are set ([more about configuring](#headConfiguration))
+* **GET programs** to get a user's customised programs through an object *{ programs: { _id, name, userId, stages: [order, duration, descr], active }, schemaRestrictions }*, where *schemaRestrictions* describes restrictions imposed by the program schema
 * **POST programs** saves a list of the user's program objects: *{ programs: { _id, name, userId, stages: [order, duration, descr], active } }*, programs absent from the list will be removed from the database; then it redirects to **GET programs**
 * **GET programs/active** returns the list of the user's active programs: *[{ _id, name, userId, stages: [order, duration, descr], active }]*
-* **GET users/profile** to get the user's preferences: *{ hideDefaultPrograms }* - the only option determines whether only active customised timers should be shown (if there are such available) or all timer programs including default ones
+* **GET users/profile** to get the user's preferences: *{ hideDefaultPrograms }* - the sole option determines whether only active customised timers should be shown (if there are such available) or all timer programs including default ones
 * **POST users/profile** accepts the user's only option to update: *{ hideDefaultPrograms }*
-* **DELETE users/profile** after removal sends an email to the user, if the respective preferences are set ([more about configuring](#headConfiguration))
+* **DELETE users/profile** after removal sends an email to the user if the respective preferences are set ([more about configuring](#headConfiguration))
 
 The user must be an administrator to have access to the methods:
 * **GET users** accepts an object for sorting and filtering its outcome: *{ query: { page || 1, searchFor, sortField || 'name', sortDirection || -1 } }*; returns *{ queryFilter: { page, searchFor, sortField, sortDirection }, curUserId, users: [_id, name, administrator, location, gender, lastLogin, createdAt], pageCount }*
-* **POST users/adminSwitch** switch the user's administrative right; after the process this sends an email to the user, if the respective preferences are set ([more about configuring](#headConfiguration))
+* **POST users/adminSwitch** switch the user's administrative right; thereafter it sends an email to the user if the respective preferences are set ([more about configuring](#headConfiguration))
 
 ## <a name="headDatabase"></a>Database
 
-The project database is built upon MongoDB ([read more about its version](#headPrerequisites)). A default database server address used in the application is mongodb://localhost:27017/.
+The project database is built upon MongoDB ([more about its version](#headPrerequisites)). A default database server address used in the application is *mongodb://localhost:27017/*.
 
 There are 2 tables altogether:
 * **User** stores users' data such as: name, gender, location, email, preferences, etc.
