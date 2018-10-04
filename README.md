@@ -88,7 +88,7 @@ Some API methods are for authenticated users and that's why they require a Faceb
 * **DELETE users/profile** after removal sends an email to the user if the respective preferences are set ([more about configuring](#headConfiguration))
 
 The user must be an administrator to have access to the methods:
-* **GET users** accepts an object for sorting and filtering its outcome: *{ query: { page || 1, searchFor, sortField || 'name', sortDirection || -1 } }*; returns *{ queryFilter: { page, searchFor, sortField, sortDirection }, curUserId, users: [_id, name, administrator, location, gender, lastLogin, createdAt], pageCount }*
+* **GET users** accepts an object for sorting and filtering its outcome: *{ query: { page || 1, searchFor, sortField || 'name', sortDirection || -1 } }*; returns *{ queryFilter: { page, searchFor, sortField, sortDirection }, curUserId, users: [_id, name, administrator, location, gender, lastLogin, createdAt, activeProgramCount], pageCount }*
 * **POST users/adminSwitch** switch the user's administrative right; thereafter it sends an email to the user if the respective preferences are set ([more about configuring](#headConfiguration))
 
 ## <a name="headDatabase"></a>Database

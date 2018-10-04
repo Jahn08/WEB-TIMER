@@ -41,9 +41,17 @@ router.route('/')
                     promises.push(programModelHelper.getNumberOfUserActivePrograms(u._id.toString())
                         .then(count => {
                             const _user = JSON.parse(JSON.stringify(u));
-                            _user.activeProgramCount = count;
 
-                            _users.push(_user);
+                            _users.push({
+                                _id: _user._id,
+                                name: _user.name,
+                                administrator: _user.administrator,
+                                location: _user.location,
+                                gender: _user.gender,
+                                lastLogin: _user.lastLogin,
+                                createdAt: _user.createdAt,
+                                activeProgramCount: count
+                            });
                         }));
                 });
 
