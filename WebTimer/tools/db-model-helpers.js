@@ -173,8 +173,10 @@ exports.ProgramModelHelper = function (response) {
             if (newProgramData.name)
                 programForUpdate.name = newProgramData.name;
 
-            programForUpdate.stages = newProgramData.stages || [];
-            programForUpdate.active = newProgramData.active || false;
+            const newStages = newProgramData.stages || [];
+            programForUpdate.stages = newStages;
+            programForUpdate.active = newStages.length === 0 ? false :
+                (newProgramData.active || false);
 
             programForUpdate.save((err, resp) => {
                 if (err) {
@@ -224,12 +226,14 @@ exports.ProgramModelHelper = function (response) {
                 return;
             }
 
-            const reductionIds = reductionList.filter(p => p._id).map(p => p._id);
+            const reductionIds = reductionList.filter(p => p._id).map(p => p._id.toString());
             
             let reducedProgramList = [];
             let idsForRemoval = [];
             dbPrograms.forEach(serverProgram => {
-                if (reductionIds.every(id => id !== serverProgram._id.toString()))
+                const programIdStr = serverProgram._id.toString();
+
+                if (reductionIds.every(id => id !== programIdStr))
                     idsForRemoval.push(serverProgram._id);
                 else
                     reducedProgramList.push(serverProgram);

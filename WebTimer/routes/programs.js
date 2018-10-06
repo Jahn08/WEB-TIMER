@@ -39,7 +39,7 @@ router.route('/')
         const userId = user.id;
 
         programModelHelper.findUserPrograms(userId).then(dbPrograms => {
-            let requestPrograms = req.body.programs;
+            let requestPrograms = req.body.programs || [];
 
             programModelHelper.reduceProgramsToList(dbPrograms, requestPrograms)
                 .then(reducedProgramList => {
