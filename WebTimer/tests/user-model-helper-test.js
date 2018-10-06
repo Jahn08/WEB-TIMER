@@ -51,11 +51,13 @@ describe('UserModelHelper', function () {
                 assert(!err, 'An error while creating test users: ' + getString(err));
 
                 const removeUsersAndFinish = respErr => User.remove({ _id: { $in: _users.map(u => u._id) } }, err => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         assert(!err, 'An error while removing a test user: ' + getString(err));
 
                         if (respErr)
                             throw new Error(respErr.toString());
+
+                        resolve();
                     });
                 });
 
@@ -90,16 +92,16 @@ describe('UserModelHelper', function () {
                     };
 
                     invokeMethodByName(methodToInvoke, key).then(foundUser => {
-                        expectation.tryCatchForPromise(resolve, reject, () => {
+                        expectation.tryCatchForPromise(reject, () => {
                             assert(foundUser);
                             assert.strictEqual(foundUser[propertyToCompare].toString(), key.toString());
 
                             if (useResponse)
                                 assert(!response.text);
+
+                            resolve();
                         });
-                    }).catch(err => {
-                        reject(err);
-                    });
+                    }).catch(err => reject(err));
                 });
             };
 
@@ -126,9 +128,11 @@ describe('UserModelHelper', function () {
                 
                 return new Promise((resolve, reject) => {
                     userModelHelper[searchMethodName](generateRandomId()).then(foundUser => {
-                        expectation.tryCatchForPromise(resolve, reject, () => {
+                        expectation.tryCatchForPromise(reject, () => {
                             assert(!foundUser);
                             assert(!response.text && !response.statusCode);
+
+                            resolve();
                         });
                     }).catch(err => reject(err));
                 });
@@ -142,9 +146,10 @@ describe('UserModelHelper', function () {
                 const userModelHelper = new UserModelHelper();
 
                 return new Promise((resolve, reject) => {
-                    userModelHelper[searchMethodName](generateRandomId()).then(foundUser =>
-                        expectation.tryCatchForPromise(resolve, reject, () => assert(!foundUser)))
-                        .catch(err => reject(err));
+                    userModelHelper[searchMethodName](generateRandomId()).then(foundUser => {
+                        expectation.tryCatchForPromise(reject, () => assert(!foundUser));
+                        resolve();
+                    }).catch(err => reject(err));
                 });
             });
         });
@@ -184,7 +189,7 @@ describe('UserModelHelper', function () {
                         const searchedName = useSearch ? 'eSt' : undefined;
 
                         userModelHelper.getUsersForPage(pageNum, searchedName, sortOption).then(resp => {
-                            expectation.tryCatchForPromise(resolve, reject, () => {
+                            expectation.tryCatchForPromise(reject, () => {
                                 let correctUserNumber;
                                 let _users = resp.users;
 
@@ -214,6 +219,8 @@ describe('UserModelHelper', function () {
                                 }
 
                                 assert(usersCopy.every((u, i) => u.email === _users[i].email));
+
+                                resolve();
                             });
                         });
                     });

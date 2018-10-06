@@ -55,11 +55,13 @@ describe('ProgramModelHelper', function () {
                 assert.strictEqual(programs.length, 3);
 
                 const removeItemsAndFinish = respErr => Program.remove({ userId: { $in: [userId, anotherUserId] } }, err => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         assert(!err, 'An error while removing test programs: ' + getString(err));
 
                         if (respErr)
                             throw new Error(respErr.toString());
+
+                        resolve();
                     });
                 });
 
@@ -101,10 +103,10 @@ describe('ProgramModelHelper', function () {
     const testFindingUserPrograms = (searchingMethodName, onlyActive) => {
         const programModelHelper = initProgramModelHelper();
 
-        const callback = (userId, newPrograms) => {
+        const callback = (userId, newPrograms, resolve, reject) => {
             return new Promise((resolve, reject) => {
                 programModelHelper[searchingMethodName](userId).then(programs => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         const expectedLength = onlyActive ? 1 : 2;
 
                         const count = Number.parseInt(programs);
@@ -120,6 +122,8 @@ describe('ProgramModelHelper', function () {
                         else {
                             assert(count === expectedLength);
                         }
+
+                        resolve();
                     });
                 }).catch(err => reject(err));
             });
@@ -134,13 +138,15 @@ describe('ProgramModelHelper', function () {
 
         return new Promise((resolve, reject) => {
             programModelHelper[searchingMethodName](userId).then(programs =>
-                expectation.tryCatchForPromise(resolve, reject, () => {
+                expectation.tryCatchForPromise(reject, () => {
                     const count = Number.parseInt(programs);
 
                     if (isNaN(count))
                         assert(programs && !programs.length);
                     else
                         assert(count === 0);
+
+                    resolve();
                 }
             ))
             .catch(err => reject(err));
@@ -189,12 +195,12 @@ describe('ProgramModelHelper', function () {
 
             const callback = (userId, newPrograms) => {
                 return new Promise((resolve, reject) => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         const programForUpdate = newPrograms[0];
                         const newProgramData = createTestProgram();
 
                         programModelHelper.updateProgram(programForUpdate, newProgramData).then(updatedProgram => {
-                            expectation.tryCatchForPromise(resolve, reject, () => {
+                            expectation.tryCatchForPromise(reject, () => {
                                 assert(updatedProgram);
 
                                 afterProgramUpdated(updatedProgram, newProgramData, resolve, reject);
@@ -208,27 +214,52 @@ describe('ProgramModelHelper', function () {
         };
 
         it('should update a program successfully', () => {
-            return updatePrograms((updatedProgram, newProgramData) => {
+            return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
                 assert.strictEqual(updatedProgram.name, newProgramData.name);
 
                 assert(updatedProgram.stages && updatedProgram.stages.length === 1);
                 assert.strictEqual(updatedProgram.stages[0].descr, newProgramData.stages[0].descr);
+
+                resolve();
             });
         });
 
         it('should accept empty program data and update the fields with default values', () => {
             return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
+                const programModelHelper = initProgramModelHelper();
                 programModelHelper.updateProgram(updatedProgram).then(_updatedProgram => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         assert(_updatedProgram);
                         assert.strictEqual(_updatedProgram.name, newProgramData.name);
+                        assert.strictEqual(_updatedProgram.active, false);
 
                         assert(_updatedProgram.stages.length === 0);
+
+                        resolve();
                     });
                 }).catch(err => reject(err));
             });
         });
+        
+        it('shouldn\'t make a program active without stages', () => {
+            return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
+                newProgramData.stages = [];
+                newProgramData.active = true;
 
+                const programModelHelper = initProgramModelHelper();
+                programModelHelper.updateProgram(updatedProgram, newProgramData).then(_updatedProgram => {
+
+                    expectation.tryCatchForPromise(reject, () => {
+                        assert(_updatedProgram);
+                        assert.strictEqual(_updatedProgram.active, false);
+
+                        assert(_updatedProgram.stages.length === 0);
+
+                        resolve();
+                    });
+                }).catch(err => reject(err));
+            });
+        });
     });
 
     describe('#createPrograms', () => {
@@ -240,9 +271,11 @@ describe('ProgramModelHelper', function () {
                 const userId = generateObjectId();
 
                 programModelHelper.createPrograms(newPrograms, userId).then(createdPrograms => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         assert(createdPrograms);
                         onResolve(createdPrograms, userId);
+
+                        resolve();
                     });
                 }).catch(err => reject(err));
             });
@@ -287,8 +320,10 @@ describe('ProgramModelHelper', function () {
             const programModelHelper = initProgramModelHelper();
             
             return new Promise((resolve, reject) => {
-                programModelHelper.reduceProgramsToList(programs, reductionList).then(resp =>
-                    expectation.tryCatchForPromise(resolve, reject, () => assert.strictEqual(resp, programs)));
+                programModelHelper.reduceProgramsToList(programs, reductionList).then(resp => {
+                    expectation.tryCatchForPromise(reject, () => assert.strictEqual(resp, programs));
+                    resolve();
+                });
             });
         };
 
@@ -314,9 +349,11 @@ describe('ProgramModelHelper', function () {
 
             const callback = (userId, newPrograms) => {
                 return new Promise((resolve, reject) => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
-                        programModelHelper.reduceProgramsToList(newPrograms, newPrograms).then(programs =>
-                            expectation.tryCatchForPromise(resolve, reject, () => assert.strictEqual(programs, newPrograms)));
+                    expectation.tryCatchForPromise(reject, () => {
+                        programModelHelper.reduceProgramsToList(newPrograms, newPrograms).then(programs => {
+                            expectation.tryCatchForPromise(reject, () => assert.deepStrictEqual(programs, newPrograms));
+                            resolve();
+                        });
                     });
                 });
             };
@@ -329,7 +366,7 @@ describe('ProgramModelHelper', function () {
 
             const callback = (userId, newPrograms) => {
                 return new Promise((resolve, reject) => {
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         const firstProgram = newPrograms[0];
                         const secondProgram = newPrograms[1];
                         const thirdProgram = newPrograms[2];
@@ -337,7 +374,7 @@ describe('ProgramModelHelper', function () {
                         const reductionList = getReductionList(newPrograms);
 
                         programModelHelper.reduceProgramsToList(newPrograms, reductionList).then(reducedPrograms =>
-                            expectation.tryCatchForPromise(resolve, reject, () => {
+                            expectation.tryCatchForPromise(reject, () => {
                                 assert(newPrograms && newPrograms.length === 3);
 
                                 assert.deepStrictEqual(newPrograms[0], firstProgram);
@@ -346,6 +383,8 @@ describe('ProgramModelHelper', function () {
 
                                 if (onCheckingResult)
                                     onCheckingResult(reducedPrograms);
+
+                                resolve();
                             }));
                     });
                 });

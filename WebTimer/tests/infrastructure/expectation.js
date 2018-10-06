@@ -7,13 +7,11 @@ let callIfFuncton = (callback) => {
 };
 let assertCallbackIsFuncton = (callback) => assert(callbackIsFuncton(callback));
 
-exports.tryCatchForPromise = (resolve, reject, callback) => {
+exports.tryCatchForPromise = (reject, callback) => {
     try {
         assertCallbackIsFuncton(callback);
 
         callback();
-
-        resolve();
     }
     catch (ex) {
         reject(ex);

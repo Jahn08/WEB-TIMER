@@ -23,7 +23,7 @@ describe('Mailer', function () {
         return new Promise((resolve, reject) => {
             mailer[methodForSending](to, name)
                 .then(msgData =>
-                    expectation.tryCatchForPromise(resolve, reject, () => {
+                    expectation.tryCatchForPromise(reject, () => {
                         if (resolveCallback)
                             resolveCallback(to, name, msgData);
 
@@ -53,13 +53,15 @@ describe('Mailer', function () {
         mailOptions.auth.pass = getRandomIntUpToMaxIntegerAsString();
 
         return new Promise((resolve, reject) => expectation.expectRejection(() => sendMessage(config, null, methodForSending))
-            .then(outcome => expectation.tryCatchForPromise(resolve, reject, () => {
+            .then(outcome => expectation.tryCatchForPromise(reject, () => {
                 assert(outcome);
 
                 assert.strictEqual(outcome.code, 'ECONNECTION');
                 assert.strictEqual(outcome.errno, 'ENOTFOUND');
 
                 assert.strictEqual(outcome.host, mailOptions.host);
+
+                resolve();
             })).catch(err => reject(err)));
     }; 
 
