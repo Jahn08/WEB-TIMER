@@ -19,6 +19,8 @@ There is a couple of ways to start the application from inside the WebTimer dire
 1. *npm start*
 2. *npm run release* - starts the application after getting through testing
 
+To turn on debugging while testing there is a script available in package.json: *npm run debug-test*. After running the command it's possible to join the process in Google Chrome through the url: *chrome://inspect*. A directive *debugger* should be used for break points in tests.
+
 The first user registered in the application will be granted the role of an administrator.
 
 ## Developing
