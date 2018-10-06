@@ -6,6 +6,7 @@
     "scripts": {
         "start": "node main.js",
         "test": "mocha \"tests\"",
+        "debug-test": "mocha --inspect-brk \"tests\"",
         "release": "npm test && npm start"
     },
     "author": {
