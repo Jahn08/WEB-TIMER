@@ -10,7 +10,7 @@ services:
             restart_policy:
                 condition: on-failure
     app:
-        image: jahn27/webtimer
+        image: webtimer
         ports: 
             - "3443:443"
         depends_on:
