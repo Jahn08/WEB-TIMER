@@ -38,6 +38,8 @@ exports.UserModelHelper = function (response = null) {
             });
         });
     };
+    
+    this.countAdministrators = () => searchForUser('count', { administrator: true });
 
     this.findUserByIdOrEmpty = (id) => searchForUser('findById', id);
 

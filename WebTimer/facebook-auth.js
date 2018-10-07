@@ -45,19 +45,21 @@ const facebookTokenStrategy = new FacebookTokenPassport({
                 proceed(user);
         }
         else {
-            let newUser = new User({
-                name: profile.displayName,
-                email: profile.emails[0].value,
-                facebookId: profile.id,
-                administrator: User.length == 0,
-                gender: profile.gender
+            userModelHelper.countAdministrators().then(count => {
+                let newUser = new User({
+                    name: profile.displayName,
+                    email: profile.emails[0].value,
+                    facebookId: profile.id,
+                    administrator: count === 0,
+                    gender: profile.gender
+                });
+
+                const location = profile._json.location;
+                if (location)
+                    newUser.location = location.name;
+
+                savingUser(newUser, true);
             });
-
-            const location = profile._json.location;
-            if (location)
-                newUser.location = location.name;
-
-            savingUser(newUser, true);
         }
     }).catch(err => done(err));
 });

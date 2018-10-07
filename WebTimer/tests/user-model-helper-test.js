@@ -37,11 +37,13 @@ describe('UserModelHelper', function () {
     const createTestUsers = (callback, numberOfUsers = 1, testFields = {}) => {
         let users = [];
 
+        const administratorIds = testFields['administrators'] || [];
+
         for (i = 0; i < numberOfUsers; ++i) {
             users.push(new User({
                 name: testFields['name'] || randomiser.getRandomIntUpToMaxInteger().toString(),
                 email: testFields['email'] || randomiser.getRandomIntUpToMaxInteger().toString(),
-                administrator: false,
+                administrator: administratorIds.some(v => v === i),
                 facebookId: randomiser.getRandomIntUpToMaxInteger()
             }));
         }
@@ -169,6 +171,32 @@ describe('UserModelHelper', function () {
                 }
             }
         });
+    });
+
+    describe('#countAdministrators', () => {
+
+        const testCountingAdministrators = (administrators = []) => {
+            const testFields = { administrators };
+
+            return createTestUsers((users) => {
+
+                return new Promise((resolve, reject) => {
+                    expectation.tryCatchForPromise(reject, () => {
+                        const userModelHelper = new UserModelHelper();
+
+                        userModelHelper.countAdministrators().then(count => {
+                            assert.strictEqual(count, administrators.length);
+
+                            resolve();
+                        });
+                    });
+                });
+            }, administrators.length + 3, testFields);
+        };
+
+        it('should return a correct number of administrators available at present', () => testCountingAdministrators([1, 2]));
+
+        it('should return 0 for a collection of users without adminstrators', () => testCountingAdministrators());
     });
 
     describe('#getUsersForPage', () => {
