@@ -57,9 +57,9 @@ The developer computer has to have an access to a MongoDB server installed to de
 ### Deploying / Publishing
 
 The stages to deploy the application in a docker container by command prompt:
-1. Run a command in the root folder of the project where the Dockerfile file is available: *docker build -t jahn27/webtimer .*
+1. Run a command in the root folder of the project where the Dockerfile file is available (including the dot at the end): *docker build -t webtimer .*
 2. Before the usage of the docker stack deploy command a swarm has to be initialised: *docker swarm init*
-3. Since the application relies on secret values they have to be entered the next way: *echo 157829975071233|docker secret create <SECRET_NAME> -*
+3. Since the application relies on secret values they have to be entered the next way: *echo SECRET_VALUE|docker secret create SECRET_NAME -*
 The list of all the possible secrets can be found in the docker-compose.yml file (more about them in the [configuration section below](#headConfiguration)).
 4. In the same directory where the docker-compose.yml file lies run a command: *docker stack deploy -c docker-compose.yml webtimer*
 
