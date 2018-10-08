@@ -8,7 +8,7 @@
 SERVER_PORT=3443
 SERVER_HOST=localhost
 SERVER_PFX_PATH=../1.pfx
-MAIL_HOST=smtp.yandex.ru
+MAIL_HOST=
 MAIL_SECURE_PORT=465
 AUTH_FACEBOOK_CLIENT_ID=
 AUTH_FACEBOOK_CLIENT_SECRET=
@@ -61,12 +61,19 @@ ABOUT_WEBSITE=</Environment>
     <Compile Include="tests\infrastructure\db-connector.js" />
     <Compile Include="tests\infrastructure\expectation.js" />
     <Compile Include="tests\infrastructure\mock.js" />
+    <Compile Include="tests\infrastructure\stream-hooker.js" />
+    <Compile Include="tests\logger-test.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tests\mailer-test.js" />
     <Compile Include="tests\program-model-helper-test.js" />
     <Compile Include="tests\config-test.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tools\db-model-helpers.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tools\logger.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tools\mailer.js" />

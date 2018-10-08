@@ -57,5 +57,8 @@ module.exports = {
     },
     about: {
         website: process.env.ABOUT_WEBSITE
+    },
+    logger: {
+        level: process.env.LOGGER_LEVEL || 'error' // warn, info
     }
 };
