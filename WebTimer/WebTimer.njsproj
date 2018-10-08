@@ -15,7 +15,8 @@ AUTH_FACEBOOK_CLIENT_SECRET=
 SERVER_PFX_PASSWORD=
 MAIL_AUTH_USER=
 MAIL_AUTH_PASSWORD=
-ABOUT_WEBSITE=</Environment>
+ABOUT_WEBSITE=
+LOGGER_LEVEL=warn</Environment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>

@@ -25,6 +25,7 @@ services:
             #- MAIL_SECURE_PORT=465
             #- MAIL_AUTH_USER=example@email.com
             #- ABOUT_WEBSITE=http://yoursite.com
+            #- LOGGER_LEVEL=warn
         deploy:
             restart_policy:
                 condition: on-failure
