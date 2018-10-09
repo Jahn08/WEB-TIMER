@@ -14,7 +14,7 @@ describe('logger', () => {
     const errorTestedLevel = 'error';
 
     const testLogging = (actualLogLevel, testedLogLevel, isExpected) => {
-        const logger = new Logger({ level: actualLogLevel });
+        const logger = new Logger(actualLogLevel);
         const key = randomiser.getRandomIntUpToMaxInteger().toString();
 
         const outputHooker = new StreamHooker(testedLogLevel === infoTestedLevel ? process.stdout : process.stderr);
@@ -23,7 +23,7 @@ describe('logger', () => {
 
         const loggedMessages = outputHooker.endWriting();
         assert(loggedMessages);
-        assert.strictEqual(loggedMessages.length, isExpected ? 1: 0);
+        assert.strictEqual(loggedMessages.length, isExpected ? 1 : 0);
 
         if (isExpected) {
             const infoMsg = loggedMessages[0];
@@ -31,7 +31,7 @@ describe('logger', () => {
             assert(infoMsg.indexOf(key) !== -1);
         }
     };
-    
+
     describe('#' + infoTestedLevel, () => {
         it('should log an information message', () => testLogging(infoTestedLevel, infoTestedLevel, true));
 

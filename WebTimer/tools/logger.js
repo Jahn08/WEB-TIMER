@@ -1,11 +1,11 @@
-﻿function Logger(settings = { level: null }) {
+﻿function Logger(level) {
     const errorPropName = 'error';
     const warnPropName = 'warn';
     const infoPropName = 'info';
 
     const levels = { [errorPropName]: 1, [warnPropName]: 2, [infoPropName]: 3 };
     
-    const _level = levels[settings.level] || -1;
+    const _level = levels[level] || -1;
 
     const shouldLog = (level) => _level != -1 && _level >= levels[level];
 

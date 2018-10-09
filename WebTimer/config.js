@@ -18,6 +18,8 @@ const getMongoHost = () => {
     return host && host.search(/\/$/, '') === -1 ? host + '/' : host;
 };
 
+const Logger = require('./tools/logger');
+
 module.exports = {
     db: {
         uri: getMongoHost() + 'WebTimer',
@@ -43,12 +45,12 @@ module.exports = {
             return url.toString();
         },
         useHttpsProtocol: function () {
-            return this.port ? this.port.toString().endsWith('443'): false;
+            return this.port ? this.port.toString().endsWith('443') : false;
         }
     },
     mail: {
         host: process.env.MAIL_HOST,
-        port:  process.env.MAIL_SECURE_PORT || 465,
+        port: process.env.MAIL_SECURE_PORT || 465,
         secure: true,
         auth: {
             user: process.env.MAIL_AUTH_USER,
@@ -58,7 +60,5 @@ module.exports = {
     about: {
         website: process.env.ABOUT_WEBSITE
     },
-    logger: {
-        level: process.env.LOGGER_LEVEL || 'error' // warn, info
-    }
+    logger: new Logger(process.env.LOGGER_LEVEL || 'error') // warn, info
 };
