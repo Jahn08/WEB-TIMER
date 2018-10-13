@@ -1,6 +1,8 @@
 const ResponseError = require('./response-error').ResponseError;
 const nodemailer = require('nodemailer');
 
+const configModule = require('../config');
+
 function Mailer(config, response = null) {
     let respErr;
     
@@ -12,9 +14,11 @@ function Mailer(config, response = null) {
     const mailTransportOptions = config.mail;
     const authOptions = mailTransportOptions.auth;
 
+    const logger = configModule.logger.startLogging('Mailer');
+    
     let transport;
 
-    if (!mailTransportOptions.host || !authOptions.user || !authOptions.pass)
+    if (!mailTransportOptions.host || !authOptions.user || !authOptions.pass) {
         transport = {
             sendMail: (msgData) => {
                 return new Promise((resolve, reject) => {
@@ -22,6 +26,9 @@ function Mailer(config, response = null) {
                 });
             }
         };
+
+        logger.info('Some necessary mail parameters are not set - sending is off');
+    }
     else
         transport = nodemailer.createTransport(mailTransportOptions);
 
@@ -35,10 +42,13 @@ function Mailer(config, response = null) {
                 to,
                 subject: `Web Timer Account ${processName}`  
             })
-            .then(info => resolve(info))
+            .then(info => {
+                logger.info('An email has been sent: ' + info);
+                resolve(info);
+            })
             .catch(err => {
                 if (respErr)
-                    respErr.respondWithUnexpectedError('Sending email failed: ' + err);
+                    respErr.respondWithUnexpectedError('Sending an email failed: ' + err);
 
                 reject(err);
             });

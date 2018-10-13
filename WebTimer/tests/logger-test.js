@@ -18,8 +18,9 @@ describe('logger', () => {
         const key = randomiser.getRandomIntUpToMaxInteger().toString();
 
         const outputHooker = new StreamHooker(testedLogLevel === infoTestedLevel ? process.stdout : process.stderr);
-
-        logger[testedLogLevel](key);
+        
+        const loggerContext = logger.startLogging('TestScope');
+        loggerContext[testedLogLevel](key);
 
         const loggedMessages = outputHooker.endWriting();
         assert(loggedMessages);
@@ -27,7 +28,7 @@ describe('logger', () => {
 
         if (isExpected) {
             const infoMsg = loggedMessages[0];
-            assert(infoMsg.indexOf(testedLogLevel + ':') !== -1);
+            assert(infoMsg.match(new RegExp(`${testedLogLevel}:`, 'i')).length, 1);
             assert(infoMsg.indexOf(key) !== -1);
         }
     };
@@ -60,6 +61,48 @@ describe('logger', () => {
         it(`should log an error message for the information level set`, () => testLogging(infoTestedLevel, errorTestedLevel, true));
 
         it(`should log no error messages for logging turned off`, () => testLogging(null, errorTestedLevel, false));
+    });
+
+    describe('#startLogging', () => {
+
+        it('should log messages in different contexts', () => {
+            const logger = new Logger(infoTestedLevel);
+
+            const testMsg = 'test';
+
+            const logForAnotherContext = (count) => {
+                const contextKey = randomiser.getRandomIntUpToMaxInteger().toString();
+                const loggerContext = logger.startLogging(contextKey);
+
+                for (let i = 0; i < count; ++i)
+                    loggerContext[infoTestedLevel](testMsg);
+
+                return contextKey;
+            };
+
+            const outputHooker = new StreamHooker(process.stdout);
+
+            const context1MsgCount = 2;
+            const contextKey1 = logForAnotherContext(context1MsgCount);
+
+            const context2MsgCount = 1;
+            const contextKey2 = logForAnotherContext(context2MsgCount);
+
+            const context3MsgCount = 2;
+            const contextKey3 = logForAnotherContext(context3MsgCount);
+            
+            const loggedMessages = outputHooker.endWriting();
+            
+            assert(loggedMessages);
+            assert.strictEqual(loggedMessages.length, context1MsgCount + context2MsgCount + context3MsgCount);
+
+            const assertMessageCount = (key, count) => assert.strictEqual(loggedMessages.filter(m => m.indexOf(key) !== -1).length, count);
+
+            assertMessageCount(contextKey1, context1MsgCount);
+            assertMessageCount(contextKey2, context2MsgCount);
+            assertMessageCount(contextKey3, context3MsgCount);
+        });
+
     });
 
 });

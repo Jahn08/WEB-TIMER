@@ -9,18 +9,24 @@
 
     const shouldLog = (level) => _level != -1 && _level >= levels[level];
 
-    const log = (level, msg) => {
+    const log = (level, msg, scopeName) => {
         if (shouldLog(level)) {
             const nowStr = new Date(Date.now()).toLocaleString()
-            console[level](`${nowStr}, ${level}: ${msg}`);
+            console[level](`${nowStr}. ${scopeName}, ${level.toUpperCase()}: ${msg}`);
         }
     };
 
-    this.info = (msg) => log(infoPropName, msg);
+    const formatScopeName = (...scopeNames) => scopeNames.join('.');
 
-    this.warn = (msg) => log(warnPropName, msg);
+    this.startLogging = (...scopeNames) => {
+        return {
+            info(msg) { log(infoPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); },
 
-    this.error = (msg) => log(errorPropName, msg);
+            warn(msg) { log(warnPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); },
+
+            error(msg) { log(errorPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); }
+        };
+    };
 };
 
 module.exports = Logger;
