@@ -14,6 +14,8 @@ const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
 
 const ResponseError = require('../tools/response-error').ResponseError;
 
+const logger = require('../config').logger;
+
 router.route('/')
     .get(facebokAuth.verifyUser, (req, res, next) => {
         let respErr = new ResponseError(res);
@@ -63,6 +65,8 @@ router.route('/active').get(facebokAuth.verifyUser, (req, res, next) => {
     let respErr = new ResponseError(res);
     const user = req.user;
 
+    const loggerContext = logger.startLogging('GetActivePrograms');
+
     if (!user)
         return respErr.respondWithUserIsNotFoundError();
 
@@ -71,8 +75,10 @@ router.route('/active').get(facebokAuth.verifyUser, (req, res, next) => {
     programModelHelper.findUserActivePrograms(user.id).then(programs => {
         let overallPrograms = programs;
 
-        if (!programs.length || !user.hideDefaultPrograms)
+        if (!programs.length || !user.hideDefaultPrograms) {
+            loggerContext.info('Adding default programs to the user\'s active ones');
             overallPrograms = defaultPrograms.concat(programs).sort((a, b) => a.name > b.name);
+        }
 
         res.status(200).json(overallPrograms);
     });

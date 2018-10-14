@@ -12,6 +12,8 @@ const User = require('./models/user');
 
 const Mailer = require('./tools/mailer');
 
+const loggerContext = config.logger.startLogging('VerifyUser');
+
 const facebookTokenStrategy = new FacebookTokenPassport({
     clientID: config.auth.facebook.clientId,
     clientSecret: config.auth.facebook.clientSecret,
@@ -22,6 +24,8 @@ const facebookTokenStrategy = new FacebookTokenPassport({
         const proceed = (newUser) => done(null, newUser);
 
         const savingUser = (userInfo, isNew = false) => {
+            loggerContext.info(`Saving the user's data: ${JSON.stringify({ userInfo, isNew })}`);
+            
             userInfo.save((err, user) => {
                 if (err)
                     done(err);
@@ -38,6 +42,8 @@ const facebookTokenStrategy = new FacebookTokenPassport({
             const facebookEmail = profile.emails[0].value;
 
             if (user.email !== facebookEmail) {
+                loggerContext.info(`Updating the user's mail from ${user.email} to ${facebookEmail}`);
+
                 user.email = facebookEmail;
                 savingUser(user);
             }
@@ -45,6 +51,8 @@ const facebookTokenStrategy = new FacebookTokenPassport({
                 proceed(user);
         }
         else {
+            loggerContext.info('Creating a new user');
+
             userModelHelper.countAdministrators().then(count => {
                 let newUser = new User({
                     name: profile.displayName,

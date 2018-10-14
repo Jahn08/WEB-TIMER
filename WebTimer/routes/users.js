@@ -17,62 +17,70 @@ const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 const router = express.Router();
 router.route('/')
     .get(facebookAuth.verifyUser, facebookAuth.verifyAdmin, (req, res, next) => {
-        if (req.query) {
-            const userModelHelper = new dbModelHelpers.UserModelHelper(res);
+        const loggerContext = config.logger.startLogging('GetUsers');
 
-            const query = req.query;
+        if (!req.query) {
+            loggerContext.warn('An empty request query has been got');
+            return;
+        }
 
-            const pageNum = query.page || 1;
-            const searchFor = query.searchFor;
+        const userModelHelper = new dbModelHelpers.UserModelHelper(res);
 
-            const sortField = query.sortField || 'name';
-            const sortDirection = query.sortDirection || -1;
+        const query = req.query;
 
-            let sortOption = {};
-            sortOption[sortField] = sortDirection;
+        const pageNum = query.page || 1;
+        const searchFor = query.searchFor;
 
-            userModelHelper.getUsersForPage(pageNum, searchFor, sortOption).then(queryResp => {
-                let promises = [];
-                const programModelHelper = new dbModelHelpers.ProgramModelHelper(res);
+        const sortField = query.sortField || 'name';
+        const sortDirection = query.sortDirection || -1;
 
-                const _users = [];
+        let sortOption = {};
+        sortOption[sortField] = sortDirection;
+            
+        userModelHelper.getUsersForPage(pageNum, searchFor, sortOption).then(queryResp => {
+            let promises = [];
+            const programModelHelper = new dbModelHelpers.ProgramModelHelper(res);
 
-                queryResp.users.forEach(u => {
-                    promises.push(programModelHelper.getNumberOfUserActivePrograms(u._id.toString())
-                        .then(count => {
-                            const _user = JSON.parse(JSON.stringify(u));
+            const _users = [];
 
-                            _users.push({
-                                _id: _user._id,
-                                name: _user.name,
-                                administrator: _user.administrator,
-                                location: _user.location,
-                                gender: _user.gender,
-                                lastLogin: _user.lastLogin,
-                                createdAt: _user.createdAt,
-                                activeProgramCount: count
-                            });
-                        }));
-                });
+            loggerContext.info('Getting numbers of active programs for each user');
+            
+            queryResp.users.forEach(u => {
+                promises.push(programModelHelper.getNumberOfUserActivePrograms(u._id.toString())
+                    .then(count => {
+                        const _user = JSON.parse(JSON.stringify(u));
 
-                Promise.all(promises).then(() => {
-                    const pageCount = Math.ceil(queryResp.count / ITEMS_PER_PAGE);
+                        _users.push({
+                            _id: _user._id,
+                            name: _user.name,
+                            administrator: _user.administrator,
+                            location: _user.location,
+                            gender: _user.gender,
+                            lastLogin: _user.lastLogin,
+                            createdAt: _user.createdAt,
+                            activeProgramCount: count
+                        });
+                    }));
+            });
 
-                    res.json({
-                        queryFilter: {
-                            page: pageNum > pageCount ? 1 : pageNum,
-                            searchFor,
-                            sortField,
-                            sortDirection
-                        },
-                        curUserId: req.user._id,
-                        users: sortDirection == 1 ? _users.sort((a, b) => a[sortField] > b[sortField]) :
-                            _users.sort((a, b) => a[sortField] < b[sortField]),
-                        pageCount
-                    });
+            Promise.all(promises).then(() => {
+                const pageCount = Math.ceil(queryResp.count / ITEMS_PER_PAGE);
+                loggerContext.info(`A count of pages available is ${pageCount}`);
+
+                res.json({
+                    queryFilter: {
+                        page: pageNum > pageCount ? 1 : pageNum,
+                        searchFor,
+                        sortField,
+                        sortDirection
+                    },
+                    curUserId: req.user._id,
+                    users: sortDirection == 1 ? _users.sort((a, b) => a[sortField] > b[sortField]) :
+                        _users.sort((a, b) => a[sortField] < b[sortField]),
+                    pageCount
                 });
             });
-        }
+        });
     });
 
 router.route('/profile')
@@ -135,24 +143,30 @@ router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAd
     const changedUser = req.body;
     let changedUserId;
 
-    if (changedUser && (changedUserId = changedUser.id)) {
+    const loggerContext = config.logger.startLogging('PostAdminSwitch');
 
-        if (user._id.toString() === changedUserId)
-            return respErr.respondWithUnexpectedError('Current user cannot change their own administrative role');
-
-        userModelHelper.findUserByIdOrEmpty(changedUserId).then(foundUser => {
-            if (!foundUser)
-                return respErr.respondWithUserIsNotFoundError();
-
-            const isAdmin = !foundUser.administrator;
-            const updateBody = { administrator: isAdmin };
-
-            foundUser.update({ $set: updateBody })
-                .then(() => new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin)
-                    .then(() => res.status(200).json(updateBody)))
-                .catch(err => respErr.respondWithUnexpectedError(err));
-        });
+    if (!changedUser || !(changedUserId = changedUser.id)) {
+        loggerContext.warn('The user\'s data request is empty');
+        return;
     }
+
+    if (user._id.toString() === changedUserId)
+        return respErr.respondWithUnexpectedError('Current user cannot change their own administrative role');
+
+    userModelHelper.findUserByIdOrEmpty(changedUserId).then(foundUser => {
+        if (!foundUser)
+            return respErr.respondWithUserIsNotFoundError();
+
+        const isAdmin = !foundUser.administrator;
+        const updateBody = { administrator: isAdmin };
+
+        loggerContext.info(`The user's data is going to be updated to ${JSON.stringify(updateBody)}`);
+        
+        foundUser.update({ $set: updateBody })
+            .then(() => new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin)
+                .then(() => res.status(200).json(updateBody)))
+            .catch(err => respErr.respondWithUnexpectedError(err));
+    });
 });
 
 module.exports = router;
