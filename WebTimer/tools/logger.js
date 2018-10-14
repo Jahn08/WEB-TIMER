@@ -9,22 +9,32 @@
 
     const shouldLog = (level) => _level != -1 && _level >= levels[level];
 
-    const log = (level, msg, scopeName) => {
+    const formatScopeName = (callee, ...scopeNames) => {
+        const stack = new Error().stack;
+        const methods = stack.match(/at .* (?=\()+/gm)
+            .map(m => m.trim().split(' ')[1]);
+        const logMethodIndex = methods.findIndex(m => m.endsWith(callee)) + 1;
+        scopeNames.push(methods[logMethodIndex]);
+
+        return scopeNames.join('.');
+    };
+
+    const log = (level, msg, ...scopeNames) => {
         if (shouldLog(level)) {
+            const scopeName = formatScopeName(level, ...scopeNames);
             const nowStr = new Date(Date.now()).toLocaleString()
+
             console[level](`${nowStr}. ${scopeName}, ${level.toUpperCase()}: ${msg}`);
         }
     };
 
-    const formatScopeName = (...scopeNames) => scopeNames.join('.');
-
     this.startLogging = (...scopeNames) => {
         return {
-            info(msg) { log(infoPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); },
+            [infoPropName](msg) { log(arguments.callee.name, msg, scopeNames); },
 
-            warn(msg) { log(warnPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); },
+            [warnPropName](msg) { log(arguments.callee.name, msg, scopeNames); },
 
-            error(msg) { log(errorPropName, msg, formatScopeName(scopeNames, arguments.callee.name)); }
+            [errorPropName](msg) { log(arguments.callee.name, msg, scopeNames); }
         };
     };
 };

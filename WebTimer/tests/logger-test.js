@@ -13,16 +13,36 @@ describe('logger', () => {
     const warnTestedLevel = 'warn';
     const errorTestedLevel = 'error';
 
+    const useOutputHooker = (logLevel, onWritingCallback) => {
+        const hooker = new StreamHooker(logLevel === infoTestedLevel ? process.stdout :
+            process.stderr);
+
+        let exception;
+
+        try {
+            onWritingCallback();
+        }
+        catch (ex) {
+            exception = ex;
+        }
+
+        const loggedMessages = hooker.endWriting();
+
+        if (exception)
+            throw exception;
+
+        return loggedMessages;
+    };
+
     const testLogging = (actualLogLevel, testedLogLevel, isExpected) => {
         const logger = new Logger(actualLogLevel);
         const key = randomiser.getRandomIntUpToMaxInteger().toString();
 
-        const outputHooker = new StreamHooker(testedLogLevel === infoTestedLevel ? process.stdout : process.stderr);
-        
-        const loggerContext = logger.startLogging('TestScope');
-        loggerContext[testedLogLevel](key);
+        const loggedMessages = useOutputHooker(testedLogLevel, () => {
+            const loggerContext = logger.startLogging('TestScope');
+            loggerContext[testedLogLevel](key);
+        });
 
-        const loggedMessages = outputHooker.endWriting();
         assert(loggedMessages);
         assert.strictEqual(loggedMessages.length, isExpected ? 1 : 0);
 
@@ -33,6 +53,24 @@ describe('logger', () => {
         }
     };
 
+    const testLoggingScopeName = (testedLogLevel) => {
+        const logger = new Logger(testedLogLevel);
+        const scopeKey = randomiser.getRandomIntUpToMaxInteger().toString();
+
+        const loggedMessages = useOutputHooker(testedLogLevel, () => {
+            const loggerContext = logger.startLogging(scopeKey);
+
+            const key = randomiser.getRandomIntUpToMaxInteger().toString();
+            loggerContext[testedLogLevel](key);
+        });
+
+        assert(loggedMessages);
+        assert.strictEqual(loggedMessages.length, 1);
+        
+        const infoMsg = loggedMessages[0];
+        assert(infoMsg.match(new RegExp(`${scopeKey}\.${arguments.callee.name}`)).length, 1);
+    };
+
     describe('#' + infoTestedLevel, () => {
         it('should log an information message', () => testLogging(infoTestedLevel, infoTestedLevel, true));
 
@@ -41,6 +79,8 @@ describe('logger', () => {
         it(`shouldn't log an information message for the error level set`, () => testLogging(errorTestedLevel, infoTestedLevel, false));
 
         it(`should log no info messages for logging turned off`, () => testLogging(null, infoTestedLevel, false));
+
+        it(`should log an info message with the right scope name`, () => testLoggingScopeName(infoTestedLevel));
     });
 
     describe('#' + warnTestedLevel, () => {
@@ -50,7 +90,9 @@ describe('logger', () => {
 
         it(`shouldn't log a warning message for the error level set`, () => testLogging(errorTestedLevel, warnTestedLevel, false));
 
-        it(`should log no warn messages for logging turned off`, () => testLogging(null, warnTestedLevel, false));
+        it(`should log no warning messages for logging turned off`, () => testLogging(null, warnTestedLevel, false));
+
+        it(`should log a warning message with the right scope name`, () => testLoggingScopeName(warnTestedLevel));
     });
 
     describe('#' + errorTestedLevel, () => {
@@ -61,6 +103,8 @@ describe('logger', () => {
         it(`should log an error message for the information level set`, () => testLogging(infoTestedLevel, errorTestedLevel, true));
 
         it(`should log no error messages for logging turned off`, () => testLogging(null, errorTestedLevel, false));
+
+        it(`should log an error message with the right scope name`, () => testLoggingScopeName(errorTestedLevel));
     });
 
     describe('#startLogging', () => {
