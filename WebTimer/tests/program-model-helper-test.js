@@ -38,6 +38,8 @@ describe('ProgramModelHelper', function () {
         return {
             _id: generateObjectId(),
             name: newProgramName,
+            audioBetweenStages: true,
+            active: true,
             stages: [{ _id: generateObjectId(), order: 0, duration: 1000, descr: newProgramStageDescr }]
         };
     };
@@ -216,6 +218,8 @@ describe('ProgramModelHelper', function () {
         it('should update a program successfully', () => {
             return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
                 assert.strictEqual(updatedProgram.name, newProgramData.name);
+                assert.strictEqual(updatedProgram.active, true);
+                assert.strictEqual(updatedProgram.audioBetweenStages, true);
 
                 assert(updatedProgram.stages && updatedProgram.stages.length === 1);
                 assert.strictEqual(updatedProgram.stages[0].descr, newProgramData.stages[0].descr);
@@ -232,7 +236,8 @@ describe('ProgramModelHelper', function () {
                         assert(_updatedProgram);
                         assert.strictEqual(_updatedProgram.name, newProgramData.name);
                         assert.strictEqual(_updatedProgram.active, false);
-
+                        assert.strictEqual(_updatedProgram.audioBetweenStages, false);
+                        
                         assert(_updatedProgram.stages.length === 0);
 
                         resolve();

@@ -30,7 +30,8 @@ let program = new mongoose.Schema({
         ref: 'User'
     },
     stages: [programStage],
-    active: Boolean
+    active: Boolean,
+    audioBetweenStages: Boolean
 }, { timestamps: true });
 
 module.exports = mongoose.model('Program', program);

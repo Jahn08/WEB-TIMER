@@ -292,6 +292,10 @@ const userTimers = {
                                     <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" :disabled="!curProgramAvailableStages.length" />
                                     <label class="form-check-label" for="timerActiveCheck">Active</label>
                                 </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="audioBetweenStagesCheck" type="checkbox" v-model="curProgram.audioBetweenStages" />
+                                    <label class="form-check-label" for="audioBetweenStagesCheck">Audio Between Stages</label>
+                                </div>
                             </card-section>
                             <card-section header="Stages">
                                 <div class="btn-group" role="group" aria-label="Actions for Stages">

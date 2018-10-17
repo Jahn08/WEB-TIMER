@@ -216,6 +216,7 @@ exports.ProgramModelHelper = function (response) {
             programForUpdate.stages = newStages;
             programForUpdate.active = newStages.length === 0 ? false :
                 (newProgramData.active || false);
+            programForUpdate.audioBetweenStages = newProgramData.audioBetweenStages || false;
 
             programForUpdate.save((err, resp) => {
                 if (err) {

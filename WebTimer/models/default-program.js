@@ -1,6 +1,7 @@
 const defaultPrograms = [{
     name: 'Test program',
     active: true,
+    audioBetweenStages: true,
     stages: [{
         order: 0,
         duration: 5,
@@ -17,6 +18,7 @@ const defaultPrograms = [{
 }, {
     name: 'Roasting peanuts in oven',
     active: true,
+    audioBetweenStages: true,
     stages: [{
         order: 0,
         duration: 30,
@@ -49,6 +51,7 @@ const defaultPrograms = [{
 }, {
 	name: 'Cooking tomato soup with tinned chickpeas',
     active: true,
+    audioBetweenStages: true,
 	stages: [{
 		order: 0,
 		duration: 120,
