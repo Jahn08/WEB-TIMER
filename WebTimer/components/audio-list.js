@@ -1,4 +1,22 @@
-﻿const audioList = {
+﻿const Sounds = function () {
+    const basicUrl = '../resources/audio/';
+
+    const _sounds = [
+        { name: 'classic alarm', file: 'alarm_classic.mp3' },
+        { name: 'alert', file: 'alert_8bit.mp3' },
+        { name: "official bell", file: 'bell_official.mp3' },
+        { name: "horn", file: "horn.mp3" },
+        { name: "horn (wahwah)", file: "horn_wahwah.mp3" },
+        { name: 'beep', file: "beep.mp3", internal: true }
+    ].sort((a, b) => a.name > b.name);
+    _sounds.forEach(val => val.file = basicUrl + val.file);
+
+    this.getListOfSoundsToChoose = () => _sounds.filter(s => !s.internal);
+
+    this.getListOfInternalSounds = () => _sounds.filter(s => s.internal);
+};
+
+const audioList = {
     props: {
         repeat: {
             type: Boolean,
@@ -11,25 +29,15 @@
     },
     data() {
         return {
-            audio: Audio,
+            audio: null,
             optedSoundSrc: null,
             sounds: []
         };
     },
     mounted() {
-        const basicUrl = '../resources/audio/';
-        
         this.audio = new Audio();
 
-        let _sounds = [
-            { name: 'classic alarm', file: 'alarm_classic.mp3' },
-            { name: 'alert', file: 'alert_8bit.mp3' },
-            { name: "official bell", file: 'bell_official.mp3' },
-            { name: "horn", file: "horn.mp3" },
-            { name: "horn (wahwah)", file: "horn_wahwah.mp3" }
-        ].sort((a, b) => a.name > b.name);
-        _sounds.forEach(val => val.file = basicUrl + val.file);
-        this.sounds = _sounds;
+        this.sounds = new Sounds().getListOfSoundsToChoose();
     },
     methods: {
         onSoundChanged(event) {
@@ -67,4 +75,4 @@
         </div>`
 };
 
-export default audioList;
+export { audioList, Sounds };

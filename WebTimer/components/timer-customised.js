@@ -1,5 +1,5 @@
 import watch from '/components/watch.js';
-import audioList from '/components/audio-list.js';
+import { audioList, Sounds } from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import { modal } from '/components/bootstrap-controls.js';
 import { ApiHelper } from '/components/api-helper.js';
@@ -12,7 +12,8 @@ const stageSwitch = {
             tabs: [],
             curIndex: -1,
             output: '',
-            fullDescription: null
+            fullDescription: null,
+            audio: null
         };
     },
     props: {
@@ -26,15 +27,26 @@ const stageSwitch = {
         text: {
             type: String,
             required: true
+        },
+        playSound: {
+            type: Boolean
         }
+    },
+    mounted() {
+        const signalSound = new Sounds().getListOfInternalSounds()[0];
+
+        if (signalSound)
+            this.audio = new Audio(signalSound.file);
     },
     watch: {
         text() {
             this.output = this.text;
         },
         curStage() {
-            if (this.curStage > 0)
+            if (this.curStage > 0) {
                 this.curIndex = this.curStage;
+                this.playAudio();
+            }
             else
                 this.onSwitch(0);
         },
@@ -76,6 +88,10 @@ const stageSwitch = {
                 this.curIndex = index;
                 this.output = this.tabs[index].text;
             }
+        },
+        playAudio() {
+            if (this.playSound && this.curIndex > 1 && this.audio)
+                this.audio.play();
         }
     },
     template: `
@@ -110,7 +126,8 @@ const timerCustomised = {
             programNames: [],
             programs: [],
             programTitle: '',
-            shouldRemoveListener: false
+            shouldRemoveListener: false,
+            audioBetweenStages: false
         };
     },
     mounted() {
@@ -162,12 +179,13 @@ const timerCustomised = {
                 return;
             }
 
-            let orderedStages = program.stages;
+            const orderedStages = program.stages;
 
             this.stageDescr = orderedStages.map(val => val.descr);
             this.stagesInMs = orderedStages.map(val => val.duration * 1000);
 
             this.programTitle = program.name;
+            this.audioBetweenStages = program.audioBetweenStages;
         },
         configureStages(stageArray, allTimeText) {
             if (stageArray) {
@@ -225,7 +243,7 @@ const timerCustomised = {
             </banner>
             <watch v-if="programNames.length" :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime='inputMsTime'>    
                 <div :title="isRun ? '': tipText" slot-scope="scope">
-                    <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage"></stage-switch></span>
+                    <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage" :playSound="audioBetweenStages"></stage-switch></span>
                 </div>
             </watch>
             <modal :show="shouldPlaySound" title="Time is over" @hiding="onModalHiding()">
