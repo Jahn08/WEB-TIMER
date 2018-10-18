@@ -96,8 +96,7 @@ const watch = {
             laps: [],
             elapsedRangeTime: 0,
             originalTitle: null,
-            stages: [],
-            stagesInitialised: false
+            stages: []
         };
     },
     watch: {
@@ -118,7 +117,6 @@ const watch = {
         this.computeOutput();
 
         this.initialiseStages();
-        this.stagesInitialised = true;
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.onKeyDown);
@@ -126,11 +124,6 @@ const watch = {
     },
     methods: {
         initialiseStages() {
-            if (this.stagesInitialised) {
-                this.stagesInitialised = false;
-                return;
-            }
-
             if (this.msStageArray && this.msStageArray.length > 0) {
                 this.stages = this.msStageArray.map(val => this.timeToText(val));
                 let timeSum = this.msStageArray.reduce((pv, cv) => pv + cv);

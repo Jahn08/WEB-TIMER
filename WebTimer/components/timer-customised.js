@@ -167,7 +167,7 @@ const timerCustomised = {
             let program;
 
             if (!event || !(obj = event.target) || !(program = this.programs[obj.value])) {
-                alert('The selected program is corupted and cannot be rendered');
+                alert('The selected program is corrupted and cannot be rendered');
                 return;
             }
 
