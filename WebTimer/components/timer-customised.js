@@ -127,7 +127,8 @@ const timerCustomised = {
             programs: [],
             programTitle: '',
             shouldRemoveListener: false,
-            audioBetweenStages: false
+            audioBetweenStages: false,
+            timerIsInactive: false
         };
     },
     mounted() {
@@ -208,6 +209,7 @@ const timerCustomised = {
         },
         onEnd(hasNextStage) {
             if (!hasNextStage) {
+                this.timerIsInactive = true;
                 this.shouldPlaySound = true;
             }
             else
@@ -224,6 +226,7 @@ const timerCustomised = {
         },
         onModalHiding() {
             this.shouldPlaySound = false;
+            this.timerIsInactive = false;
         }
     },
     template: `
@@ -241,7 +244,7 @@ const timerCustomised = {
                     </div>
                  </div>
             </banner>
-            <watch v-if="programNames.length" :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime='inputMsTime'>    
+            <watch :inactive="timerIsInactive" v-if="programNames.length" :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime="inputMsTime">    
                 <div :title="isRun ? '': tipText" slot-scope="scope">
                     <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage" :playSound="audioBetweenStages"></stage-switch></span>
                 </div>

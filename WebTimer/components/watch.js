@@ -67,6 +67,9 @@ const watch = {
         },
         msStageArray: {
             type: Array
+        },
+        inactive: {
+            type: Boolean
         }
     },
     data() {
@@ -193,10 +196,13 @@ const watch = {
             return nextTimeText != null;
         },
         allowed() {
-            return this.clockwise || (this.time > 0 || (this.time = this.textToTime()) > 0);
+            return !this.inactive && (this.clockwise || (this.time > 0 || (this.time = this.textToTime()) > 0));
         },
         onKeyDown() {
             const btn = this.buttons.find(el => el.keyCodes.indexOf(event.code) !== -1);
+
+            if (this.inactive)
+                return true;
 
             if (btn && btn.event) {
                 btn.event();

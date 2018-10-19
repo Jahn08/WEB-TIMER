@@ -17,7 +17,8 @@ const timer = {
             isRun: false,
             shouldPlaySound: false,
             inputText: '',
-            tipText: 'Start entering figures or use switches to set the timer'
+            tipText: 'Start entering figures or use switches to set the timer',
+            timerIsInactive: false
         };
     },
     mounted() {
@@ -32,6 +33,7 @@ const timer = {
             }
         },
         onEnd() {
+            this.timerIsInactive = true;
             this.shouldPlaySound = true;
         },
         onReset() {
@@ -45,6 +47,7 @@ const timer = {
         },
         onModalHiding() {
             this.shouldPlaySound = false;
+            this.timerIsInactive = false;
         }
     },
     template: `
@@ -56,7 +59,7 @@ const timer = {
                     <audio-list :active="shouldPlaySound"></audio-list>
                 </div>
             </banner>
-            <watch :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputText='inputText'>    
+            <watch :inactive="timerIsInactive" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputText="inputText">    
                 <div :title="isRun ? '': tipText" slot-scope="scope">
                     <span v-if="!isRun"><time-switch @change='onTextChange' :text="scope.text"></time-switch></span>
                     <span v-else>{{ scope.text }}</span>
