@@ -7,7 +7,8 @@ const Logger = require('../tools/logger');
 
 const StreamHooker = require('./infrastructure/stream-hooker');
 
-describe('logger', () => {
+describe('logger', function () {
+    this.timeout(5000);
 
     const infoTestedLevel = 'info';
     const warnTestedLevel = 'warn';
