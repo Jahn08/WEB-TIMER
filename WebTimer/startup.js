@@ -52,13 +52,15 @@
 
         const pfxConfig = serverOptions.pfx;
 
-        let server = serverOptions.useHttpsProtocol() ? https.createServer({
+		const url = serverOptions.url;
+        const server = url.useHttpsProtocol() ? https.createServer({
             pfx: fs.readFileSync(pfxConfig.path),
             passphrase: pfxConfig.password
         }, app) : http.createServer(app);
 
-        server.listen(serverOptions.port, serverOptions.host,
-            () => console.log(`Server listening on ${serverOptions.host}:${serverOptions.port}`));
+        const port = url.getPort();
+        const host = url.getHost();
+        server.listen(port, host,() => console.log(`Server listening on ${host}:${port}`));
     };
 }
 

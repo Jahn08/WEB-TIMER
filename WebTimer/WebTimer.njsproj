@@ -7,6 +7,8 @@
     <Environment>MONGO_HOST=mongodb://localhost:27017/
 SERVER_PORT=3443
 SERVER_HOST=localhost
+SERVER_EXTERNAL_PORT=
+SERVER_EXTERNAL_HOST=
 SERVER_PFX_PATH=../1.pfx
 MAIL_HOST=
 MAIL_SECURE_PORT=465
@@ -68,7 +70,7 @@ LOGGER_LEVEL=warn</Environment>
     </Compile>
     <Compile Include="tests\mailer-test.js" />
     <Compile Include="tests\program-model-helper-test.js" />
-    <Compile Include="tests\config-test.js">
+    <Compile Include="tests\web-address-test.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tools\db-model-helpers.js">
@@ -116,6 +118,9 @@ LOGGER_LEVEL=warn</Environment>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tests\response-error-test.js" />
+    <Compile Include="tools\web-address.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Content Include="components\auth-session.js" />
     <Content Include="components\facebook-auth-button.js" />
     <Content Include="components\main-menu.js" />

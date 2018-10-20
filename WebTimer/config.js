@@ -1,5 +1,3 @@
-const URL = require('url').URL;
-
 const fs = require('fs');
 
 const getSecret = (name) => {
@@ -20,6 +18,8 @@ const getMongoHost = () => {
 
 const Logger = require('./tools/logger');
 
+const WebAddress = require('./tools/web-address');
+
 module.exports = {
     db: {
         uri: getMongoHost() + 'WebTimer',
@@ -36,17 +36,8 @@ module.exports = {
             path: process.env.SERVER_PFX_PATH || '1.pfx',
             password: getSecret('SERVER_PFX_PASSWORD') || process.env.SERVER_PFX_PASSWORD
         },
-        port: process.env.SERVER_PORT || 3443,
-        host: process.env.SERVER_HOST || '0.0.0.0',
-        getFullUrl: function () {
-            const protocol = this.useHttpsProtocol() ? 'https' : 'http';
-
-            const url = new URL(`${protocol}://${this.host}:${this.port}`);
-            return url.toString();
-        },
-        useHttpsProtocol: function () {
-            return this.port ? this.port.toString().endsWith('443') : false;
-        }
+        url: new WebAddress(process.env.SERVER_HOST || '0.0.0.0', process.env.SERVER_PORT || 3443),
+        externalUrl: new WebAddress(process.env.SERVER_EXTERNAL_HOST, process.env.SERVER_EXTERNAL_PORT)
     },
     mail: {
         host: process.env.MAIL_HOST,

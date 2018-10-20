@@ -9,7 +9,9 @@ function Mailer(config, response = null) {
     if (response)
         respErr = new ResponseError(response);
 
-    const appFullUrl = config.server.getFullUrl();
+    const serverOptions = config.server;
+    const appFullUrl = (serverOptions.externalUrl.isInUse() ? serverOptions.externalUrl:  
+        serverOptions.url).getFullUrl();
 
     const mailTransportOptions = config.mail;
     const authOptions = mailTransportOptions.auth;
@@ -43,7 +45,7 @@ function Mailer(config, response = null) {
                 subject: `Web Timer Account ${processName}`  
             })
             .then(info => {
-                logger.info('An email has been sent: ' + info);
+                logger.info('An email has been sent: ' + JSON.stringify(info));
                 resolve(info);
             })
             .catch(err => {
