@@ -26,12 +26,12 @@ describe('WebAddress', () => {
 
         it('should return a default port value with the empty argument', () => {
             const address = new WebAddress(defaultHost);
-            assert.deepStrictEqual(address.getPort(), 8080);
+            assert.deepStrictEqual(address.getPort(), 443);
         });
 
         it('should return a default port value with the incorrect argument', () => {
             const address = new WebAddress(defaultHost, 'test');
-            assert.deepStrictEqual(address.getPort(), 8080);
+            assert.deepStrictEqual(address.getPort(), 443);
         });
     });
 

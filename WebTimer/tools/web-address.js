@@ -2,7 +2,7 @@
 
 function WebAddress(host, port) {
     const portValue = parseInt(port);
-    const _port = Number.isNaN(portValue) ? 8080 : port;
+    const _port = Number.isNaN(portValue) ? 443 : port;
 
     const _host = (host || '').toString();
 
