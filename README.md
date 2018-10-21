@@ -69,21 +69,23 @@ All preferences are set in config.js inside the WebTimer directory. Each option 
 * URLs for databases: *db.uri* and *db.testUri* are distinct in names for the main and test databases respectively, whereas the host for MongoDB is determined through an environment variable *MONGO_HOST* or *mongodb://localhost:27017/* by default
 * Parameters for the Facebook authentication: *auth.facebook.clientId* and *auth.facebook.secretId* (both are set by secrets  *AUTH_FACEBOOK_CLIENT_ID* and *AUTH_FACEBOOK_CLIENT_SECRET* accordingly)
 * To set a path to a certificate in a pfx-format along with its password when running the application on HTTPS: *server.pfx.path* (an environment variable *SERVER_PFX_PATH* or *1.pfx* by default) and *server.pfx.password* (a secret *SERVER_PFX_PASSWORD*)
-* *server.port* (an environment variable *SERVER_PORT* or *3443* by default) and *server.host* (an environment variable *SERVER_HOST* or *0.0.0.0* by default)
+* *server.url* is the main web address for the application that comprises a host name and port (environment variables *SERVER_HOST* or *0.0.0.0* by default and *SERVER_PORT* or *3443* by default)
+* *server.externalUrl* works as a public url for cases when it is different from the previous one (e.g., the application was deployed in a docker container) and it is required to give a link to the applciation (e.g., in emails); the external address also accepts a host name and port (environment variables *SERVER_EXTERNAL_HOST* and *SERVER_EXTERNAL_PORT* or *443* by default)
 * For sending automatic email messages: *mail.host* (an environment variable *MAIL_HOST*), *mail.port* (an environment variable *MAIL_SECURE_PORT* or *465*), *mail.auth.user* (an environment variable *MAIL_AUTH_USER*) and *mail.auth.pass* (a secret *MAIL_AUTH_PASSWORD*). The mechanism works out as long as the host and authentication options are set up 
 * Parameters to store additional information: *about.website* (an environment variable *ABOUT_WEBSITE*) determines a URL for a home site on the about page
+* *logger* to define a console logger with the next logging levels: *error* (by defult), *warn*, *info* (an environmental variable *LOGGER_LEVEL*)
 
 ## API Reference
 
 Public API methods working for anonymous visitors:
-* **GET programs/default** returns programs available by default without registration: *[{ name, userId, stages: [order, duration, descr], active }]*
+* **GET programs/default** returns programs available by default without registration: *[{ name, userId, stages: [order, duration, descr], active, audioBetweenStages }]*
 * **GET modules** sends static script files
 * **GET modules/about** to read basic contact information from the configuration: *{ email, website }* ([more about configuring](#headConfiguration))
 
 Some API methods are for authenticated users and that's why they require a Facebook token as a header Authorization: *Bearer [token]*. The methods:
 * **POST auth/logIn** updates the user's login time and returns whether the user is an administrator *{ hasAdminRole }*; provided it's a new user it sends an email to them if the respective preferences are set ([more about configuring](#headConfiguration))
-* **GET programs** to get a user's customised programs through an object *{ programs: { _id, name, userId, stages: [order, duration, descr], active }, schemaRestrictions }*, where *schemaRestrictions* describes restrictions imposed by the program schema
-* **POST programs** saves a list of the user's program objects: *{ programs: { _id, name, userId, stages: [order, duration, descr], active } }*, programs absent from the list will be removed from the database; then it redirects to **GET programs**
+* **GET programs** to get a user's customised programs through an object *{ programs: { _id, name, userId, stages: [order, duration, descr], active, audioBetweenStages }, schemaRestrictions }*, where *schemaRestrictions* describes restrictions imposed by the program schema
+* **POST programs** saves a list of the user's program objects: *{ programs: { _id, name, userId, stages: [order, duration, descr], active, audioBetweenStages } }*, programs absent from the list will be removed from the database; then it redirects to **GET programs**
 * **GET programs/active** returns the list of the user's active programs: *[{ _id, name, userId, stages: [order, duration, descr], active }]*
 * **GET users/profile** to get the user's preferences: *{ hideDefaultPrograms }* - the sole option determines whether only active customised timers should be shown (if there are such available) or all timer programs including default ones
 * **POST users/profile** accepts the user's only option to update: *{ hideDefaultPrograms }*
@@ -99,4 +101,4 @@ The project database is built upon MongoDB ([more about its version](#headPrereq
 
 There are 2 tables altogether:
 * **User** stores users' data such as: name, gender, location, email, preferences, etc.
-* **Program** keeps all information about users' customised timers and their stages in an included schema (a duration, description and order)
+* **Program** keeps all information about users' customised timers (with a name and 2 boolean properties: *active* and *audioBetweenStages* (should play a sound during a stage shift)) and their stages in an included schema (a duration, description and order)
