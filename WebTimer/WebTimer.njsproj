@@ -52,6 +52,7 @@ LOGGER_LEVEL=warn</Environment>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="components\bootstrap-controls.js" />
+    <Compile Include="components\route-form-state.js" />
     <Compile Include="components\tab-menu.js" />
     <Compile Include="components\user-statistics.js">
       <SubType>Code</SubType>

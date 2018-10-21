@@ -1,5 +1,6 @@
 ﻿import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
+import RouteFormState from '/components/route-form-state.js';
 import { ApiHelper } from '/components/api-helper.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
@@ -34,7 +35,9 @@ const userTimers = {
                 }
             },
             hasError: false,
-            saving: false
+            saving: false,
+            routeFormState: RouteFormState.constructFromScope(this),
+            isDirty: false
         };
     },
     computed: {
@@ -136,11 +139,17 @@ const userTimers = {
                     stages[newOrder].order = oldOrder;
                     stage.order = newOrder;
                 }
+
+                this.makeFormDirty();
             }
+        },
+        makeFormDirty() {
+            this.routeFormState.makeDirty();
+            this.isDirty = true;
         },
         deleteStage() {
             if (this.curStage) {
-                let stages = this.curProgramAvailableStages;
+                const stages = this.curProgramAvailableStages;
                 for (let i = this.curStage.order + 1; i < stages.length; ++i) {
                     stages[i].order -= 1;
                 }
@@ -150,6 +159,8 @@ const userTimers = {
 
                 this.curStage.order = -1;
                 this.switchCurrentStage();
+
+                this.makeFormDirty();
             }
         },
         switchCurrentStage(newStage, event) {
@@ -177,6 +188,8 @@ const userTimers = {
                     duration: 1,
                     descr: `New stage ${stageOrder + 1}`
                 });
+
+                this.makeFormDirty();
             }
         },
         addProgram() {
@@ -190,6 +203,8 @@ const userTimers = {
                 stages: []
             });
 
+            this.makeFormDirty();
+            
             this.$nextTick(() => {
                 this.refreshProgramList();
                 this.selectProgramOnList(tempId);
@@ -208,6 +223,8 @@ const userTimers = {
                 this.$nextTick(() => {
                     this.refreshProgramList();
                 });
+
+                this.makeFormDirty();
             }
         },
         saveChanges() {
@@ -221,12 +238,18 @@ const userTimers = {
                     .then(resp => {
                         this.finishSaving();
                         this.initialiseProgramList(resp);
+
+                        this.makeFormPure();
                     })
                     .catch(err => {
                         alert(err);
                         this.finishSaving();
                     });
             }
+        },
+        makeFormPure() {
+            this.routeFormState.makePure();
+            this.isDirty = false;
         },
         startSaving() {
             this.saving = true;
@@ -272,7 +295,7 @@ const userTimers = {
                             <div class="btn-group" role="group" aria-label="Actions for Timer Programs">
                                 <button :disabled="hasError" title="Add Program" @click="addProgram()" type="button" class="btn btn-info">&#43</button>
                                 <button :disabled="hasError" title="Remove Program" @click="deleteProgram()"  type="button" class="btn btn-info">&#x2717</button>
-                                <button :disabled="hasError" title="Save All Changes" @click="saveChanges()" type="button" class="btn btn-info">&#128190</button>
+                                <button :disabled="hasError || !isDirty" title="Save All Changes" @click="saveChanges()" type="button" class="btn btn-info">&#128190</button>
                             </div>
                             <select id="programs" class="form-control">
                                 <option v-for="pr in programs" :value="pr._id">{{ pr.name }}</option>
@@ -284,16 +307,16 @@ const userTimers = {
                                 <div class="form-group row">
                                     <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
                                     <div>
-                                        <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" />
+                                        <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" @change="makeFormDirty" />
                                         <div class="invalid-feedback">Please provide a program name</div>
                                     </div>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" :disabled="!curProgramAvailableStages.length" />
+                                    <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" @change="makeFormDirty" :disabled="!curProgramAvailableStages.length" />
                                     <label class="form-check-label" for="timerActiveCheck">Active</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="audioBetweenStagesCheck" type="checkbox" v-model="curProgram.audioBetweenStages" />
+                                    <input class="form-check-input" id="audioBetweenStagesCheck" type="checkbox" v-model="curProgram.audioBetweenStages" @change="makeFormDirty" />
                                     <label class="form-check-label" for="audioBetweenStagesCheck">Audio Between Stages</label>
                                 </div>
                             </card-section>
@@ -316,14 +339,14 @@ const userTimers = {
                                                 <div class="form-group row">
                                                     <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
                                                     <div>
-                                                        <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @focusout="onCtrlFocusOut" required />
+                                                        <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @change="makeFormDirty" @focusout="onCtrlFocusOut" required />
                                                         <div class="invalid-feedback">A duration must be from {{ durationMinLimit }} to {{ durationMaxLimit }} seconds</div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <label class="col-5 col-form-label" for="timerDescriptionTxt">Description</label>
                                                     <div>
-                                                        <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" required :maxlength="stageDescrMaxLength"></textarea>
+                                                        <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" @change="makeFormDirty" required :maxlength="stageDescrMaxLength"></textarea>
                                                         <div class="invalid-feedback">Please provide a program stage name</div>
                                                     </div>
                                                 </div>

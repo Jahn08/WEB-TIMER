@@ -9,6 +9,7 @@ import userSettings from '/components/user-settings.js';
 import userStatistics from '/components/user-statistics.js';
 import about from '/components/about.js';
 import AuthSession from '/components/auth-session.js';
+import RouteFormState from '/components/route-form-state.js';
 import { authEventHelper } from '/components/event-bus.js';
 
 new Vue({
@@ -74,12 +75,20 @@ new Vue({
             let nextRoute;
             const defaultRoute = { path: '/' };
 
-            if (to.matched.some(i => i.meta.requiresAuth || i.meta.requiresAdminRole) && !this.authenticated)
-                nextRoute = defaultRoute;
-            else if (to.matched.some(i => i.meta.requiresAdminRole) && !this.hasAdminRole)
-                nextRoute = defaultRoute;
+            const state = new RouteFormState(from);
+            const isDirty = state.isDirty();
 
-            next(nextRoute);
+            if (!isDirty || confirm('All unsaved changes will be lost. Continue?')) {
+                if (isDirty)
+                    state.makePure();
+
+                if (to.matched.some(i => i.meta.requiresAuth || i.meta.requiresAdminRole) && !this.authenticated)
+                    nextRoute = defaultRoute;
+                else if (to.matched.some(i => i.meta.requiresAdminRole) && !this.hasAdminRole)
+                    nextRoute = defaultRoute;
+
+                next(nextRoute);
+            }
         });
     },
     beforeDestroy() {

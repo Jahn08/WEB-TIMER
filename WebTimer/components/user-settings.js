@@ -1,5 +1,6 @@
 import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
+import RouteFormState from '/components/route-form-state.js';
 import { ApiHelper, FbApiHelper } from '/components/api-helper.js';
 
 const userSettings = {
@@ -15,15 +16,24 @@ const userSettings = {
             },
             authToken: null, 
             apiHelper: new ApiHelper(),
-            fbApiHelper: new FbApiHelper()
+            fbApiHelper: new FbApiHelper(),
+            routeFormState: RouteFormState.constructFromScope(this),
+            isDirty: false
         };
     },
     methods: {
         update() {
             this.startSaving();
 
-            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(this.finishSaving)
-                .catch(this.processError);
+            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(() => {
+                this.makeFormPure();
+                this.finishSaving();
+            })
+            .catch(this.processError);
+        },
+        makeFormPure() {
+            this.routeFormState.makePure();
+            this.isDirty = false;
         },
         processError(err) {
             alert(err);
@@ -34,6 +44,10 @@ const userSettings = {
         },
         finishSaving() {
             this.saving = false;
+        },
+        makeFormDirty() {
+            this.routeFormState.makeDirty();
+            this.isDirty = true;
         },
         removeProfile() {
             if (confirm('You are going to delete your profile with all the timer programs you have created. Continue?')) {
@@ -65,10 +79,10 @@ const userSettings = {
                 <div v-if="saving">Please wait...</div>
                 <div v-else class="container">
                     <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="hideDefaultProgramsCheck" v-model="user.hideDefaultPrograms">
+                        <input type="checkbox" class="form-check-input" id="hideDefaultProgramsCheck" v-model="user.hideDefaultPrograms" @change="makeFormDirty">
                         <label class="form-check-label" for="hideDefaultProgramsCheck">Hide default programs</label>
                     </div>
-                    <button type="button" class="btn btn-outline-primary" @click="update">Update</button>
+                    <button :disabled="!isDirty" type="button" class="btn btn-outline-primary" @click="update">Update</button>
                     <button type="button" class="btn btn-outline-info" @click="removeProfile">Remove Profile</button>
                 </div>
             </auth-listener>
