@@ -16,9 +16,21 @@ describe('ProgramModelHelper', function () {
     before(() => {
         const DbConnector = require('./infrastructure/db-connector').DbConnector;
         dbConnector = new DbConnector();
+
+        return dbConnector.connect();
     });
 
-    after(() => dbConnector.disconnect());
+    after(() => {
+        return new Promise((resolve, reject) => {
+            Program.remove({}, err => {
+                if (err)
+                    reject(err);
+                else
+                    dbConnector.disconnect().then(() => resolve())
+                        .catch(err => reject(err));
+            });
+        });
+    });
 
     this.timeout(7000);
 

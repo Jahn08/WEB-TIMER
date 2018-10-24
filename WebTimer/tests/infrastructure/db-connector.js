@@ -3,9 +3,8 @@ module.exports.DbConnector = function () {
     const dbConnection = new DatabaseConnection();
 
     const testUri = require('../../config').db.testUri;
-    dbConnection.connect(testUri);
-
-    this.disconnect = () => {
-        dbConnection.disconnect();
-    }
+	
+	this.connect = () => dbConnection.connect(testUri);
+    
+    this.disconnect = () => dbConnection.disconnect();
 };

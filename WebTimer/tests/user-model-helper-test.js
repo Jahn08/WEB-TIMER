@@ -18,17 +18,20 @@ describe('UserModelHelper', function () {
         const DbConnector = require('./infrastructure/db-connector').DbConnector;
         dbConnector = new DbConnector();
 
+        return dbConnector.connect();
+    });
+
+    after(() => {
         return new Promise((resolve, reject) => {
             User.remove({}, err => {
                 if (err)
                     reject(err);
                 else
-                    resolve();
+                    dbConnector.disconnect().then(() => resolve())
+                        .catch(err => reject(err));
             });
         });
     });
-
-    after(() => dbConnector.disconnect());
 
     this.timeout(3000);
 

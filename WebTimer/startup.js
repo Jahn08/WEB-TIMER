@@ -68,13 +68,13 @@ module.exports.DatabaseConnection = function () {
     const mongoose = require('mongoose');
     
     this.connect = function (uri) {
-        mongoose.connect(uri)
+        return mongoose.connect(uri)
             .then(resp => console.log(`Connected to the ${resp.connection.db.databaseName} database`))
             .catch(reason => console.log(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
     };
 
     this.disconnect = function () {
-        mongoose.disconnect()
+        return mongoose.disconnect()
             .then(() => console.log('All connections have been disconnected'))
             .catch(reason => console.log(`Unable to disconnect all connections due to the reason: ${reason}`));
     };
