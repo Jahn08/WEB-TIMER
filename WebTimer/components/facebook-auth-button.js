@@ -10,30 +10,32 @@ const facebookAuthButton = {
         };
     },
     beforeCreate() {
-        let initialiseFbSdk = () => {
-            const fbApiHelper = new FbApiHelper();
-            fbApiHelper.initialise().then(response => {
-                this.statusChangeCallback(response);
-            }).catch(alert);
-        };
-
-        let insertingFbSdkScript = function () {
-            const sdkTagId = 'facebook-jssdk'
-
-            if (document.getElementById(sdkTagId))
-                return;
-
-            const scriptTagName = 'script';
-            let sdkScriptTag = document.createElement(scriptTagName);
-            sdkScriptTag.id = sdkTagId;
-            sdkScriptTag.src = "https://connect.facebook.net/en_US/sdk.js";
-
-            const firstScriptTag = document.getElementsByTagName(scriptTagName)[0];
-            firstScriptTag.parentNode.insertBefore(sdkScriptTag, firstScriptTag);
-        };
-
-        initialiseFbSdk();
-        insertingFbSdkScript();
+        if (location.protocol.startsWith('https')) {
+            const initialiseFbSdk = () => {
+                const fbApiHelper = new FbApiHelper();
+                fbApiHelper.initialise().then(response => {
+                    this.statusChangeCallback(response);
+                }).catch(alert);
+            };
+    
+            const insertingFbSdkScript = function () {
+                const sdkTagId = 'facebook-jssdk'
+    
+                if (document.getElementById(sdkTagId))
+                    return;
+    
+                const scriptTagName = 'script';
+                const sdkScriptTag = document.createElement(scriptTagName);
+                sdkScriptTag.id = sdkTagId;
+                sdkScriptTag.src = "https://connect.facebook.net/en_US/sdk.js";
+    
+                const firstScriptTag = document.getElementsByTagName(scriptTagName)[0];
+                firstScriptTag.parentNode.insertBefore(sdkScriptTag, firstScriptTag);
+            };
+    
+            initialiseFbSdk();
+            insertingFbSdkScript();
+        }
     },
     methods: {
         logIn() {
