@@ -166,7 +166,7 @@ describe('UserModelHelper', function () {
 
     describe('#getShemaRestrictions', () => {
         it('should return correct restrictions to the User schema model', () => {
-            const restrictions = new UserModelHelper().getShemaRestrictions();
+            const restrictions = UserModelHelper.getShemaRestrictions();
             
             for (let path in restrictions) {
                 for (let option in restrictions[path]) {

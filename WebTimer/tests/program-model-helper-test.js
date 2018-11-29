@@ -86,15 +86,12 @@ describe('ProgramModelHelper', function () {
         });
     };
 
-    it('should cause an error when trying to build the object without passing the response argument', () => {
-        expectation.expectError(() => {
-            const programModelHelper = new ProgramModelHelper();
-        });
-    });
+    it('should cause an error when trying to build the object without passing the response argument', () =>
+        expectation.expectError(() => new ProgramModelHelper(null, generateObjectId())));
 
-    const initProgramModelHelper = () => {
+    const initProgramModelHelper = (userId) => {
         const mockedResponse = mock.mockResponse();
-        return new ProgramModelHelper(mockedResponse);
+        return new ProgramModelHelper(mockedResponse, userId || generateObjectId());
     };
 
     const assertProgramsAreInState = (programs, onlyActive) => {
@@ -115,11 +112,10 @@ describe('ProgramModelHelper', function () {
     };
 
     const testFindingUserPrograms = (searchingMethodName, onlyActive) => {
-        const programModelHelper = initProgramModelHelper();
 
-        const callback = (userId, newPrograms, resolve, reject) => {
+        const callback = (userId) => {
             return new Promise((resolve, reject) => {
-                programModelHelper[searchingMethodName](userId).then(programs => {
+                initProgramModelHelper(userId)[searchingMethodName]().then(programs => {
                     expectation.tryCatchForPromise(reject, () => {
                         const expectedLength = onlyActive ? 1 : 2;
 
@@ -147,11 +143,9 @@ describe('ProgramModelHelper', function () {
     };
 
     const testFindingWrongUserPrograms = (searchingMethodName) => {
-        const programModelHelper = initProgramModelHelper();
-        const userId = generateObjectId();
 
         return new Promise((resolve, reject) => {
-            programModelHelper[searchingMethodName](userId).then(programs =>
+            initProgramModelHelper()[searchingMethodName]().then(programs =>
                 expectation.tryCatchForPromise(reject, () => {
                     const count = Number.parseInt(programs);
 
@@ -170,13 +164,11 @@ describe('ProgramModelHelper', function () {
     const findUserProgramsMethodName = 'findUserPrograms';
 
     describe('#' + findUserProgramsMethodName, () => {
-        it('should return a user\'s programs irrespective of them being active', () => {
-            return testFindingUserPrograms(findUserProgramsMethodName);
-        });
+        it('should return a user\'s programs irrespective of them being active', () => 
+            testFindingUserPrograms(findUserProgramsMethodName));
 
-        it('should return an empty list of programs', () => {
-            return testFindingWrongUserPrograms(findUserProgramsMethodName);
-        });
+        it('should return an empty list of programs', () =>
+            testFindingWrongUserPrograms(findUserProgramsMethodName));
     });
 
     const findUserActiveProgramsMethodName = 'findUserActivePrograms';
@@ -194,32 +186,27 @@ describe('ProgramModelHelper', function () {
     const getNumberOfUserActiveProgramsMethodName = 'getNumberOfUserActivePrograms';
 
     describe('#' + getNumberOfUserActiveProgramsMethodName, () => {
-        it('should return a number of user\'s only active programs', () => {
-            return testFindingUserPrograms(findUserActiveProgramsMethodName, true);
-        });
+        it('should return a number of user\'s only active programs', () => 
+            testFindingUserPrograms(findUserActiveProgramsMethodName, true));
 
-        it('should return a zero for a user not having any programs', () => {
-            return testFindingWrongUserPrograms(findUserActiveProgramsMethodName);
-        });
+        it('should return a zero for a user not having any programs', () => 
+            testFindingWrongUserPrograms(findUserActiveProgramsMethodName));
     });
 
     describe('#updateProgram', () => {
-        const updatePrograms = (afterProgramUpdated) => {
-            const programModelHelper = initProgramModelHelper();
-
+        const updatePrograms = (afterProgramUpdated, newProgramData) => {
             const callback = (userId, newPrograms) => {
                 return new Promise((resolve, reject) => {
                     expectation.tryCatchForPromise(reject, () => {
-                        const programForUpdate = newPrograms[0];
-                        const newProgramData = createTestProgram();
+                        newProgramData = newProgramData || createTestProgram();
+                        newProgramData._id = newPrograms[0]._id;
 
-                        programModelHelper.updateProgram(programForUpdate, newProgramData).then(updatedProgram => {
-                            expectation.tryCatchForPromise(reject, () => {
-                                assert(updatedProgram);
-
-                                afterProgramUpdated(updatedProgram, newProgramData, resolve, reject);
-                            });
-                        }).catch(err => reject(err));
+                        initProgramModelHelper(userId).updatePrograms([newProgramData])
+                            .then(() => Program.findById(newProgramData._id).then(updatedProgram =>
+                                expectation.tryCatchForPromise(reject, () => {
+                                    assert(updatedProgram);
+                                    afterProgramUpdated(updatedProgram, newProgramData, resolve, reject); }))
+                            ).catch(err => reject(err));
                     });
                 });
             };
@@ -228,7 +215,7 @@ describe('ProgramModelHelper', function () {
         };
 
         it('should update a program successfully', () => {
-            return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
+            return updatePrograms((updatedProgram, newProgramData, resolve) => {
                 assert.strictEqual(updatedProgram.name, newProgramData.name);
                 assert.strictEqual(updatedProgram.active, true);
                 assert.strictEqual(updatedProgram.audioBetweenStages, true);
@@ -240,54 +227,43 @@ describe('ProgramModelHelper', function () {
             });
         });
 
-        it('should accept empty program data and update the fields with default values', () => {
-            return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
-                const programModelHelper = initProgramModelHelper();
-                programModelHelper.updateProgram(updatedProgram).then(_updatedProgram => {
-                    expectation.tryCatchForPromise(reject, () => {
-                        assert(_updatedProgram);
-                        assert.strictEqual(_updatedProgram.name, newProgramData.name);
-                        assert.strictEqual(_updatedProgram.active, false);
-                        assert.strictEqual(_updatedProgram.audioBetweenStages, false);
-                        
-                        assert(_updatedProgram.stages.length === 0);
-
-                        resolve();
-                    });
-                }).catch(err => reject(err));
-            });
+        it('should accept empty program data and update nothing', () => {
+            initProgramModelHelper().updatePrograms().then(count => {
+                expectation.tryCatchForPromise(reject, () => {
+                    assert.strictEqual(count, 0);
+                    resolve();
+                });
+            }).catch(err => reject(err));
         });
         
         it('shouldn\'t make a program active without stages', () => {
-            return updatePrograms((updatedProgram, newProgramData, resolve, reject) => {
-                newProgramData.stages = [];
-                newProgramData.active = true;
+            const newProgramData = createTestProgram();
+            newProgramData.stages = [];
+            newProgramData.active = true;
 
-                const programModelHelper = initProgramModelHelper();
-                programModelHelper.updateProgram(updatedProgram, newProgramData).then(_updatedProgram => {
+            return updatePrograms((updatedProgram, newProgram, resolve, reject) => {
 
-                    expectation.tryCatchForPromise(reject, () => {
-                        assert(_updatedProgram);
-                        assert.strictEqual(_updatedProgram.active, false);
+                expectation.tryCatchForPromise(reject, () => {
+                    assert(updatedProgram);
+                    assert.strictEqual(updatedProgram.active, false);
 
-                        assert(_updatedProgram.stages.length === 0);
+                    assert(updatedProgram.stages.length === 0);
 
-                        resolve();
-                    });
-                }).catch(err => reject(err));
-            });
+                    resolve();
+                });
+            }, newProgramData);
         });
+
+        it('should cause an error when accepting an undefined user id', () =>
+            expectation.expectRejection(() => new ProgramModelHelper(mock.mockResponse()).updatePrograms([createTestProgram()])));
     });
 
     describe('#createPrograms', () => {
 
         const createPrograms = (newPrograms, onResolve) => {
             return new Promise((resolve, reject) => {
-                const programModelHelper = initProgramModelHelper();
-
                 const userId = generateObjectId();
-
-                programModelHelper.createPrograms(newPrograms, userId).then(createdPrograms => {
+                initProgramModelHelper(userId).createPrograms(newPrograms).then(createdPrograms => {
                     expectation.tryCatchForPromise(reject, () => {
                         assert(createdPrograms);
                         onResolve(createdPrograms, userId);
@@ -311,133 +287,58 @@ describe('ProgramModelHelper', function () {
             });
         });
 
-        it('should accept an undefined list of programs and create nothing', () => {
-            return createPrograms(undefined, (createdPrograms) => {
-                assert.strictEqual(createdPrograms.length, 0);
-            });
-        });
+        it('should accept an undefined list of programs and create nothing', () => 
+            createPrograms(undefined, (createdPrograms) => assert.strictEqual(createdPrograms.length, 0)));
 
-        it('should accept an empty list of programs and create nothing', () => {
-            return createPrograms([], (createdPrograms) => {
-                assert.strictEqual(createdPrograms.length, 0);
-            });
-        });
+        it('should accept an empty list of programs and create nothing', () => 
+            createPrograms([], (createdPrograms) => assert.strictEqual(createdPrograms.length, 0)));
 
-        it('should cause an error when accepting an undefined user id', () => {
-            const programModelHelper = initProgramModelHelper();
-
-            return expectation.expectRejection(() => programModelHelper.createPrograms([{ name: 'some program' }]));
-        });
-
+        it('should cause an error when accepting an undefined user id', () =>
+            expectation.expectRejection(() => new ProgramModelHelper(mock.mockResponse()).createPrograms([{ name: 'some program' }])));
     });
 
-    describe('#reduceProgramsToList', () => {
+    describe('#deletePrograms', () => {
 
-        const testReducingProgramListArguments = (programs, reductionList) => {
-            const programModelHelper = initProgramModelHelper();
-            
-            return new Promise((resolve, reject) => {
-                programModelHelper.reduceProgramsToList(programs, reductionList).then(resp => {
-                    expectation.tryCatchForPromise(reject, () => assert.strictEqual(resp, programs));
-                    resolve();
-                });
-            });
-        };
+        const testProgramRemoval = (getIdsCallback, getExpectedLeftCountCallback) => {
+            return usingTestProgramModels((userId, programs) => {
+                const progIdsToRemoveArg = getIdsCallback(programs, userId);
 
-        it('should accept an empty list of programs and resolve with the first passed argument', () => {
-            return testReducingProgramListArguments([], []);
-        });
+                const availableProgIds = programs.map(p => p._id);
+                const progIdsToSkip = getExpectedLeftCountCallback ? getExpectedLeftCountCallback(programs, userId):
+                    availableProgIds;
 
-        it('should accept an undefined list of programs and resolve with the first passed argument', () => {
-            return testReducingProgramListArguments(undefined, []);
-        });
-        
-        it('should accept an undefined list for reduction and resolve with the first passed argument', () => {
-            const programs = [createTestProgram(), createTestProgram()];
-            return testReducingProgramListArguments(programs);
-        });
-
-        it('should be run with undefined parameters and resolve with undefined response', () => {
-            return testReducingProgramListArguments();
-        });
-
-        it('should accept equal lists and return the same first list of programs', () => {
-            const programModelHelper = initProgramModelHelper();
-
-            const callback = (userId, newPrograms) => {
                 return new Promise((resolve, reject) => {
-                    expectation.tryCatchForPromise(reject, () => {
-                        programModelHelper.reduceProgramsToList(newPrograms, newPrograms).then(programs => {
-                            expectation.tryCatchForPromise(reject, () => assert.deepStrictEqual(programs, newPrograms));
-                            resolve();
-                        });
-                    });
-                });
-            };
+                    initProgramModelHelper(userId).deletePrograms(progIdsToRemoveArg).then(() =>
+                        Program.find({ _id: { $in: availableProgIds } }).then(foundProgs =>
+                            expectation.tryCatchForPromise(reject, () => { 
+                                assert.strictEqual(foundProgs.length, progIdsToSkip.length);
 
-            return usingTestProgramModels(callback);
-        });
-
-        let testReducingProgramList = (getReductionList, onCheckingResult) => {
-            const programModelHelper = initProgramModelHelper();
-
-            const callback = (userId, newPrograms) => {
-                return new Promise((resolve, reject) => {
-                    expectation.tryCatchForPromise(reject, () => {
-                        const firstProgram = newPrograms[0];
-                        const secondProgram = newPrograms[1];
-                        const thirdProgram = newPrograms[2];
-
-                        const reductionList = getReductionList(newPrograms);
-
-                        programModelHelper.reduceProgramsToList(newPrograms, reductionList).then(reducedPrograms =>
-                            expectation.tryCatchForPromise(reject, () => {
-                                assert(newPrograms && newPrograms.length === 3);
-
-                                assert.deepStrictEqual(newPrograms[0], firstProgram);
-                                assert.deepStrictEqual(newPrograms[1], secondProgram);
-                                assert.deepStrictEqual(newPrograms[2], thirdProgram);
-
-                                if (onCheckingResult)
-                                    onCheckingResult(reducedPrograms);
+                                const leftIds = progIdsToSkip.map(id => id.toString());
+                                assert(foundProgs.map(p => p._id.toString()).every(id => leftIds.includes(id)));
 
                                 resolve();
-                            }));
-                    });
+                            })));
                 });
-            };
-
-            return usingTestProgramModels(callback);
+            });            
         };
 
-        it('should reduce the first list of programs whose ids are not in the second list and keep passed arguments intact', () => {
-            let reductionList;
-            
-            return testReducingProgramList(newPrograms => {
-                let firstOtherProgram = createTestProgram();
-                firstOtherProgram._id = newPrograms[0]._id;
-
-                let secondOtherProgram = createTestProgram();
-                secondOtherProgram._id = newPrograms[2]._id;
-
-                return reductionList = [firstOtherProgram, secondOtherProgram];
-            }, (reducedPrograms) => assert(reducedPrograms.filter(p => reductionList.find(pp => pp._id === p._id)).length === 2));
-        });
+        it('should accept an empty list of program ids to delete and do nothing', () => 
+            testProgramRemoval(() => undefined));
         
-        it('should reduce a list of programs towards emptiness without changing passed arguments', () => {
-            return testReducingProgramList(() => [createTestProgram(), createTestProgram()],
-                reducedPrograms => assert(reducedPrograms && reducedPrograms.length === 0));
-        });
+        it('should accept ids of non existent programs and delete nothing', () =>
+            testProgramRemoval(() => [generateObjectId(), generateObjectId()]));
         
-        it('should accept an empty list for reduction and resolve with an empty list of programs', () => {
-            return testReducingProgramList(() => [],
-                reducedPrograms => assert(reducedPrograms && reducedPrograms.length === 0));
-        });
+        it('should delete programs according to passed ids', () =>
+            testProgramRemoval(programs => [programs[0]._id.toString(), ...programs.slice(1).map(p => p._id)],
+                (programs, userId) => programs.filter(p => p.userId !== userId).map(p => p._id)));
+
+        it('should cause an error when accepting an undefined user id', () =>
+            expectation.expectRejection(() => new ProgramModelHelper(mock.mockResponse()).deletePrograms([generateObjectId()])));
     });
 
     describe('#getShemaRestrictions', () => {
         it('should return correct restrictions to the Program schema model', () => {
-            const restrictions = initProgramModelHelper().getShemaRestrictions();
+            const restrictions = ProgramModelHelper.getShemaRestrictions();
 
             const lookIntoPath = (restriction, pathObj) => {
                 if (pathObj.schema) {

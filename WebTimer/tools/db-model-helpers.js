@@ -1,34 +1,21 @@
 ﻿const ResponseError = require('./response-error').ResponseError;
 const config = require('../config');
 
-const logOutcome = (loggerContext, data) => loggerContext.info(`outcome: ${JSON.stringify(data)}`);
+const UserModel = require('../models/user');
+const ProgramModel = require('../models/program');
 
+const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
+
+const logOutcome = (loggerContext, data) => loggerContext.info(`outcome: ${JSON.stringify(data)}`);
 const logInitialData = (loggerContext, data) => loggerContext.info(JSON.stringify(data));
 
-exports.UserModelHelper = function (response = null) {
-    const UserModel = require('../models/user');
-    const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
-
+function UserModelHelper(response = null) {
     const loggerContext = config.logger.startLogging('UserModelHelper');
 
     let respErr;
 
     if (response)
         respErr = new ResponseError(response);
-
-    const getMaxLengthForSchemaPath = (path) => {
-        const schema = UserModel.schema;
-        return { maxlength: schema.path(path).options.maxlength };
-    }
-
-    this.getShemaRestrictions = function () {
-        loggerContext.info();
-
-        return {
-            name: getMaxLengthForSchemaPath('name'),
-            email: getMaxLengthForSchemaPath('email')
-        };
-    };
 
     const processError = (err, reject, respErrMethodName = 'respondWithDatabaseError') => {
         if (respErr)
@@ -59,7 +46,7 @@ exports.UserModelHelper = function (response = null) {
     this.findUserOrEmpty = (facebookId) => searchForUser('findOne', { facebookId });
 
     const buildRegexQuery = (fieldName, pattern) => {
-        let query = { };
+        const query = {};
         query[fieldName] = { $regex: pattern, $options: 'i' };
 
         return query;
@@ -115,50 +102,34 @@ exports.UserModelHelper = function (response = null) {
     };
 };
 
-exports.ProgramModelHelper = function (response) {
-    const ProgramModel = require('../models/program');
-    
-    const respErr = new ResponseError(response);
-
-    const loggerContext = config.logger.startLogging('UserModelHelper');
-    
-    const getOptionForSchemaPath = (paths, optionNames = ['maxlength']) => {
-        let pathObj;
-
-        let schema = ProgramModel.schema;
-
-        do {
-            let path = paths.shift();
-            pathObj = schema.path(path);
-
-            schema = pathObj.schema;
-        } while (paths.length);
-        
-        let options = {};
-        optionNames.forEach(op => options[op] = pathObj.options[op])
-
-        return options;
-    }
-
-    ProgramModel.schema.path('stages').schema.path('descr').options
-
-    this.getShemaRestrictions = function () {
-        loggerContext.info();
-        
-        return {
-            name: getOptionForSchemaPath(['name']),
-            stages: {
-                descr: getOptionForSchemaPath(['stages', 'descr']),
-                duration: getOptionForSchemaPath(['stages', 'duration'], ['max', 'min'])
-            } 
-        };
+UserModelHelper.getShemaRestrictions = function () {
+    const getMaxLengthForSchemaPath = (path) => {
+        const schema = UserModel.schema;
+        return { maxlength: schema.path(path).options.maxlength };
     };
     
-    const searchForPrograms = (userId, active) => {
-        logInitialData(loggerContext, { userId, active });
+    return {
+        name: getMaxLengthForSchemaPath('name'),
+        email: getMaxLengthForSchemaPath('email')
+    };
+};
+
+exports.UserModelHelper = UserModelHelper;
+
+function ProgramModelHelper(response, userId) {
+    const loggerContext = config.logger.startLogging('ProgramModelHelper');
+    logInitialData(loggerContext, { userId });
+    
+    const respErr = new ResponseError(response);
+    
+    const searchForPrograms = (active) => {
+        logInitialData(loggerContext, { active });
         
         return new Promise((resolve, reject) => {
-            let filter = { userId };
+            if (!checkUserId(reject))
+                return;
+            
+            const filter = { userId };
 
             if (active != null)
                 filter.active = active;
@@ -178,16 +149,16 @@ exports.ProgramModelHelper = function (response) {
         });
     };
 
-    this.findUserPrograms = function (userId) {
-        return searchForPrograms(userId);
+    this.findUserPrograms = function () {
+        return searchForPrograms();
     };
 
-    this.findUserActivePrograms = function (userId) {
-        return searchForPrograms(userId, true);
+    this.findUserActivePrograms = function () {
+        return searchForPrograms(true);
     };
 
-    this.getNumberOfUserActivePrograms = function (userId) {
-        logInitialData(loggerContext, { userId });
+    this.getNumberOfUserActivePrograms = function () {
+        loggerContext.info();
 
         return new Promise((resolve, reject) => {
             ProgramModel.count({ userId, active: true }, (err, count) => {
@@ -203,46 +174,80 @@ exports.ProgramModelHelper = function (response) {
         });
     };
 
-    this.updateProgram = function (programForUpdate, newProgramData) {
-        logInitialData(loggerContext, { programForUpdate, newProgramData });
+    const checkUserId = (reject) => {
+        if (!userId) {
+            const errMsg = 'A required parameter userId is undefined';
+            respErr.respondWithUnexpectedError(errMsg);
+            reject(errMsg);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    this.updatePrograms = function (programs = []) {
+        logInitialData(loggerContext, { programs });
 
         return new Promise((resolve, reject) => {
-            newProgramData = newProgramData || {};
+            if (!checkUserId(reject))
+                return;
 
-            if (newProgramData.name)
-                programForUpdate.name = newProgramData.name;
+            if (!programs.length) {
+                loggerContext.warn('the list of programs to update is empty');
+                resolve(0);
 
-            const newStages = newProgramData.stages || [];
-            programForUpdate.stages = newStages;
-            programForUpdate.active = newStages.length === 0 ? false :
-                (newProgramData.active || false);
-            programForUpdate.audioBetweenStages = newProgramData.audioBetweenStages || false;
+                return;
+            }
 
-            programForUpdate.save((err, resp) => {
+            const programIds = programs.map(p => p._id);
+
+            ProgramModel.find({ _id: { $in: programIds }, userId }, (err, progsForUpdate) => {
+                logOutcome(loggerContext, { progsForUpdate });
+
                 if (err) {
                     respErr.respondWithDatabaseError(err);
                     reject(err);
+
+                    return;
                 }
-                else {
-                    logOutcome(loggerContext, { resp });
-                    resolve(resp);
-                }
+                
+                Promise.all(progsForUpdate.map(dbProg => {
+                    const newProg = programs.find(p => p._id.toString() === dbProg._id.toString());
+
+                    if (newProg.name)
+                        dbProg.name = newProg.name;
+
+                    const newStages = newProg.stages || [];
+                    dbProg.stages = newStages;
+                    dbProg.active = newStages.length === 0 ? false : (newProg.active || false);
+                    dbProg.audioBetweenStages = newProg.audioBetweenStages || false;
+
+                    return new Promise((resolve1, reject1) => {
+                        dbProg.save((err, resp) => {
+                            if (err) {
+                                respErr.respondWithDatabaseError(err);
+                                reject1(err);
+                            }
+                            else {
+                                logOutcome(loggerContext, { resp });
+                                resolve1(resp);
+                            }
+                        })
+                    });
+                })).then(() => resolve(progsForUpdate.length)).catch(err => reject(err));
             });
         });
     };
     
-    this.createPrograms = function (programs, userId) {
-        logInitialData(loggerContext, { programs, userId });
+    this.createPrograms = function (programs = []) {
+        logInitialData(loggerContext, { programs });
 
         return new Promise((resolve, reject) => {
-            if (!userId) {
-                const errMsg = 'A required parameter userId is undefined';
-                respErr.respondWithUnexpectedError(errMsg);
-                reject(errMsg);
+            if (!checkUserId(reject))
                 return;
-            }
-
-            if (!programs || !programs.length) {
+            
+            if (!programs.length) {
                 loggerContext.warn('the list of programs to create is empty');
                 resolve([]);
 
@@ -267,44 +272,60 @@ exports.ProgramModelHelper = function (response) {
         });
     };
 
-    this.reduceProgramsToList = function (dbPrograms, reductionList) {
-        logInitialData(loggerContext, { dbPrograms, reductionList });
+    this.deletePrograms = function (programIds = []) {
+        logInitialData(loggerContext, { programIds });
 
         return new Promise((resolve, reject) => {
-            if (!dbPrograms || !dbPrograms.length || !reductionList) {
-                loggerContext.warn('nothing will be reduced since the passed data is empty');
-                resolve(dbPrograms);
+            if (!checkUserId(reject))
+                return;
+
+            if (!programIds.length) {
+                loggerContext.warn('the list of program ids to delete is empty');
+                resolve();
 
                 return;
             }
 
-            const reductionIds = reductionList.filter(p => p._id).map(p => p._id.toString());
-            loggerContext.info(`ids for programs to save: ${JSON.stringify(reductionIds)}`);
-
-            let reducedProgramList = [];
-            let idsForRemoval = [];
-            dbPrograms.forEach(serverProgram => {
-                const programIdStr = serverProgram._id.toString();
-
-                if (reductionIds.every(id => id !== programIdStr))
-                    idsForRemoval.push(serverProgram._id);
-                else
-                    reducedProgramList.push(serverProgram);
-            });
-
-            loggerContext.info(`ids for programs to remove: ${JSON.stringify(idsForRemoval)}`);
-
-            ProgramModel.remove({ _id: { $in: idsForRemoval } }, err => {
+            ProgramModel.remove({ _id: { $in: programIds }, userId }, err => {
                 if (err) {
                     respErr.respondWithDatabaseError(err);
                     reject(err);
                 }
                 else {
-                    logOutcome(loggerContext, { reducedProgramList });
-                    resolve(reducedProgramList);
+                    logOutcome(loggerContext, {});
+                    resolve();
                 }
             });
         });
     };
-
 };
+
+ProgramModelHelper.getShemaRestrictions = function () {
+    const getOptionForSchemaPath = (paths, optionNames = ['maxlength']) => {
+        let pathObj;
+
+        let schema = ProgramModel.schema;
+
+        do {
+            let path = paths.shift();
+            pathObj = schema.path(path);
+
+            schema = pathObj.schema;
+        } while (paths.length);
+        
+        const options = {};
+        optionNames.forEach(op => options[op] = pathObj.options[op])
+
+        return options;
+    };
+    
+    return {
+        name: getOptionForSchemaPath(['name']),
+        stages: {
+            descr: getOptionForSchemaPath(['stages', 'descr']),
+            duration: getOptionForSchemaPath(['stages', 'duration'], ['max', 'min'])
+        } 
+    };
+};
+
+exports.ProgramModelHelper = ProgramModelHelper;
