@@ -199,6 +199,7 @@ const watch = {
             return !this.inactive && (this.clockwise || (this.time > 0 || (this.time = this.textToTime()) > 0));
         },
         onKeyDown() {
+            const event = window.event || arguments[0];
             const btn = this.buttons.find(el => el.keyCodes.indexOf(event.code) !== -1);
 
             if (this.inactive)
