@@ -37,7 +37,7 @@ router.route('/')
             return respErr.respondWithUserIsNotFoundError();
 
         const programModelHelper = new ProgramModelHelper(res, user.id);
-        await programModelHelper.deletePrograms(req.body.deleted);
+        await programModelHelper.deletePrograms(req.body.deletedIds);
         await programModelHelper.updatePrograms(req.body.updated);
         await programModelHelper.createPrograms(req.body.created);
 

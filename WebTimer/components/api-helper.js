@@ -76,8 +76,8 @@ function ApiHelper() {
         });
     };
 
-    this.postUserPrograms = function (token, programs) {
-        return postQuery('/programs', token, { programs });
+    this.postUserPrograms = function (token, programData) {
+        return postQuery('/programs', token, programData);
     };
 
     this.getUserStatistics = function (token, data) {
@@ -161,6 +161,27 @@ const FbApiHelper = function () {
                 resolve(response);
             })));
     };
-}; 
+};
 
-export { ApiHelper, FbApiHelper };
+function ProgramUpdater(programList = []) {
+    const originalProgIds = programList.map(p => p._id);
+    let updatedIds = [];
+
+    this.getQueryData = function (curPrograms) {
+        updatedIds = updatedIds.filter(id => originalProgIds.indexOf(id) !== -1);
+        const curProgIds = curPrograms.map(p => p._id);
+
+        return {
+            deletedIds: originalProgIds.filter(id => curProgIds.indexOf(id) === -1),
+            updated: curPrograms.filter(p => updatedIds.indexOf(p._id) !== -1),
+            created: curPrograms.filter(p => originalProgIds.indexOf(p._id) === -1)
+        };
+    };
+
+    this.markUpdated = function (program) {
+        if (!updatedIds.find(id => id === program._id))
+            updatedIds.push(program._id);
+    };
+}
+
+export { ApiHelper, FbApiHelper, ProgramUpdater };

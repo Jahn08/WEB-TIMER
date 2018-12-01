@@ -1,7 +1,7 @@
 ﻿import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
 import RouteFormState from '/components/route-form-state.js';
-import { ApiHelper } from '/components/api-helper.js';
+import { ApiHelper, ProgramUpdater } from '/components/api-helper.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
 const userTimers = {
@@ -20,6 +20,7 @@ const userTimers = {
             programs: [],
             authToken: null,
             apiHelper: new ApiHelper(),
+            progUpdater: null,
             restrictions: {
                 name: {
                     maxlength: 0
@@ -71,10 +72,12 @@ const userTimers = {
         },
         initialiseProgramList(response) {
             this.programs = response.programs;
+            this.progUpdater = new ProgramUpdater(this.programs);
+
             this.restrictions = response.schemaRestrictions;
 
             this.$nextTick(() => {
-                let $programListObj = this.getProgramListJQuerySelector();
+                const $programListObj = this.getProgramListJQuerySelector();
 
                 $programListObj.multipleSelect({
                     filter: true,
@@ -98,7 +101,7 @@ const userTimers = {
                 this.getProgramListJQuerySelector().multipleSelect('disable');
         },
         onProgramChange($programListObj) {
-            let selectedVal = $programListObj.multipleSelect('getSelects')[0];
+            const selectedVal = $programListObj.multipleSelect('getSelects')[0];
             this.setCurrentProgram(this.programs.find(val => val._id == selectedVal));
         },
         setCurrentProgram(newProgram) {
@@ -114,7 +117,7 @@ const userTimers = {
             if (!program || !program.stages)
                 return;
 
-            let $activeStage = $('#stages .active');
+            const $activeStage = $('#stages .active');
 
             if ($activeStage.length === 0)
                 return;
@@ -129,19 +132,23 @@ const userTimers = {
         },
         alterStageOrderBy(stage, number) {
             if (stage) {
-                let oldOrder = stage.order;
-                let newOrder = oldOrder + number;
+                const oldOrder = stage.order;
+                const newOrder = oldOrder + number;
 
-                let stages = this.curProgramAvailableStages;
-                let upperLimit = stages.length;
+                const stages = this.curProgramAvailableStages;
+                const upperLimit = stages.length;
 
                 if (newOrder >= 0 && newOrder < upperLimit) {
                     stages[newOrder].order = oldOrder;
                     stage.order = newOrder;
                 }
 
-                this.makeFormDirty();
+                this.markProgramUpdated();
             }
+        },
+        markProgramUpdated() {
+            this.progUpdater.markUpdated(this.curProgram);
+            this.makeFormDirty();
         },
         makeFormDirty() {
             this.routeFormState.makeDirty();
@@ -160,7 +167,7 @@ const userTimers = {
                 this.curStage.order = -1;
                 this.switchCurrentStage();
 
-                this.makeFormDirty();
+                this.markProgramUpdated();
             }
         },
         switchCurrentStage(newStage, event) {
@@ -177,11 +184,11 @@ const userTimers = {
             }
         },
         addStage() {
-            let stages = this.curProgramAllStages;
+            const stages = this.curProgramAllStages;
 
             if (stages)
             {
-                let stageOrder = this.curProgramAvailableStages.length;
+                const stageOrder = this.curProgramAvailableStages.length;
 
                 stages.push(this.curStage = {
                     order: stageOrder,
@@ -189,7 +196,7 @@ const userTimers = {
                     descr: `New stage ${stageOrder + 1}`
                 });
 
-                this.makeFormDirty();
+                this.markProgramUpdated();
             }
         },
         addProgram() {
@@ -234,7 +241,7 @@ const userTimers = {
             
             if (this.validateFormData()) {
                 this.startSaving();
-                this.apiHelper.postUserPrograms(this.authToken, this.programs)
+                this.apiHelper.postUserPrograms(this.authToken, this.progUpdater.getQueryData(this.programs))
                     .then(resp => {
                         this.finishSaving();
                         this.initialiseProgramList(resp);
@@ -307,16 +314,16 @@ const userTimers = {
                                 <div class="form-group row">
                                     <label class="col-2 col-form-label" for="timerNameTxt">Name</label>
                                     <div>
-                                        <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" @change="makeFormDirty" />
+                                        <input type="text" class="form-control" :maxlength="restrictions.name.maxlength" required id="timerNameTxt" @focusout="onProgramNameCtrlFocusOut" v-model="curProgram.name" @change="markProgramUpdated" />
                                         <div class="invalid-feedback">Please provide a program name</div>
                                     </div>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" @change="makeFormDirty" :disabled="!curProgramAvailableStages.length" />
+                                    <input class="form-check-input" id="timerActiveCheck" type="checkbox" v-model="curProgram.active" @change="markProgramUpdated" :disabled="!curProgramAvailableStages.length" />
                                     <label class="form-check-label" for="timerActiveCheck">Active</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" id="audioBetweenStagesCheck" type="checkbox" v-model="curProgram.audioBetweenStages" @change="makeFormDirty" />
+                                    <input class="form-check-input" id="audioBetweenStagesCheck" type="checkbox" v-model="curProgram.audioBetweenStages" @change="markProgramUpdated" />
                                     <label class="form-check-label" for="audioBetweenStagesCheck">Audio Between Stages</label>
                                 </div>
                             </card-section>
@@ -339,14 +346,14 @@ const userTimers = {
                                                 <div class="form-group row">
                                                     <label class="col-5 col-form-label" for="timerDurationNum">Duration (sec)</label>
                                                     <div>
-                                                        <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @change="makeFormDirty" @focusout="onCtrlFocusOut" required />
+                                                        <input :max="durationMaxLimit" :min="durationMinLimit" type="number" class="form-control" id="timerDurationNum" v-model="st.duration" @change="markProgramUpdated" @focusout="onCtrlFocusOut" required />
                                                         <div class="invalid-feedback">A duration must be from {{ durationMinLimit }} to {{ durationMaxLimit }} seconds</div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <label class="col-5 col-form-label" for="timerDescriptionTxt">Description</label>
                                                     <div>
-                                                        <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" @change="makeFormDirty" required :maxlength="stageDescrMaxLength"></textarea>
+                                                        <textarea class="form-control" id="timerDescriptionTxt" v-model.lazy="st.descr" @focusout="onCtrlFocusOut" @change="markProgramUpdated" required :maxlength="stageDescrMaxLength"></textarea>
                                                         <div class="invalid-feedback">Please provide a program stage name</div>
                                                     </div>
                                                 </div>
