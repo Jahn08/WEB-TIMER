@@ -48,7 +48,7 @@ function ApiHelper() {
     };
 
     this.getAboutInfo = function () {
-        return getQuery('/modules/about', null, 'additional information about the application')
+        return getQuery('/modules/about', null, 'additional information about the application');
     };
 
     this.postUserProfileSettings = function (token, settings) {
@@ -59,7 +59,7 @@ function ApiHelper() {
         return new Promise((resolve, reject) => {
             $.ajax('/users/profile', formQueryOptions(token, 'DELETE'))
                 .then(resp => resolve(resp))
-                .catch(err => processError(reject, `An error has occured while deleting the user\'s profile: ${err.statusText}`));
+                .catch(err => processError(reject, `An error has occured while deleting the user's profile: ${err.statusText}`));
         });
     };
 
@@ -96,7 +96,7 @@ function ApiHelper() {
             id: userId
         });
     };
-};
+}
 
 const FbApiHelper = function () {
 

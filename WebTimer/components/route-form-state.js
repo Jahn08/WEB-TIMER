@@ -6,7 +6,7 @@ function RouteFormState(route) {
     this.makeDirty = () => meta.isDirty = true;
 
     this.makePure = () => meta.isDirty = false;
-};
+}
 
 RouteFormState.constructFromScope = (vueScope) => new RouteFormState(vueScope.$router.currentRoute);
 

@@ -84,7 +84,7 @@ const watch = {
                 shortcut: 'Ctrl',
                 keyCodes: ['ControlRight','ControlLeft'],
                 event: () => {
-                    this.laps.push(this.outputText)
+                    this.laps.push(this.outputText);
                 }
             }, {
                 name: 'Reset',

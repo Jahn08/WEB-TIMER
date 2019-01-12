@@ -1,5 +1,5 @@
 const express = require('express');
-let app = express();
+express();
 
 const path = require('path');
 let rootPath = path.join(__dirname, '..', 'node_modules');
@@ -13,7 +13,7 @@ router.use('/vue-router', express.static(path.join(rootPath, 'vue-router', 'dist
 
 const config = require('../config');
 
-router.route('/about').get((req, res, next) => {
+router.route('/about').get((req, res) => {
     res.status(200).json({
         email: config.mail.auth.user,
         website: config.about.website

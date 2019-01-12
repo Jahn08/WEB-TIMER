@@ -19,7 +19,7 @@ const facebookAuthButton = {
             };
     
             const insertingFbSdkScript = function () {
-                const sdkTagId = 'facebook-jssdk'
+                const sdkTagId = 'facebook-jssdk';
     
                 if (document.getElementById(sdkTagId))
                     return;
@@ -27,7 +27,7 @@ const facebookAuthButton = {
                 const scriptTagName = 'script';
                 const sdkScriptTag = document.createElement(scriptTagName);
                 sdkScriptTag.id = sdkTagId;
-                sdkScriptTag.src = "https://connect.facebook.net/en_US/sdk.js";
+                sdkScriptTag.src = 'https://connect.facebook.net/en_US/sdk.js';
     
                 const firstScriptTag = document.getElementsByTagName(scriptTagName)[0];
                 firstScriptTag.parentNode.insertBefore(sdkScriptTag, firstScriptTag);
@@ -55,7 +55,7 @@ const facebookAuthButton = {
                 this.setUserName();
             } else {
                 this.setUserStateLoggedOut();
-                console.log('User cancelled login or did not fully authorize.');
+                console.warn('User cancelled login or did not fully authorize.');
             }
         },
         sendUserDataToServer(token) {

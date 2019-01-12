@@ -15,7 +15,7 @@ const modal = {
         }
     },
     mounted() {
-        $('#modal').on('hide.bs.modal', e => {
+        $('#modal').on('hide.bs.modal', () => {
             this.$emit('hiding');
         });
     },

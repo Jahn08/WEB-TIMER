@@ -37,7 +37,7 @@ const sortLink = {
             if (this.state == 0)
                 return '';
 
-            return this.state == this.descState ? "&#9660;": "&#9650;";
+            return this.state == this.descState ? '&#9660;': '&#9650;';
         }
     },
     template: `
@@ -112,7 +112,7 @@ const userStatistics = {
                 }).catch(alert);
         },
         searchForText() {
-           this.getUsersInfoFromServer();
+            this.getUsersInfoFromServer();
         },
         sortLinkClicked(header, direction) {
             const activeHeader = this.headers.find(h => h.value == header);

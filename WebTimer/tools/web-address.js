@@ -21,6 +21,6 @@ function WebAddress(host, port) {
         const protocol = this.useHttpsProtocol() ? 'https' : 'http';
         return new URL(`${protocol}://${_host}:${_port}/#/`).toString();
     };
-};
+}
 
 module.exports = WebAddress;

@@ -110,7 +110,7 @@ describe('expectation', () => {
         it('should reject the promise since it won\'t provoke any internal rejections', () => {
             return new Promise((resolve, reject) => {
 
-                expectation.expectRejection(() => new Promise((_resolve, _reject) => _resolve()))
+                expectation.expectRejection(() => new Promise((_resolve) => _resolve()))
                     .then(() => reject(new Error('An error was expected to be thrown')))
                     .catch(ex => {
                         try {

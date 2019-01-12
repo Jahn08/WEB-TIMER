@@ -12,7 +12,9 @@ import AuthSession from '/components/auth-session.js';
 import RouteFormState from '/components/route-form-state.js';
 import { authEventHelper } from '/components/event-bus.js';
 
+// eslint-disable-next-line no-undef
 new Vue({
+    // eslint-disable-next-line no-undef
     router: new VueRouter({
         routes: [
             {
@@ -112,7 +114,7 @@ new Vue({
             }
         }
     },
-    el: "#app",
+    el: '#app',
     components: {
         mainMenu,
         facebookAuthButton

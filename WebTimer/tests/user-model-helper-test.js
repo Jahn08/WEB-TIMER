@@ -42,7 +42,7 @@ describe('UserModelHelper', function () {
 
         const administratorIds = testFields['administrators'] || [];
 
-        for (i = 0; i < numberOfUsers; ++i) {
+        for (let i = 0; i < numberOfUsers; ++i) {
             users.push(new User({
                 name: testFields['name'] || randomiser.getRandomIntUpToMaxInteger().toString(),
                 email: testFields['email'] || randomiser.getRandomIntUpToMaxInteger().toString(),
@@ -181,7 +181,7 @@ describe('UserModelHelper', function () {
         const testCountingAdministrators = (administrators = []) => {
             const testFields = { administrators };
 
-            return createTestUsers((users) => {
+            return createTestUsers(() => {
 
                 return new Promise((resolve, reject) => {
                     expectation.tryCatchForPromise(reject, () => {

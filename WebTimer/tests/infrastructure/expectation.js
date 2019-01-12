@@ -36,7 +36,7 @@ exports.expectRejection = (callback, onRejecting) => {
     assertCallbackIsFuncton(callback);
 
     return new Promise((resolve, reject) => {
-        callback().then(() => reject(`It shouldn't have been here, since an error was expected`))
+        callback().then(() => reject('It shouldn\'t have been here, since an error was expected'))
             .catch(err => {
                 try {
                     callIfFuncton(onRejecting);

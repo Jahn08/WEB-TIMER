@@ -22,8 +22,9 @@
     const log = (level, msg, ...scopeNames) => {
         if (shouldLog(level)) {
             const scopeName = formatScopeName(level, ...scopeNames);
-            const nowStr = new Date(Date.now()).toLocaleString()
+            const nowStr = new Date(Date.now()).toLocaleString();
 
+            // eslint-disable-next-line no-console
             console[level](`${nowStr}. ${scopeName}, ${level.toUpperCase()}: ${msg}`);
         }
     };
@@ -37,6 +38,6 @@
             [errorPropName](msg) { log(arguments.callee.name, msg, scopeNames); }
         };
     };
-};
+}
 
 module.exports = Logger;

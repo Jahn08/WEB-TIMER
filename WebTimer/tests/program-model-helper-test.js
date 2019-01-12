@@ -7,7 +7,7 @@ const expectation = require('./infrastructure/expectation');
 const Program = require('../models/program');
 const ProgramModelHelper = require('../tools/db-model-helpers').ProgramModelHelper;
 
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const generateObjectId = () => mongoose.Types.ObjectId();
 
 describe('ProgramModelHelper', function () {
@@ -156,8 +156,8 @@ describe('ProgramModelHelper', function () {
 
                     resolve();
                 }
-            ))
-            .catch(err => reject(err));
+                ))
+                .catch(err => reject(err));
         });
     };
 
@@ -228,12 +228,14 @@ describe('ProgramModelHelper', function () {
         });
 
         it('should accept empty program data and update nothing', () => {
-            initProgramModelHelper().updatePrograms().then(count => {
-                expectation.tryCatchForPromise(reject, () => {
-                    assert.strictEqual(count, 0);
-                    resolve();
-                });
-            }).catch(err => reject(err));
+            return new Promise((resolve, reject) => {
+                initProgramModelHelper().updatePrograms().then(count => {
+                    expectation.tryCatchForPromise(reject, () => {
+                        assert.strictEqual(count, 0);
+                        resolve();
+                    });
+                }).catch(err => reject(err));
+            });
         });
         
         it('shouldn\'t make a program active without stages', () => {

@@ -20,6 +20,7 @@
     };
 };
 
+// eslint-disable-next-line no-undef
 const vm = new Vue();       
 
 const watchKeyDownEventHelper = new EventHelper(vm, 'watchKeyDown');

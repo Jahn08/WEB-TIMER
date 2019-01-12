@@ -46,7 +46,7 @@ const about = {
     },
     computed: {
         emailAddress() {
-            return "mailto:" + this.email;
+            return 'mailto:' + this.email;
         }
     },
     template: `

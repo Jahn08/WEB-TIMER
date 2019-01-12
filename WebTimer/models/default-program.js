@@ -49,29 +49,29 @@ const defaultPrograms = [{
         descr: 'Let it ripen with the oven turned off'
     }]
 }, {
-	name: 'Cooking tomato soup with tinned chickpeas',
+    name: 'Cooking tomato soup with tinned chickpeas',
     active: true,
     audioBetweenStages: true,
-	stages: [{
-		order: 0,
-		duration: 120,
-		descr: 'Frying turmeric alongside diced onion'
-	}, {
-		order: 1,
-		duration: 600,
-		descr: 'Stewing squashed tomatoes with the onion'
-	}, {
-		order: 2,
-		duration: 1200,
-		descr: 'Add hot water and pasta, boil the mix-up'
-	}, {
-		order: 3,
-		duration: 180,
-		descr: 'Add tinned chickpeas and carry on boiling'
-	}, {
-		order: 4,
-		duration: 300,
-		descr: 'Turn off the cooker and let the meal calm down'
+    stages: [{
+        order: 0,
+        duration: 120,
+        descr: 'Frying turmeric alongside diced onion'
+    }, {
+        order: 1,
+        duration: 600,
+        descr: 'Stewing squashed tomatoes with the onion'
+    }, {
+        order: 2,
+        duration: 1200,
+        descr: 'Add hot water and pasta, boil the mix-up'
+    }, {
+        order: 3,
+        duration: 180,
+        descr: 'Add tinned chickpeas and carry on boiling'
+    }, {
+        order: 4,
+        duration: 300,
+        descr: 'Turn off the cooker and let the meal calm down'
     }]
 }].sort((a, b) => a.name > b.name);
 

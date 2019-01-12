@@ -94,7 +94,7 @@ router.route('/profile')
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
-        const [resp, err] = await user.update({ $set: { hideDefaultPrograms: req.body.hideDefaultPrograms } });
+        const [, err] = await user.update({ $set: { hideDefaultPrograms: req.body.hideDefaultPrograms } });
 
         if (err)
             respErr.respondWithDatabaseError(err);

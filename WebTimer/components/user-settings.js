@@ -28,8 +28,7 @@ const userSettings = {
             this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(() => {
                 this.makeFormPure();
                 this.finishSaving();
-            })
-            .catch(this.processError);
+            }).catch(this.processError);
         },
         makeFormPure() {
             this.routeFormState.makePure();
@@ -53,10 +52,10 @@ const userSettings = {
             if (confirm('You are going to delete your profile with all the timer programs you have created. Continue?')) {
                 this.startSaving();
 
-                this.apiHelper.deleteUserProfile(this.authToken).then((res) => {
+                this.apiHelper.deleteUserProfile(this.authToken).then(() => {
                     this.fbApiHelper.getUserInfo().then(userInfo =>
-                        this.fbApiHelper.deletePermissions(userInfo.id).then(resp => 
-                            this.$router.push('/', arg => {
+                        this.fbApiHelper.deletePermissions(userInfo.id).then(() => 
+                            this.$router.push('/', () => {
                                 location.reload();
                             })));
                 }).catch(this.processError);

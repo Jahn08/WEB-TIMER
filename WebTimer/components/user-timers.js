@@ -236,7 +236,7 @@ const userTimers = {
         },
         saveChanges() {
             this.programs.forEach(p => {
-                p.stages = p.stages.filter(s => s.order !== -1)
+                p.stages = p.stages.filter(s => s.order !== -1);
             });
             
             if (this.validateFormData()) {

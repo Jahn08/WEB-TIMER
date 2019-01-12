@@ -2,7 +2,7 @@
     const messages = [];
 
     const oldWritingMethod = stream.write;
-    stream.write = (string, encoding, fn) => {
+    stream.write = (string) => {
         messages.push(string.trim());
     };
     
@@ -10,6 +10,6 @@
         stream.write = oldWritingMethod;
         return messages;
     };
-};
+}
 
 module.exports = StreamHooker;

@@ -17,7 +17,7 @@ const ResponseError = require('../tools/response-error').ResponseError;
 const logger = require('../config').logger;
 
 router.route('/')
-    .get(facebokAuth.verifyUser, async (req, res, next) => {
+    .get(facebokAuth.verifyUser, async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
@@ -29,7 +29,7 @@ router.route('/')
         const programs = await programModelHelper.findUserPrograms(user.id);
         res.status(200).json({ programs, schemaRestrictions: ProgramModelHelper.getShemaRestrictions() });
     })
-    .post(facebokAuth.verifyUser, async (req, res, next) => {
+    .post(facebokAuth.verifyUser, async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
@@ -44,7 +44,7 @@ router.route('/')
         res.redirect(req.baseUrl);
     });
 
-router.route('/active').get(facebokAuth.verifyUser, async (req, res, next) => {
+router.route('/active').get(facebokAuth.verifyUser, async (req, res) => {
     const respErr = new ResponseError(res);
     const user = req.user;
 
@@ -65,6 +65,6 @@ router.route('/active').get(facebokAuth.verifyUser, async (req, res, next) => {
     res.status(200).json(overallPrograms);
 });
 
-router.route('/default').get((req, res, next) => res.status(200).json(defaultPrograms));
+router.route('/default').get((req, res) => res.status(200).json(defaultPrograms));
 
 module.exports = router;

@@ -69,43 +69,43 @@ describe('logger', function () {
         assert.strictEqual(loggedMessages.length, 1);
         
         const infoMsg = loggedMessages[0];
-        assert(infoMsg.match(new RegExp(`${scopeKey}\.${arguments.callee.name}`)).length, 1);
+        assert(infoMsg.match(new RegExp(`${scopeKey}.${arguments.callee.name}`)).length, 1);
     };
 
     describe('#' + infoTestedLevel, () => {
         it('should log an information message', () => testLogging(infoTestedLevel, infoTestedLevel, true));
 
-        it(`shouldn't log an information message for the warn level set`, () => testLogging(warnTestedLevel, infoTestedLevel, false));
+        it('shouldn\'t log an information message for the warn level set', () => testLogging(warnTestedLevel, infoTestedLevel, false));
 
-        it(`shouldn't log an information message for the error level set`, () => testLogging(errorTestedLevel, infoTestedLevel, false));
+        it('shouldn\'t log an information message for the error level set', () => testLogging(errorTestedLevel, infoTestedLevel, false));
 
-        it(`should log no info messages for logging turned off`, () => testLogging(null, infoTestedLevel, false));
+        it('should log no info messages for logging turned off', () => testLogging(null, infoTestedLevel, false));
 
-        it(`should log an info message with the right scope name`, () => testLoggingScopeName(infoTestedLevel));
+        it('should log an info message with the right scope name', () => testLoggingScopeName(infoTestedLevel));
     });
 
     describe('#' + warnTestedLevel, () => {
         it('should log a warning message', () => testLogging(warnTestedLevel, warnTestedLevel, true));
 
-        it(`should log a warning message for the information level set`, () => testLogging(infoTestedLevel, warnTestedLevel, true));
+        it('should log a warning message for the information level set', () => testLogging(infoTestedLevel, warnTestedLevel, true));
 
-        it(`shouldn't log a warning message for the error level set`, () => testLogging(errorTestedLevel, warnTestedLevel, false));
+        it('shouldn\'t log a warning message for the error level set', () => testLogging(errorTestedLevel, warnTestedLevel, false));
 
-        it(`should log no warning messages for logging turned off`, () => testLogging(null, warnTestedLevel, false));
+        it('should log no warning messages for logging turned off', () => testLogging(null, warnTestedLevel, false));
 
-        it(`should log a warning message with the right scope name`, () => testLoggingScopeName(warnTestedLevel));
+        it('should log a warning message with the right scope name', () => testLoggingScopeName(warnTestedLevel));
     });
 
     describe('#' + errorTestedLevel, () => {
         it('should log an error message', () => testLogging(errorTestedLevel, errorTestedLevel, true));
 
-        it(`should log an error message for the warn level set`, () => testLogging(warnTestedLevel, errorTestedLevel, true));
+        it('should log an error message for the warn level set', () => testLogging(warnTestedLevel, errorTestedLevel, true));
 
-        it(`should log an error message for the information level set`, () => testLogging(infoTestedLevel, errorTestedLevel, true));
+        it('should log an error message for the information level set', () => testLogging(infoTestedLevel, errorTestedLevel, true));
 
-        it(`should log no error messages for logging turned off`, () => testLogging(null, errorTestedLevel, false));
+        it('should log no error messages for logging turned off', () => testLogging(null, errorTestedLevel, false));
 
-        it(`should log an error message with the right scope name`, () => testLoggingScopeName(errorTestedLevel));
+        it('should log an error message with the right scope name', () => testLoggingScopeName(errorTestedLevel));
     });
 
     describe('#startLogging', () => {

@@ -1,4 +1,6 @@
-﻿exports.ExpressApp = function () {
+﻿exports.ExpressApp = function (logger) {
+    const loggerContext = logger.startLogging('ExpressApp');
+
     const express = require('express');
 
     let initialisation = function() {
@@ -18,7 +20,7 @@
     };
 
     this.configureRoutes = function () {		
-		app.use('/components', express.static(__dirname + '/components'));
+        app.use('/components', express.static(__dirname + '/components'));
         app.use(express.static(__dirname + '/views'));
         app.use('/resources', express.static(__dirname + '/resources'));
 
@@ -36,7 +38,7 @@
        
         const ResponseError = require('./tools/response-error').ResponseError;
 
-        app.use((err, req, res, next) => {			
+        app.use((err, req, res) => {			
             if (err) {
                 const respErr = new ResponseError(res);
                 respErr.respondWithUnexpectedError(err);
@@ -52,7 +54,7 @@
 
         const pfxConfig = serverOptions.pfx;
 
-		const url = serverOptions.url;
+        const url = serverOptions.url;
         const server = url.useHttpsProtocol() ? https.createServer({
             pfx: fs.readFileSync(pfxConfig.path),
             passphrase: pfxConfig.password
@@ -60,22 +62,24 @@
 
         const port = url.getPort();
         const host = url.getHost();
-        server.listen(port, host,() => console.log(`Server listening on ${host}:${port}`));
+        server.listen(port, host,() => loggerContext.info(`Server listening on ${host}:${port}`));
     };
-}
+};
 
-module.exports.DatabaseConnection = function () {
+module.exports.DatabaseConnection = function (logger) {
+    const loggerContext = logger.startLogging('DatabaseConnection');
+
     const mongoose = require('mongoose');
     
     this.connect = function (uri) {
         return mongoose.connect(uri)
-            .then(resp => console.log(`Connected to the ${resp.connection.db.databaseName} database`))
-            .catch(reason => console.log(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
+            .then(resp => loggerContext.info(`Connected to the ${resp.connection.db.databaseName} database`))
+            .catch(reason => loggerContext.info(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
     };
 
     this.disconnect = function () {
         return mongoose.disconnect()
-            .then(() => console.log('All connections have been disconnected'))
-            .catch(reason => console.log(`Unable to disconnect all connections due to the reason: ${reason}`));
+            .then(() => loggerContext.info('All connections have been disconnected'))
+            .catch(reason => loggerContext.info(`Unable to disconnect all connections due to the reason: ${reason}`));
     };
 };

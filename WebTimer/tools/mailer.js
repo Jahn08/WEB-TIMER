@@ -23,9 +23,7 @@ function Mailer(config, response = null) {
     if (!mailTransportOptions.host || !authOptions.user || !authOptions.pass) {
         transport = {
             sendMail: (msgData) => {
-                return new Promise((resolve, reject) => {
-                    resolve(msgData);
-                });
+                return new Promise(resolve => resolve(msgData));
             }
         };
 
@@ -44,16 +42,16 @@ function Mailer(config, response = null) {
                 to,
                 subject: `Web Timer Account ${processName}`  
             })
-            .then(info => {
-                logger.info('An email has been sent: ' + JSON.stringify(info));
-                resolve(info);
-            })
-            .catch(err => {
-                if (respErr)
-                    respErr.respondWithUnexpectedError('Sending an email failed: ' + err);
+                .then(info => {
+                    logger.info('An email has been sent: ' + JSON.stringify(info));
+                    resolve(info);
+                })
+                .catch(err => {
+                    if (respErr)
+                        respErr.respondWithUnexpectedError('Sending an email failed: ' + err);
 
-                reject(err);
-            });
+                    reject(err);
+                });
         });
     };
 
@@ -87,6 +85,6 @@ function Mailer(config, response = null) {
 
         return sendMsg(to, 'Administrative Role Change', html);
     };
-};
+}
 
 module.exports = Mailer;

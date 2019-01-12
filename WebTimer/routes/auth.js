@@ -10,8 +10,6 @@ const facebokAuth = require('../facebook-auth');
 
 const ResponseError = require('../tools/response-error').ResponseError;
 
-const dbModelHelper = require('../tools/db-model-helpers');
-
 const loggerContext = require('../config').logger.startLogging('LogIn');
 
 router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {

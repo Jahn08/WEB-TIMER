@@ -100,7 +100,7 @@ function UserModelHelper(response = null) {
 
         });
     };
-};
+}
 
 UserModelHelper.getShemaRestrictions = function () {
     const getMaxLengthForSchemaPath = (path) => {
@@ -184,7 +184,7 @@ function ProgramModelHelper(response, userId) {
         }
 
         return true;
-    }
+    };
 
     this.updatePrograms = function (programs = []) {
         logInitialData(loggerContext, { programs });
@@ -233,7 +233,7 @@ function ProgramModelHelper(response, userId) {
                                 logOutcome(loggerContext, { resp });
                                 resolve1(resp);
                             }
-                        })
+                        });
                     });
                 })).then(() => resolve(progsForUpdate.length)).catch(err => reject(err));
             });
@@ -298,7 +298,7 @@ function ProgramModelHelper(response, userId) {
             });
         });
     };
-};
+}
 
 ProgramModelHelper.getShemaRestrictions = function () {
     const getOptionForSchemaPath = (paths, optionNames = ['maxlength']) => {
@@ -314,7 +314,7 @@ ProgramModelHelper.getShemaRestrictions = function () {
         } while (paths.length);
         
         const options = {};
-        optionNames.forEach(op => options[op] = pathObj.options[op])
+        optionNames.forEach(op => options[op] = pathObj.options[op]);
 
         return options;
     };

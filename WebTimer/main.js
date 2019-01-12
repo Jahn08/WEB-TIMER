@@ -1,12 +1,11 @@
 const startup = require('./startup');
 
-let app = new startup.ExpressApp();
+const config = require('./config');
+const app = new startup.ExpressApp(config.logger);
 app.initialisePassport();
 app.configureRoutes();
 
-const config = require('./config');
-
 app.startHttpsServerListening(config.server);
 
-const dbConnection = new startup.DatabaseConnection();
+const dbConnection = new startup.DatabaseConnection(config.logger);
 dbConnection.connect(config.db.uri);
