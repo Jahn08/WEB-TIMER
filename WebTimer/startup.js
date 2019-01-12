@@ -35,15 +35,6 @@
 
         const routerUser = require('./routes/users');
         app.use('/users', routerUser);
-       
-        const ResponseError = require('./tools/response-error').ResponseError;
-
-        app.use((err, req, res) => {			
-            if (err) {
-                const respErr = new ResponseError(res);
-                respErr.respondWithUnexpectedError(err);
-            }
-        });
     };
     
     this.startHttpsServerListening = function (serverOptions) {
