@@ -7,7 +7,9 @@
     "start": "node main.js",
     "test": "mocha \"tests\"",
     "debug-test": "mocha --inspect-brk \"tests\"",
-    "release": "npm test && npm start"
+    "release": "npm test && npm start",
+    "audit": "npm-audit",
+    "pretest": "npm-audit"
   },
   "author": {
     "name": "jahn_08"
@@ -31,5 +33,8 @@
     "passport-facebook-token": "~3.3.0",
     "vue": "~2.5.16",
     "vue-router": "~3.0.1"
+  },
+  "devDependencies": {
+    "npm-audit": "0.0.3"
   }
 }
