@@ -71,6 +71,8 @@ const userTimers = {
                 this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp)).catch(alert);
         },
         initialiseProgramList(response) {
+            this.setCurrentProgram();
+
             this.programs = response.programs;
             this.progUpdater = new ProgramUpdater(this.programs);
 
