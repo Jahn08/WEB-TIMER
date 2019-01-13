@@ -3,8 +3,12 @@
 
     const express = require('express');
 
-    let initialisation = function() {
-        let _app = express();
+    process.on('uncaughtException', err => {
+        loggerContext.error(`Unexpected error: ${err}`);
+    });
+
+    const initialisation = function() {
+        const _app = express();
 
         const bodyParser = require('body-parser');
         _app.use(bodyParser.json());
@@ -12,7 +16,7 @@
         return _app;
     };
 
-    let app = initialisation();
+    const app = initialisation();
     
     this.initialisePassport = function () {
         const passport = require('passport');
@@ -35,6 +39,16 @@
 
         const routerUser = require('./routes/users');
         app.use('/users', routerUser);
+
+        const ResponseError = require('./tools/response-error').ResponseError;
+
+        // eslint-disable-next-line no-unused-vars
+        app.use((err, req, res, next) => {			
+            if (err) {
+                const respErr = new ResponseError(res);
+                respErr.respondWithUnexpectedError(err);
+            }
+        });
     };
     
     this.startHttpsServerListening = function (serverOptions) {

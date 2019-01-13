@@ -1,6 +1,6 @@
 const config = require('../config');
 
-exports.ResponseError = function (response) {
+function ResponseError(response) {
     if (!response)
         throw new Error('A required argument response is undefined');
 
@@ -13,9 +13,12 @@ exports.ResponseError = function (response) {
         return msg;
     };
 
-    const logError = (msg) => {
-        logger.error(msg);
-        return msg;
+    const logError = (msg, err) => {
+        const detailedErr = err.stack ? `reason: ${err.message}, stack: ${err.stack}`: 
+            err.toString();
+        logger.error(`${msg}: ${detailedErr}`);
+
+        return `${msg}: ${err.toString()}`;
     };
 
     this.respondWithAuthenticationError = function (msg) {
@@ -30,11 +33,22 @@ exports.ResponseError = function (response) {
 
     this.respondWithDatabaseError = function (err) {
         response.statusCode = 500;
-        response.end(logError(`An error while dealing with database: ${err.toString()}`));
+        response.end(logError('An error while dealing with database', err));
     };
 
     this.respondWithUnexpectedError = function (err) {
         response.statusCode = 500;
-        response.end(logError(`An unexpected error has happened: ${err.toString()}`));
+        response.end(logError('An unexpected error has happened', err));
+    };
+}
+
+ResponseError.catchAsyncError = function (fn) {
+    return (req, res, next) => {
+        const routePromise = fn(req, res, next);
+
+        if (routePromise.catch)
+            routePromise.catch(err => next(err));
     };
 };
+
+exports.ResponseError = ResponseError;
