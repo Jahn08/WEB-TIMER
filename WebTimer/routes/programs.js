@@ -16,8 +16,10 @@ const ResponseError = require('../tools/response-error').ResponseError;
 
 const logger = require('../config').logger;
 
+const validate = require('../tools/validate');
+
 router.route('/')
-    .get(facebokAuth.verifyUser, async (req, res) => {
+    .get(facebokAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
@@ -28,23 +30,25 @@ router.route('/')
 
         const programs = await programModelHelper.findUserPrograms(user.id);
         res.status(200).json({ programs, schemaRestrictions: ProgramModelHelper.getShemaRestrictions() });
-    })
-    .post(facebokAuth.verifyUser, async (req, res) => {
+    }))
+    .post(facebokAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
+        const reqBody = validate(req.body);
+
         const programModelHelper = new ProgramModelHelper(res, user.id);
-        await programModelHelper.deletePrograms(req.body.deletedIds);
-        await programModelHelper.updatePrograms(req.body.updated);
-        await programModelHelper.createPrograms(req.body.created);
+        await programModelHelper.deletePrograms(reqBody.deletedIds);
+        await programModelHelper.updatePrograms(reqBody.updated);
+        await programModelHelper.createPrograms(reqBody.created);
 
         res.redirect(req.baseUrl);
-    });
+    }));
 
-router.route('/active').get(facebokAuth.verifyUser, async (req, res) => {
+router.route('/active').get(facebokAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
     const respErr = new ResponseError(res);
     const user = req.user;
 
@@ -63,7 +67,7 @@ router.route('/active').get(facebokAuth.verifyUser, async (req, res) => {
     }
 
     res.status(200).json(overallPrograms);
-});
+}));
 
 router.route('/default').get((req, res) => res.status(200).json(defaultPrograms));
 

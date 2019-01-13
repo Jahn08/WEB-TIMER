@@ -16,7 +16,7 @@ const ITEMS_PER_PAGE = require('../models/constants').ITEMS_PER_PAGE;
 
 const router = express.Router();
 router.route('/')
-    .get(facebookAuth.verifyUser, facebookAuth.verifyAdmin, async (req, res) => {
+    .get(facebookAuth.verifyUser, facebookAuth.verifyAdmin, ResponseError.catchAsyncError(async (req, res) => {
         const loggerContext = config.logger.startLogging('GetUsers');
 
         if (!req.query) {
@@ -75,7 +75,9 @@ router.route('/')
                 _users.sort((a, b) => a[sortField] < b[sortField]),
             pageCount
         });
-    });
+    }));
+
+const validate = require('../tools/validate');
 
 router.route('/profile')
     .get(facebookAuth.verifyUser, (req, res) => {
@@ -87,20 +89,21 @@ router.route('/profile')
 
         res.status(200).json({ hideDefaultPrograms: user.hideDefaultPrograms });
     })
-    .post(facebookAuth.verifyUser, async (req, res) => {
+    .post(facebookAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
-        const [, err] = await user.update({ $set: { hideDefaultPrograms: req.body.hideDefaultPrograms } });
+        const reqBody = validate(req.body);
+        const resp = await user.update({ $set: { hideDefaultPrograms: reqBody.hideDefaultPrograms } });
 
-        if (err)
-            respErr.respondWithDatabaseError(err);
-
-        res.status(204).end();
-    })
+        if (!resp || !resp.ok)
+            respErr.respondWithDatabaseError('The try of updating the user\'s data fell through');
+        else
+            res.status(204).end();
+    }))
     .delete(facebookAuth.verifyUser, (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
@@ -123,46 +126,47 @@ router.route('/profile')
         });
     });
 
-router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAdmin, async (req, res) => {
-    const userModelHelper = new dbModelHelpers.UserModelHelper(res);
-    const respErr = new ResponseError(res);
+router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAdmin,
+    ResponseError.catchAsyncError(async (req, res) => {
+        const userModelHelper = new dbModelHelpers.UserModelHelper(res);
+        const respErr = new ResponseError(res);
 
-    const user = req.user;
+        const user = req.user;
 
-    if (!user)
-        return respErr.respondWithUserIsNotFoundError();
-    
-    const changedUser = req.body;
-    let changedUserId;
+        if (!user)
+            return respErr.respondWithUserIsNotFoundError();
+        
+        const changedUser = req.body;
+        let changedUserId;
 
-    const loggerContext = config.logger.startLogging('PostAdminSwitch');
+        const loggerContext = config.logger.startLogging('PostAdminSwitch');
 
-    if (!changedUser || !(changedUserId = changedUser.id)) {
-        loggerContext.warn('The user\'s data request is empty');
-        return;
-    }
+        if (!changedUser || !(changedUserId = changedUser.id)) {
+            loggerContext.warn('The user\'s data request is empty');
+            return;
+        }
 
-    if (user._id.toString() === changedUserId)
-        return respErr.respondWithUnexpectedError('Current user cannot change their own administrative role');
+        if (user._id.toString() === changedUserId)
+            return respErr.respondWithUnexpectedError('Current user cannot change their own administrative role');
 
-    const foundUser = await userModelHelper.findUserByIdOrEmpty(changedUserId);
+        const foundUser = await userModelHelper.findUserByIdOrEmpty(changedUserId);
 
-    if (!foundUser)
-        return respErr.respondWithUserIsNotFoundError();
+        if (!foundUser)
+            return respErr.respondWithUserIsNotFoundError();
 
-    const isAdmin = !foundUser.administrator;
-    const updateBody = { administrator: isAdmin };
+        const isAdmin = !foundUser.administrator;
+        const updateBody = { administrator: isAdmin };
 
-    loggerContext.info(`The user's data is going to be updated to ${JSON.stringify(updateBody)}`);
-    
-    try {
-        await foundUser.update({ $set: updateBody });
-        await new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin);
-        res.status(200).json(updateBody);
-    }
-    catch (err) {
-        respErr.respondWithUnexpectedError(err);
-    }
-});
+        loggerContext.info(`The user's data is going to be updated to ${JSON.stringify(updateBody)}`);
+        
+        try {
+            await foundUser.update({ $set: updateBody });
+            await new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin);
+            res.status(200).json(updateBody);
+        }
+        catch (err) {
+            respErr.respondWithUnexpectedError(err);
+        }
+    }));
 
 module.exports = router;
