@@ -56,13 +56,9 @@ describe('validate', () =>
                 else {
                     const internalObjsToCheck = objToCheck['objects'];
                     assert.deepStrictEqual(internalObjsToCheck[0], internalObjs[0]);
-                    
-                    console.error('SHIT 1:' + JSON.stringify(internalObjs[1]));
-                    console.error('SHIT 2:' + JSON.stringify(internalObjsToCheck[1]));
-                    
+                                        
                     internalObjs[1].htmlObj.assertComparisonWith(internalObjsToCheck[1].htmlObj);
                 }
             });
         });
     }));
-    
