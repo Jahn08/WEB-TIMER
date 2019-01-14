@@ -64,4 +64,62 @@ describe('ResponseError', function () {
     it('should spark an error when trying to build the object without passing the response argument', () => {
         expectation.expectError(() => new ResponseError());
     });
+
+    describe('#catchAsyncError', () => {
+        const createRandomObj = () => {
+            return { 
+                id: randomiser.getRandomIntUpToMaxInteger() 
+            };
+        };
+
+        const asyncMethod = (shouldReject = false) => new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (shouldReject)
+                    reject({ message: randomiser.getRandomIntUpToMaxAsString() });
+                else
+                    resolve();
+            }, 1000);       
+        });
+
+        it('should pass all parameters to an async handler', () => {
+            return new Promise((resolve, reject) =>
+                expectation.tryCatchForPromise(reject, () => {
+                    const reqObj = createRandomObj();
+                    const respObj = createRandomObj();
+                    
+                    const respFn = ResponseError.catchAsyncError(async (req, res) => {
+                        assert.deepStrictEqual(req, reqObj);
+                        assert.deepStrictEqual(res, respObj);
+    
+                        await asyncMethod();
+                        
+                        resolve();
+                    });        
+
+                    respFn(reqObj, respObj, () => reject(new Error('The async method should\'ve finished without a rejection')));
+                })
+            );
+        });
+
+        it('should catch rejection and pass an error to a callback', () => {
+            return new Promise((resolve, reject) =>
+                expectation.tryCatchForPromise(reject, () => {
+                    const respFn = ResponseError.catchAsyncError(async () => {
+                        await asyncMethod(true);
+      
+                        reject(new Error('The async method should\'ve thrown exception not to turn up here'));
+                    });        
+
+                    respFn(createRandomObj(), createRandomObj(), (err) => {
+                        assert(err);
+                        assert(err.message);
+
+                        resolve();
+                    });
+                })
+            );
+        });
+
+    });
+
 });
