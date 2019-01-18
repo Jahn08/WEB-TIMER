@@ -8,5 +8,7 @@ RUN cd ./WebTimer && npm install --only=production
 
 COPY /WebTimer ./WebTimer
 
-EXPOSE 443
+EXPOSE 4443
+
+USER node
 CMD cd ./WebTimer && npm run release
