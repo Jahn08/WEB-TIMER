@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node main.js",
     "test": "mocha \"tests\"",
+    "release-test": "mocha \"tests\"",
     "debug-test": "mocha --inspect-brk \"tests\"",
-    "release": "npm test && npm start",
+    "release": "npm run release-test && npm start",
     "audit": "npm-audit",
     "pretest": "npm-audit"
   },
