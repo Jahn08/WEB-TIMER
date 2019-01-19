@@ -13,11 +13,14 @@
         const bodyParser = require('body-parser');
         _app.use(bodyParser.json());
 
+        const helmet = require('helmet');
+        _app.use(helmet());
+
         return _app;
     };
 
     const app = initialisation();
-    
+ 
     this.initialisePassport = function () {
         const passport = require('passport');
         app.use(passport.initialize());

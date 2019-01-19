@@ -40,6 +40,7 @@ The first user registered in the application will be granted the role of an admi
 * [Multiple Select 1.2.1](https://www.npmjs.com/package/multiple-select/v/1.2.1)
 * [Nodemailer 4.6.7](https://www.npmjs.com/package/nodemailer/v/4.6.7)
 * [escape-html 1.0.3](https://www.npmjs.com/package/escape-html/v/1.0.3)
+* [helmet 3.15.0](https://www.npmjs.com/package/helmet/v/3.15.0)
 
 Icons made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [www.flaticon.com](https://www.flaticon.com/) are licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
 
