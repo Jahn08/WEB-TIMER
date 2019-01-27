@@ -3,10 +3,6 @@
 
     const express = require('express');
 
-    process.on('uncaughtException', err => {
-        loggerContext.error(`Unexpected error: ${err}`);
-    });
-
     const initialisation = function() {
         const _app = express();
 
@@ -71,6 +67,12 @@
         const port = url.getPort();
         const host = url.getHost();
         server.listen(port, host,() => loggerContext.info(`Server listening on ${host}:${port}`));
+    
+        process.on('uncaughtException', err => {
+            loggerContext.error(`Unexpected error: ${err}`);
+    
+            server.close(() => process.exit(1)); 
+        });
     };
 };
 
