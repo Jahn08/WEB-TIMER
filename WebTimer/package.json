@@ -6,11 +6,8 @@
   "scripts": {
     "start": "node main.js",
     "test": "mocha \"tests\"",
-    "release-test": "mocha \"tests\"",
     "debug-test": "mocha --inspect-brk \"tests\"",
-    "release": "npm run release-test && npm start",
-    "audit": "npm-audit",
-    "pretest": "npm-audit"
+    "release": "npm run test && npm start"
   },
   "author": {
     "name": "jahn_08"
@@ -22,13 +19,13 @@
   },
   "dependencies": {
     "body-parser": "~1.18.2",
-    "bootstrap": "~4.1.2",
+    "bootstrap": "~4.3.1",
     "escape-html": "~1.0.3",
     "express": "~4.16.3",
     "helmet": "~3.15.0",
     "jquery": "~3.3.1",
     "mocha": "~5.2.0",
-    "mongoose": "~5.0.11",
+    "mongoose": "~5.4.16",
     "multiple-select": "~1.2.1",
     "nodemailer": "~4.6.7",
     "passport": "~0.4.0",
@@ -37,7 +34,6 @@
     "vue-router": "~3.0.1"
   },
   "devDependencies": {
-    "npm-audit": "0.0.3",
     "eslint": "~5.12.0"
   }
 }
