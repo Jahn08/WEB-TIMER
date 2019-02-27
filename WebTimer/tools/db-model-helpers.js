@@ -286,7 +286,7 @@ function ProgramModelHelper(response, userId) {
                 return;
             }
 
-            ProgramModel.remove({ _id: { $in: programIds }, userId }, err => {
+            ProgramModel.deleteMany({ _id: { $in: programIds }, userId }, err => {
                 if (err) {
                     respErr.respondWithDatabaseError(err);
                     reject(err);

@@ -97,7 +97,7 @@ router.route('/profile')
             return respErr.respondWithUserIsNotFoundError();
 
         const reqBody = validate(req.body);
-        const resp = await user.update({ $set: { hideDefaultPrograms: reqBody.hideDefaultPrograms } });
+        const resp = await user.updateOne({ $set: { hideDefaultPrograms: reqBody.hideDefaultPrograms } });
 
         if (!resp || !resp.ok)
             respErr.respondWithDatabaseError('The try of updating the user\'s data fell through');
@@ -160,7 +160,7 @@ router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAd
         loggerContext.info(`The user's data is going to be updated to ${JSON.stringify(updateBody)}`);
         
         try {
-            await foundUser.update({ $set: updateBody });
+            await foundUser.updateOne({ $set: updateBody });
             await new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin);
             res.status(200).json(updateBody);
         }

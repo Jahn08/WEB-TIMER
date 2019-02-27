@@ -82,7 +82,7 @@ module.exports.DatabaseConnection = function (logger) {
     const mongoose = require('mongoose');
     
     this.connect = function (uri) {
-        return mongoose.connect(uri)
+        return mongoose.connect(uri, { useNewUrlParser: true })
             .then(resp => loggerContext.info(`Connected to the ${resp.connection.db.databaseName} database`))
             .catch(reason => loggerContext.info(`Unable to connect to the server ${uri} due to the reason: ${reason}`));
     };

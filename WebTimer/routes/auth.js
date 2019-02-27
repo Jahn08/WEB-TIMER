@@ -21,7 +21,7 @@ router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
 
     loggerContext.info(`Logged in user is ${JSON.stringify(user)}`);
 
-    user.update({ lastLogin: Date.now() }, (err) => {
+    user.updateOne({ lastLogin: Date.now() }, (err) => {
         if (err)
             return respErr.respondWithAuthenticationError(err);
 
