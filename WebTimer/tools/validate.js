@@ -6,6 +6,9 @@ module.exports = function validate(input) {
 
     const inputType = typeof input;
 
+    if (!input)
+        return input;
+        
     if (inputType === 'string')
         return escapeHtml(input);
     else if (inputType === 'object') {
