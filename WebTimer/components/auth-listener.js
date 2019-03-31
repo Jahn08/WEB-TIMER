@@ -4,17 +4,16 @@ import { authEventHelper } from '/components/event-bus.js';
 const authListener = {
     data() {
         return {
-            authenticated: false
+            authenticated: false,
+            authToken: null
         };
     },
     mounted() {
         const authSession = new AuthSession();
-        const authToken = authSession.getToken();
+        this.authToken = authSession.getToken();
 
-        if (authToken) {
-            this.onAuthenticationChange(authToken);
-            this.initialised = true;
-        }
+        this.onAuthenticationChange(this.authToken);
+        this.initialised = true;
 
         authEventHelper.addListener(this.onAuthenticationChange);
     },
@@ -23,14 +22,16 @@ const authListener = {
     },
     methods: {
         onAuthenticationChange(authToken) {
+            const previousStatus = this.authenticated;
             this.authenticated = authToken != undefined;
 
-            if (this.initialised && this.authenticated) {
+            if (this.initialised && this.authToken == authToken) {
                 this.initialised = false;
                 return;
             }
 
-            this.$emit('change', authToken);
+            const loggedOut = previousStatus && !this.authenticated;
+            this.$emit('change', authToken, loggedOut);
         }
     },
     template: `
