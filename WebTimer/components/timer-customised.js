@@ -1,5 +1,5 @@
 import watch from '/components/watch.js';
-import { audioList, Sounds } from '/components/audio-list.js';
+import { audioList } from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import { modal } from '/components/bootstrap-controls.js';
 import { ApiHelper } from '/components/api-helper.js';
@@ -30,13 +30,10 @@ const stageSwitch = {
         },
         playSound: {
             type: Boolean
+        },
+        soundSrc: {
+            type: String
         }
-    },
-    mounted() {
-        const signalSound = new Sounds().getListOfInternalSounds()[0];
-
-        if (signalSound)
-            this.audio = new Audio(signalSound.file);
     },
     watch: {
         text() {
@@ -52,6 +49,9 @@ const stageSwitch = {
         },
         stages() {
             this.renderTabs();
+        },
+        soundSrc() {
+            this.setAudio();
         }
     },
     computed: {
@@ -76,7 +76,13 @@ const stageSwitch = {
             return descr;
         }
     },
+    mounted() {
+        this.setAudio();
+    },
     methods: {
+        setAudio() {
+            this.audio = this.soundSrc ? new Audio(this.soundSrc) : null;
+        },
         renderTabs() {
             if (this.stages && this.stages.length) {
                 this.tabs = this.stages.slice();
@@ -128,7 +134,8 @@ const timerCustomised = {
             programTitle: '',
             shouldRemoveListener: false,
             audioBetweenStages: false,
-            timerIsInactive: false
+            timerIsInactive: false,
+            stageSoundSrc: null
         };
     },
     mounted() {
@@ -227,7 +234,13 @@ const timerCustomised = {
         onModalHiding() {
             this.shouldPlaySound = false;
             this.timerIsInactive = false;
-        }
+        },
+        onAudioListLoaded(sysSounds) {
+            const signalSound = sysSounds[0];
+
+            if (signalSound)
+                this.stageSoundSrc = signalSound.file;
+        },
     },
     template: `
         <div>
@@ -240,13 +253,13 @@ const timerCustomised = {
                         <select v-if="programNames.length" @change="changeProgram" class="text-primary">
                             <option v-for="p in programNames" :value="p.id">{{ p.name }}</option>
                         </select>
-                        <audio-list :active="shouldPlaySound"></audio-list>
+                        <audio-list :active="shouldPlaySound" @loaded="onAudioListLoaded"></audio-list>
                     </div>
                  </div>
             </banner>
             <watch :inactive="timerIsInactive" v-if="programNames.length" :msStageArray="stagesInMs" @stageInitialised="configureStages" :clockwise="false" @reset="onReset" @start="onStart" @end="onEnd" :inputMsTime="inputMsTime">    
                 <div :title="isRun ? '': tipText" slot-scope="scope">
-                    <span><stage-switch :stages="switchStages" :text="scope.text" :curStage="switchStage" :playSound="audioBetweenStages"></stage-switch></span>
+                    <span><stage-switch :sound-src="stageSoundSrc" :stages="switchStages" :text="scope.text" :curStage="switchStage" :playSound="audioBetweenStages"></stage-switch></span>
                 </div>
             </watch>
             <modal :show="shouldPlaySound" title="Time is over" @hiding="onModalHiding()">

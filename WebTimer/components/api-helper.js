@@ -29,6 +29,12 @@ function ApiHelper() {
         });
     };
 
+    const _getSounds = (action, token) => getQuery('/programs/' + action, token, 'a list of sounds available');
+
+    this.getSounds = function (token = null) {
+        return token ? _getSounds('sounds', token): _getSounds('defaultSounds');
+    };
+
     const getPrograms = (action, token) => getQuery('/programs/' + action, token, 'a list of timer programs available');
 
     this.getDefaultPrograms = function () {

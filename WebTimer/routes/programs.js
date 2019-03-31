@@ -8,6 +8,7 @@ const router = express.Router();
 const facebokAuth = require('../facebook-auth');
 
 const defaultPrograms = require('../models/default-program');
+const getDefaultSounds = require('../models/default-sounds');
 
 const dbModelHelper = require('../tools/db-model-helpers');
 const ProgramModelHelper = dbModelHelper.ProgramModelHelper;
@@ -70,5 +71,20 @@ router.route('/active').get(facebokAuth.verifyUser, ResponseError.catchAsyncErro
 }));
 
 router.route('/default').get((req, res) => res.status(200).json(defaultPrograms));
+
+router.route('/sounds').get(facebokAuth.verifyUser, (req, res) => {
+    const respErr = new ResponseError(res);
+    const user = req.user;
+
+    const loggerContext = logger.startLogging('GetSoundsForUser');
+
+    if (!user)
+        return respErr.respondWithUserIsNotFoundError();
+        
+    loggerContext.info(`The user's id=${user.id}, the default sound=${user.defaultSoundName}`);
+    res.status(200).json(getDefaultSounds(user.defaultSoundName));
+});
+
+router.route('/defaultSounds').get((req, res) => res.status(200).json(getDefaultSounds()));
 
 module.exports = router;

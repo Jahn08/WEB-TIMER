@@ -1,22 +1,36 @@
-﻿const Sounds = function () {
-    const basicUrl = '../resources/audio/';
+﻿import { ApiHelper } from '/components/api-helper.js';
+import authListener from '/components/auth-listener.js';
 
-    const _sounds = [
-        { name: 'classic alarm', file: 'alarm_classic.mp3' },
-        { name: 'alert', file: 'alert_8bit.mp3' },
-        { name: 'official bell', file: 'bell_official.mp3' },
-        { name: 'horn', file: 'horn.mp3' },
-        { name: 'horn (wahwah)', file: 'horn_wahwah.mp3' },
-        { name: 'beep', file: 'beep.mp3', internal: true }
-    ].sort((a, b) => a.name > b.name);
-    _sounds.forEach(val => val.file = basicUrl + val.file);
+const Sounds = function (token = null) {
+    this.token = token;
+    this._sounds;
 
-    this.getListOfSoundsToChoose = () => _sounds.filter(s => !s.internal);
+    const getSoundsInternally = (internal = false) => {
+        const filterFunc = s => (internal && s.internal) ||  (!internal && !s.internal);
+        
+        return new Promise((resolve, reject) => {
+            if (!this._sounds) {
+                new ApiHelper().getSounds(this.token)
+                    .then(outcome => {
+                        this._sounds = outcome;
+                        resolve(this._sounds.filter(filterFunc));
+                    })
+                    .catch(reject);
+            }
+            else
+                resolve(this._sounds.filter(filterFunc));
+        });
+    };
+    
+    this.getListOfSoundsToChoose = () => getSoundsInternally();
 
-    this.getListOfInternalSounds = () => _sounds.filter(s => s.internal);
+    this.getListOfSystemSounds = () => getSoundsInternally(true);
 };
 
 const audioList = {
+    components: {
+        'auth-listener': authListener
+    },
     props: {
         repeat: {
             type: Boolean,
@@ -25,29 +39,80 @@ const audioList = {
         active: {
             type: Boolean,
             default: false
+        },
+        soundName: {
+            type: String
+        },
+        label: {
+            type: String,
+            default: 'Play when the timer ends'
         }
     },
     data() {
         return {
-            audio: null,
-            optedSoundSrc: null,
-            sounds: []
+            audio: new Audio(),
+            sounds: [],
+            authToken: null,
+            loading: true,
+            activeSound: null
         };
     },
-    mounted() {
-        this.audio = new Audio();
-
-        this.sounds = new Sounds().getListOfSoundsToChoose();
+    computed: {
+        optedSoundSrc() {
+            return this.activeSound ? this.activeSound.file : null;
+        }
     },
     methods: {
-        onSoundChanged(event) {
-            let selectObj = event.target;
+        initialiseSoundList(authToken, loggedOut) {
+            if (loggedOut)
+                return;
+            
+            this.startLoading();
 
-            this.optedSoundSrc = selectObj && selectObj.selectedIndex > 0 ?
-                selectObj.options[selectObj.selectedIndex].value : null;
+            const soundList = new Sounds(authToken);
+
+            soundList.getListOfSoundsToChoose().then(sounds => {
+                this.sounds = sounds;
+
+                if (this.soundName)
+                    this.setActiveSoundByName(this.soundName);
+                else
+                    this.activeSound = sounds.find(s => s.active);
+                
+                soundList.getListOfSystemSounds().then(sysSounds => {
+                    this.$emit('loaded', sysSounds);
+
+                    this.finishLoading();
+                });
+            }).catch(this.processError);
+        },
+        startLoading() {
+            this.loading = true;
+        },
+        setActiveSoundByName(soundName) {
+            this.activeSound  = this.sounds.find(s => soundName && s.name === soundName);
+        },
+        processError(err) {
+            alert(err);
+            this.finishLoading();
+        },
+        finishLoading() {
+            this.loading = false;
+        },
+        onSoundChanged(event) {
+            const selectObj = event.target;
+            const chosenSoundName = selectObj.options[selectObj.selectedIndex].value;
+            this.setActiveSoundByName(chosenSoundName);
+        
+            this.$emit('change', chosenSoundName);
+        },
+        isSelected(sound) {
+            return this.activeSound ? this.activeSound.name === sound.name : false;
         },
         play(playOnce) {
-            if (!this.optedSoundSrc || (!this.active && !playOnce)) {
+            const soundFileSrc = this.optedSoundSrc;
+
+            if (!soundFileSrc || (!this.active && !playOnce)) {
                 if (!this.audio.paused)
                     this.audio.pause();
 
@@ -55,7 +120,7 @@ const audioList = {
             }
             
             this.audio.loop = !playOnce && this.repeat;
-            this.audio.src = this.optedSoundSrc;
+            this.audio.src = soundFileSrc;
             this.audio.play();
         }
     },
@@ -66,13 +131,17 @@ const audioList = {
     },
     template: `
         <div>
-            <label for="sounds">Play when the timer ends</label>
-            <select class="text-primary" id="sounds" @change="onSoundChanged">
-                <option value="">none</option>
-                <option v-for="s in sounds" :value="s.file">{{ s.name }}</option>
-            </select>
-            <button class="btn btn-info btn-sm" @click="play(true)" title="Try out the sound" v-if="optedSoundSrc">&#9835;</button>
+            <auth-listener @change="initialiseSoundList"></auth-listener>
+            <div v-if="loading">Please wait...</div>
+            <span v-else>
+                <label for="sounds">{{ label }}</label>
+                <select class="text-primary" id="sounds" @change="onSoundChanged">
+                    <option value="none">none</option>
+                    <option v-for="s in sounds" :value="s.name" :selected="isSelected(s)">{{ s.name }}</option>
+                </select>
+                <button class="btn btn-info btn-sm" @click="play(true)" title="Try out the sound" v-if="optedSoundSrc">&#9835;</button>
+            </span>
         </div>`
 };
 
-export { audioList, Sounds };
+export { audioList };
