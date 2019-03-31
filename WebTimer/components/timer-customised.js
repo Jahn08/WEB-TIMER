@@ -3,8 +3,7 @@ import { audioList } from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import { modal } from '/components/bootstrap-controls.js';
 import { ApiHelper } from '/components/api-helper.js';
-import AuthSession from '/components/auth-session.js';
-import { authEventHelper } from '/components/event-bus.js';
+import authListener from '/components/auth-listener.js';
 
 const stageSwitch = {
     data() {
@@ -116,7 +115,8 @@ const timerCustomised = {
         audioList,
         banner,
         stageSwitch,
-        modal
+        modal,
+        authListener
     },
     data() {
         return {
@@ -132,29 +132,19 @@ const timerCustomised = {
             programNames: [],
             programs: [],
             programTitle: '',
-            shouldRemoveListener: false,
             audioBetweenStages: false,
             timerIsInactive: false,
             stageSoundSrc: null
         };
     },
     mounted() {
-        const currentToken = new AuthSession().getToken();
-        this.initialiseTemplateList(currentToken);
-
-        if (!currentToken) {
-            this.shouldRemoveListener = true;
-            authEventHelper.addListener(this.initialiseTemplateList);
-        }
-
         this.bannerBlink();
     },
-    beforeDestroy() {
-        if (this.shouldRemoveListener)
-            authEventHelper.removeListener(this.initialiseTemplateList);
-    },
     methods: {
-        initialiseTemplateList(token) {
+        initialiseTemplateList(token, loggedOut) {
+            if (loggedOut)
+                return;
+
             const setProgramList = (programs) => {
                 this.programs = programs;
                 this.programNames = programs.map((val, i) => { return { name: val.name, id: i }; });
@@ -244,6 +234,7 @@ const timerCustomised = {
     },
     template: `
         <div>
+            <auth-listener @change="initialiseTemplateList"></auth-listener>
             <banner heading="Timer With Stages">
                 <hr/>
                 <div class="text-center">
