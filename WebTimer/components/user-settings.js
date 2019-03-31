@@ -1,18 +1,21 @@
 import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
 import RouteFormState from '/components/route-form-state.js';
+import { audioList } from '/components/audio-list.js';
 import { ApiHelper, FbApiHelper } from '/components/api-helper.js';
 
 const userSettings = {
     components: {
         banner,
-        authListener
+        authListener,
+        audioList
     },
     data() {
         return {
-            saving: false,
+            updating: true,
             user: {
-                hideDefaultPrograms: false
+                hideDefaultPrograms: false,
+                defaultSoundName: null
             },
             authToken: null, 
             apiHelper: new ApiHelper(),
@@ -23,11 +26,11 @@ const userSettings = {
     },
     methods: {
         update() {
-            this.startSaving();
+            this.startUpdating();
 
             this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(() => {
                 this.makeFormPure();
-                this.finishSaving();
+                this.finishUpdating();
             }).catch(this.processError);
         },
         makeFormPure() {
@@ -36,13 +39,13 @@ const userSettings = {
         },
         processError(err) {
             alert(err);
-            this.finishSaving();
+            this.finishUpdating();
         },
-        startSaving() {
-            this.saving = true;
+        startUpdating() {
+            this.updating = true;
         },
-        finishSaving() {
-            this.saving = false;
+        finishUpdating() {
+            this.updating = false;
         },
         makeFormDirty() {
             this.routeFormState.makeDirty();
@@ -50,7 +53,7 @@ const userSettings = {
         },
         removeProfile() {
             if (confirm('You are going to delete your profile with all the timer programs you have created. Continue?')) {
-                this.startSaving();
+                this.startUpdating();
 
                 this.apiHelper.deleteUserProfile(this.authToken).then(() => {
                     this.fbApiHelper.getUserInfo().then(userInfo =>
@@ -68,15 +71,23 @@ const userSettings = {
         },
         getUserSettingsFromServer() {
             if (this.authToken)
-                this.apiHelper.getUserProfileSettings(this.authToken).then(res => this.user = res).catch(this.processError);
+                this.apiHelper.getUserProfileSettings(this.authToken).then(res => {
+                    this.user = res;
+                    this.finishUpdating();
+                }).catch(this.processError);
+        },
+        onSoundNameChange(newSoundName) {
+            this.makeFormDirty();
+            this.user.defaultSoundName = newSoundName;
         }
     },
     template: `
         <div>
             <banner heading="User Settings"></banner>
             <auth-listener @change="onAuthenticationChange">
-                <div v-if="saving">Please wait...</div>
+                <div v-if="updating">Please wait...</div>
                 <div v-else class="container">
+                    <audio-list @change="onSoundNameChange" label="Default sound for timers" :sound-name="user.defaultSoundName"></audio-list>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="hideDefaultProgramsCheck" v-model="user.hideDefaultPrograms" @change="makeFormDirty">
                         <label class="form-check-label" for="hideDefaultProgramsCheck">Hide default programs</label>

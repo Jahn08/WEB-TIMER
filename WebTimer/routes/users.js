@@ -87,7 +87,10 @@ router.route('/profile')
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
-        res.status(200).json({ hideDefaultPrograms: user.hideDefaultPrograms });
+        res.status(200).json({ 
+            hideDefaultPrograms: user.hideDefaultPrograms,
+            defaultSoundName: user.defaultSoundName 
+        });
     })
     .post(facebookAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
         const respErr = new ResponseError(res);
@@ -97,7 +100,10 @@ router.route('/profile')
             return respErr.respondWithUserIsNotFoundError();
 
         const reqBody = validate(req.body);
-        const resp = await user.updateOne({ $set: { hideDefaultPrograms: reqBody.hideDefaultPrograms } });
+        const resp = await user.updateOne({ $set: { 
+            hideDefaultPrograms: reqBody.hideDefaultPrograms,
+            defaultSoundName: reqBody.defaultSoundName 
+        } });
 
         if (!resp || !resp.ok)
             respErr.respondWithDatabaseError('The try of updating the user\'s data fell through');

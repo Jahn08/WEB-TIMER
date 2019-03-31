@@ -20,6 +20,10 @@ let user = new mongoose.Schema({
         default: false
     },
     hideDefaultPrograms: Boolean,
+    defaultSoundName: {
+        type: String,
+        default: ''
+    },
     location: {
         type: String,
         default: ''
