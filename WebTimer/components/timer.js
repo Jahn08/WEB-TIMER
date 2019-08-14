@@ -38,6 +38,7 @@ const timer = {
         },
         onReset() {
             this.isRun = false;
+            this.inputText = '';
         },
         bannerBlink() {
             $('#alertHeading').fadeOut(1000).fadeIn(1000);

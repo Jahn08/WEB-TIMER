@@ -108,6 +108,9 @@ const watch = {
         },
         inputText() {
             this.outputText = this.inputText ? this.inputText.trim(): '';
+
+            if (!this.outputText)
+                this.computeOutput();
         },
         msStageArray() {
             this.initialiseStages();
