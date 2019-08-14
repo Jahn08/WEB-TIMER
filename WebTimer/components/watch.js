@@ -84,7 +84,7 @@ const watch = {
                 shortcut: 'Ctrl',
                 keyCodes: ['ControlRight','ControlLeft'],
                 event: () => {
-                    this.laps.push(this.outputText);
+                    this.laps.unshift(this.outputText);
                 }
             }, {
                 name: 'Reset',
@@ -315,9 +315,9 @@ const watch = {
         </row-section>
         <bordered-row-section :text-centered="false" :useSmallFont="true">
             <div class="lapSection">
-                <ol>
-                   <li v-for="lap in laps">{{ lap }}</li> 
-                </ol>                
+                <ul>
+                   <li v-for="(lap, index) in laps">{{ laps.length - index }}. {{ lap }}</li> 
+                </ul>                
             </div>
         </bordered-row-section>
     </div>`

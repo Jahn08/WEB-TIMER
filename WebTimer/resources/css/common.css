@@ -35,6 +35,10 @@
     overflow-y: scroll;
 }
 
+.lapSection > ul {
+    list-style: none;
+}
+
 .slightlyTransparent {
     opacity: 0.6;
 }
