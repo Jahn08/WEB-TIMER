@@ -1,8 +1,10 @@
 ﻿const URL = require('url').URL;
 
-function WebAddress(host, port) {
+function WebAddress(host, port, useHttp = false) {
     const portValue = parseInt(port);
     const _port = Number.isNaN(portValue) ? 443 : port;
+
+    const _isSsl = !useHttp;
 
     const _host = (host || '').toString();
 
@@ -12,7 +14,7 @@ function WebAddress(host, port) {
 
     this.isInUse = () => _host.length > 0;
 
-    this.useHttpsProtocol = () => _port.toString().endsWith('443');
+    this.useHttpsProtocol = () => _isSsl;
 
     this.getFullUrl = () => {
         if (!this.isInUse())

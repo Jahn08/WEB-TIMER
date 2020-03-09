@@ -67,13 +67,13 @@ describe('WebAddress', () => {
 
     describe('#useHttpsProtocol', () => {
 
-        it('should show the usage of the https protocol for the respective port value', () => {
-            const address = new WebAddress(defaultHost, 55443);
+        it('should show the usage of the https protocol by default', () => {
+            const address = new WebAddress(defaultHost, 55444);
             assert.deepStrictEqual(address.useHttpsProtocol(), true);
         });
 
-        it('shouldn\'t show the usage of the https protocol since the port is not appropriate', () => {
-            const address = new WebAddress(defaultHost, 8080);
+        it('shouldn\'t show the usage of the https protocol', () => {
+            const address = new WebAddress(defaultHost, 8080, true);
             assert.deepStrictEqual(address.useHttpsProtocol(), false);
         });
     });
