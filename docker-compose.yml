@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.2"
 services:
     mongo:
         image: mongo:3.6
@@ -21,6 +21,8 @@ services:
             - SERVER_PORT=4443
             - SERVER_EXTERNAL_PORT=3443
             - SERVER_EXTERNAL_HOST=localhost
+            #- SERVER_USE_HTTP=true
+            #- SERVER_EXTERNAL_USE_HTTP=true
             #- SERVER_HOST=0.0.0.0
             #- SERVER_PFX_PATH=1.pfx
             #- MAIL_HOST=smtp.email.com
@@ -50,3 +52,5 @@ secrets:
         external: true
     #MAIL_AUTH_PASSWORD:
         #external: true
+    #MONGO_HOST:
+        #external: true      
