@@ -11,6 +11,7 @@ import about from '/components/about.js';
 import AuthSession from '/components/auth-session.js';
 import RouteFormState from '/components/route-form-state.js';
 import { authEventHelper } from '/components/event-bus.js';
+import { RouteDescriptor, MetaConstructor } from '/components/route-meta.js';
 
 // eslint-disable-next-line no-undef
 new Vue({
@@ -29,9 +30,24 @@ new Vue({
                 },
                 children: [
                     { path: '/', redirect: '/stopwatch' },
-                    { path: '/stopwatch', component: stopwatch },
-                    { path: '/timer', component: timer },
-                    { path: '/timerCustomised', component: timerCustomised }
+                    { 
+                        path: '/stopwatch', 
+                        component: stopwatch ,
+                        meta: MetaConstructor.produce(new RouteDescriptor('Stopwatch', 
+                            'Online stopwatch to start, stop or reset time while storing laps'))
+                    },
+                    { 
+                        path: '/timer', 
+                        component: timer,
+                        meta: MetaConstructor.produce(new RouteDescriptor('Timer', 
+                            'Online timer with setting an alarm and storing laps'))
+                    },
+                    { 
+                        path: '/timerCustomised', 
+                        component: timerCustomised,
+                        meta: MetaConstructor.produce(new RouteDescriptor('Timer With Stages', 
+                            'Online timer split into substages with setting an alarm and storing laps'))
+                    }
                 ]
             }, {
                 path: '/profile',
@@ -48,21 +64,36 @@ new Vue({
                     {
                         path: '/profile/userTimers',
                         component: userTimers,
-                        meta: { requiresAuth: true }
+                        meta: MetaConstructor.produce(
+                            new RouteDescriptor(
+                                'Personal Timers', 
+                                'Set up your own timers fitting your personal needs'), 
+                            true)
                     },
                     {
                         path: '/profile/userSettings',
                         component: userSettings,
-                        meta: { requiresAuth: true }
+                        meta: MetaConstructor.produce(
+                            new RouteDescriptor(
+                                'Personal Settings', 
+                                'Set up personal preferences: choose a default alarm sound, hide predefined timer programs'), 
+                            true)
                     },
                     {
                         path: '/profile/userStatistics',
                         component: userStatistics,
-                        meta: { requiresAdminRole: true }
-                    }
+                        meta: MetaConstructor.produce(
+                            new RouteDescriptor('Users Statistics', 
+                                'Figure out more about who has used Web Timer'),
+                            undefined, true)
+                    },
                 ]
             },
-            { path: '/about', component: about },
+            { 
+                path: '/about', 
+                component: about,
+                meta: MetaConstructor.produce(new RouteDescriptor('About', 'Contact information'))
+            },
             { path: '/', redirect: '/home' }
         ]
     }),
@@ -74,23 +105,10 @@ new Vue({
     },
     mounted() {
         this.$router.beforeEach((to, from, next) => {
-            let nextRoute;
-            const defaultRoute = { path: '/' };
-
-            const state = new RouteFormState(from);
-            const isDirty = state.isDirty();
-
-            if (!isDirty || confirm('All unsaved changes will be lost. Continue?')) {
-                if (isDirty)
-                    state.makePure();
-
-                if (to.matched.some(i => i.meta.requiresAuth || i.meta.requiresAdminRole) && !this.authenticated)
-                    nextRoute = defaultRoute;
-                else if (to.matched.some(i => i.meta.requiresAdminRole) && !this.hasAdminRole)
-                    nextRoute = defaultRoute;
-
-                next(nextRoute);
-            }
+            const metas = to.matched.map(i => new MetaConstructor(i.meta));
+            
+            if (this.redirectToNextRoute(metas, from, next) && metas.length)
+                metas[metas.length - 1].applyDescriptor();
         });
     },
     beforeDestroy() {
@@ -111,6 +129,29 @@ new Vue({
             if (wasAuthenticated && !this.authenticated) {
                 this.$router.push('/');
                 location.reload();
+            }
+        },
+        redirectToNextRoute(metas, from, next) {
+            let nextRoute;
+            const defaultRoute = { path: '/' };
+
+            const state = new RouteFormState(from);
+            const isDirty = state.isDirty();
+
+            let isAllowed = true;
+
+            if (!isDirty || confirm('All unsaved changes will be lost. Continue?')) {
+                if (isDirty)
+                    state.makePure();
+
+                if ((!this.authenticated && metas.some(m => m.isAuthRequired())) || 
+                    (!this.hasAdminRole && metas.some(m => m.isForAdmin()))) {
+                    isAllowed = false;
+                    nextRoute = defaultRoute;
+                }
+
+                next(nextRoute);
+                return isAllowed;
             }
         }
     },
