@@ -120,7 +120,10 @@ const facebookAuthButton = {
             <div v-if="loggedIn === true && userName">
                 <ul class="navbar-nav mr-auto">
                 <li class="dropdown dropleft">
-                    <img v-if="userPhoto" :src="userPhoto.url" :height="userPhoto.height" id="navbarDropdown" :width="userPhoto.width" role="button" data-toggle="dropdown" class="img-thumbnail dropdown-toggle" aria-haspopup="true" :aria-label="userName" /> 
+                    <img v-if="userPhoto" :src="userPhoto.url" :height="userPhoto.height" 
+                        id="navbarDropdown" :width="userPhoto.width" role="button" data-toggle="dropdown" 
+                        class="img-thumbnail dropdown-toggle" aria-haspopup="true" :aria-label="userName"
+                        alt="Current user Facebook photo showing profile context menu when being clicked" /> 
                     <a v-else class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true">
                          {{ userName }}
                     </a>               
