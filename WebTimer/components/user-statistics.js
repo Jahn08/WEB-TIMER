@@ -163,7 +163,7 @@ const userStatistics = {
                 <nav aria-label="Page navigation">
                     <ul class="pagination">
                         <li class="page-item">
-                            <button type="button" @click="goToNextPage(-1)" :disabled="queryFilter.page == 1" class="page-link" href="#" aria-label="Previous">
+                            <button type="button" @click="goToNextPage(-1)" :disabled="queryFilter.page == 1" class="page-link" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                                 <span class="sr-only">Previous</span>
                             </button>

@@ -6,7 +6,6 @@ const about = {
         linkRow: {
             props: {
                 href: {
-                    required: true,
                     type: String
                 },
                 id: {
@@ -21,7 +20,9 @@ const about = {
             template: `
                  <div class="row">
                     <div class="col">
-                        <a :id="id" class="badge badge-info" :href="href" target="_blank"><slot></slot></a>
+                        <a :id="id" class="badge badge-info" :href="href || '#'" target="_blank">
+                            <slot></slot>
+                        </a>
                         <label class="text-primary" :for="id">{{ description }}</label>
                     </div>
                 </div>`
