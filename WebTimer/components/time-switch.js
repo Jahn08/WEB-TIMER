@@ -106,7 +106,7 @@ const timeSwitch = {
     },
     methods: {
         renderText() {
-            let mas = this.text.split(',');
+            const mas = this.text.split(',');
 
             this.input = mas[0].split('');
 
@@ -122,7 +122,7 @@ const timeSwitch = {
             if (!id)
                 return defaultIndex;
 
-            let mas = this.values.slice(0, id);
+            const mas = this.values.slice(0, id);
             let index = mas.length;
 
             while (--index >= 0) {
@@ -134,7 +134,7 @@ const timeSwitch = {
         },
         onChange(event) {
             if (event.id && !isNaN(event.value)) {
-                let id = event.id.slice(-1);
+                const id = event.id.slice(-1);
                 this.input[id] = '' + event.value;
                 this.values[id].val = event.value;
 

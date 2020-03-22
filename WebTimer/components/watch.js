@@ -132,7 +132,7 @@ const watch = {
         initialiseStages() {
             if (this.msStageArray && this.msStageArray.length > 0) {
                 this.stages = this.msStageArray.map(val => this.timeToText(val));
-                let timeSum = this.msStageArray.reduce((pv, cv) => pv + cv);
+                const timeSum = this.msStageArray.reduce((pv, cv) => pv + cv);
 
                 this.$emit('stageInitialised', this.stages, this.timeToText(timeSum));
                 this.nextStage();
@@ -142,7 +142,7 @@ const watch = {
             this.isRun = !this.isRun;
 
             if (this.isRun === true) {
-                let allowedToRun = this.allowed();
+                const allowedToRun = this.allowed();
 
                 this.$emit('start', { allowedToRun });
 
@@ -177,7 +177,7 @@ const watch = {
                         }
                     }
                     else if (interval) {
-                        let timeDifference = new Date() - this.dateStart;
+                        const timeDifference = new Date() - this.dateStart;
                         let curValue = timeDifference - this.elapsedRangeTime;
 
                         if (!this.clockwise)
@@ -190,7 +190,7 @@ const watch = {
             }
         },
         nextStage() {
-            let nextTimeText = this.stages && this.stages.length > 0 ? this.stages.shift() : null;
+            const nextTimeText = this.stages && this.stages.length > 0 ? this.stages.shift() : null;
 
             if (nextTimeText != null) {
                 this.outputText = nextTimeText;
@@ -217,13 +217,13 @@ const watch = {
             }
         },
         timeToText(timeVal) {
-            let t = new Date(timeVal ? timeVal: this.time);
+            const t = new Date(timeVal ? timeVal: this.time);
             
-            let hours = (t.getUTCDate() - 1) * 24;
+            const hours = (t.getUTCDate() - 1) * 24;
             return `${this.format(hours + t.getUTCHours())}:${this.format(t.getUTCMinutes())}:${this.format(t.getUTCSeconds())},${this.format(t.getUTCMilliseconds(), 2)}`;
         },
         textToTime() {
-            let input = this.outputText.split(',')[0];
+            const input = this.outputText.split(',')[0];
             let temp = Number(input.replace(/:/g, ''));
             
             let hours = 0;

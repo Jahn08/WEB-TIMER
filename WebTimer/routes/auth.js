@@ -1,10 +1,10 @@
 ﻿const express = require('express');
-let app = express();
+const app = express();
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-let router = express.Router();
+const router = express.Router();
 
 const facebokAuth = require('../facebook-auth'); 
 
@@ -13,7 +13,7 @@ const ResponseError = require('../tools/response-error').ResponseError;
 const loggerContext = require('../config').logger.startLogging('LogIn');
 
 router.route('/logIn').post(facebokAuth.verifyUser, (req, res, next) => {
-    let respErr = new ResponseError(res);
+    const respErr = new ResponseError(res);
     const user = req.user;
 
     if (!user)

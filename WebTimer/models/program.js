@@ -2,7 +2,7 @@
 
 const constants = require('./constants');
 
-let programStage = new mongoose.Schema({
+const programStage = new mongoose.Schema({
     order: {
         type: Number,
         required: true
@@ -19,7 +19,7 @@ let programStage = new mongoose.Schema({
     }
 });
 
-let program = new mongoose.Schema({
+const program = new mongoose.Schema({
     name: {
         type: String,
         required: true,

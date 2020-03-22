@@ -38,7 +38,7 @@ describe('UserModelHelper', function () {
     const getString = (obj) => obj ? obj.toString() : '';
 
     const createTestUsers = (callback, numberOfUsers = 1, testFields = {}) => {
-        let users = [];
+        const users = [];
 
         const administratorIds = testFields['administrators'] || [];
 
@@ -168,8 +168,8 @@ describe('UserModelHelper', function () {
         it('should return correct restrictions to the User schema model', () => {
             const restrictions = UserModelHelper.getShemaRestrictions();
             
-            for (let path in restrictions) {
-                for (let option in restrictions[path]) {
+            for (const path in restrictions) {
+                for (const option in restrictions[path]) {
                     assert.strictEqual(User.schema.path(path).options[option], restrictions[path][option]);
                 }
             }
@@ -207,7 +207,7 @@ describe('UserModelHelper', function () {
         const testGettingUsersForPage = (pageNum, useSearch, sortEmailDirection) => {
             const userModelHelper = new UserModelHelper();
 
-            let allUsers = [];
+            const allUsers = [];
 
             return createTestUsers(users1 => {
 

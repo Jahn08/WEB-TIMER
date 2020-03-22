@@ -54,7 +54,7 @@ const facebookTokenStrategy = new FacebookTokenPassport({
             loggerContext.info('Creating a new user');
 
             userModelHelper.countAdministrators().then(count => {
-                let newUser = new User({
+                const newUser = new User({
                     name: profile.displayName,
                     email: profile.emails[0].value,
                     facebookId: profile.id,

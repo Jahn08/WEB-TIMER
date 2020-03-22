@@ -2,7 +2,7 @@
 
 const constants = require('./constants');
 
-let user = new mongoose.Schema({
+const user = new mongoose.Schema({
     name: {
         type: String,
         required: true,

@@ -12,7 +12,7 @@ module.exports = function validate(input) {
     if (inputType === 'string')
         return escapeHtml(input);
     else if (inputType === 'object') {
-        let output = {};
+        const output = {};
 
         Object.keys(input).forEach(k => output[k] = validate(input[k]));
         return output;

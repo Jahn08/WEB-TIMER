@@ -8,7 +8,7 @@ const expectation = require('./infrastructure/expectation');
 describe('ResponseError', function () {
     const describeTestForWritingErrorMessage = function (methodName, httpCode) {
         describe(`#${methodName}`, function () {
-            let response = mock.mockResponse();
+            const response = mock.mockResponse();
             const responseError = new ResponseError(response);
             
             const invokeMethodByName = (obj, arg) => {
@@ -52,7 +52,7 @@ describe('ResponseError', function () {
 
     describe('#respondWithUserIsNotFoundError', function () {
         it('should set a response statusCode to 404 and write a default message to the object', function () {
-            let response = mock.mockResponse();
+            const response = mock.mockResponse();
 
             const responseError = new ResponseError(response);
             responseError.respondWithUserIsNotFoundError();

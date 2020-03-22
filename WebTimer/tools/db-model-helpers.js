@@ -307,7 +307,7 @@ ProgramModelHelper.getShemaRestrictions = function () {
         let schema = ProgramModel.schema;
 
         do {
-            let path = paths.shift();
+            const path = paths.shift();
             pathObj = schema.path(path);
 
             schema = pathObj.schema;

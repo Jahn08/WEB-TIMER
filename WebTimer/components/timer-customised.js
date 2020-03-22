@@ -58,7 +58,7 @@ const stageSwitch = {
             return this.curStage > 0;
         },
         description() {
-            let obj = this.tabs[this.curIndex];
+            const obj = this.tabs[this.curIndex];
             let descr;
 
             if (!obj || !(descr = obj.descr))

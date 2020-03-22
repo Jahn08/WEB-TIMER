@@ -344,12 +344,12 @@ describe('ProgramModelHelper', function () {
 
             const lookIntoPath = (restriction, pathObj) => {
                 if (pathObj.schema) {
-                    for (let option in restriction) {
+                    for (const option in restriction) {
                         lookIntoPath(restrictions[option], pathObj.schema.path(option));
                     }
                 }
                 else {
-                    for (let option in restriction) {
+                    for (const option in restriction) {
                         assert.strictEqual(pathObj.options[option], restriction[option]);
                     }
                 }

@@ -71,7 +71,7 @@ function ApiHelper() {
 
     const postQuery = (path, token, data) => {
         return new Promise((resolve, reject) => {
-            let options = formQueryOptions(token, 'POST');
+            const options = formQueryOptions(token, 'POST');
             options.data = JSON.stringify(data);
             options.contentType = 'application/json';
 
@@ -88,7 +88,7 @@ function ApiHelper() {
 
     this.getUserStatistics = function (token, data) {
         return new Promise((resolve, reject) => {
-            let options = formQueryOptions(token);
+            const options = formQueryOptions(token);
             options.data = data;
 
             $.ajax('/users', options)
