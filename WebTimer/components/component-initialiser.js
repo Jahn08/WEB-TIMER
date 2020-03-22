@@ -35,7 +35,7 @@ new Vue({
                         path: '/stopwatch', 
                         component: stopwatch ,
                         meta: MetaConstructor.produce(new RouteDescriptor('Stopwatch', 
-                            'Online stopwatch to start, stop or reset time while storing laps'))
+                            'Online stopwatch to start, stop or reset time while storing laps', '/'))
                     },
                     { 
                         path: '/timer', 
@@ -68,7 +68,8 @@ new Vue({
                         meta: MetaConstructor.produce(
                             new RouteDescriptor(
                                 'Personal Timers', 
-                                'Set up your own timers fitting your personal needs'), 
+                                'Set up your own timers fitting your personal needs',
+                                '/profile'), 
                             true)
                     },
                     {
@@ -94,8 +95,7 @@ new Vue({
                 path: '/about', 
                 component: about,
                 meta: MetaConstructor.produce(new RouteDescriptor('About', 'Contact information'))
-            },
-            { path: '/', redirect: '/home' }
+            }
         ]
     }),
     data() {
@@ -105,19 +105,22 @@ new Vue({
         };
     },
     mounted() {
-        this.$router.beforeEach((to, from, next) => {
+        const processRoute = (to, from, next) => {
             const metas = to.matched.map(i => new MetaConstructor(i.meta));
             
-            if (this.redirectToNextRoute(metas, from, next) && metas.length)
+            if ((!from || this.redirectToNextRoute(metas, from, next)) && metas.length)
                 metas[metas.length - 1].applyDescriptor();
-        });
+        };
+
+        this.$router.onReady(() => processRoute(this.$router.currentRoute));
+        this.$router.beforeEach(processRoute);
     },
     beforeDestroy() {
         authEventHelper.removeAllListeners();
     },
     methods: {
         setAuthenticationState(token, hasAdminRole) {
-            let wasAuthenticated = this.authenticated;
+            const wasAuthenticated = this.authenticated;
 
             this.authenticated = token != null;
             this.hasAdminRole = hasAdminRole != null;

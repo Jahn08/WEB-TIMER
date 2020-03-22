@@ -1,7 +1,8 @@
 class RouteDescriptor {
-    constructor(name, description) {
+    constructor(name, description, canonicalPath = null) {
         this._name = name;
         this._description = description;
+        this._canonicalPath = canonicalPath;
     }
 
     setTitle() {
@@ -13,6 +14,31 @@ class RouteDescriptor {
 
         if (meta)
             meta.content = this._description;
+    }
+
+    setCanonicalLink() {
+        const relation = 'canonical';
+        let linkEl = document.head.querySelector(`link[rel="${relation}"]`);
+        
+        if (this._canonicalPath == null) {
+            if (linkEl)
+                linkEl.remove();
+
+            return;
+        }
+        
+        if (!linkEl) {
+            linkEl = document.createElement('link');
+            linkEl.rel = relation;
+            document.head.appendChild(linkEl);
+        }
+
+        const path = this._canonicalPath.endsWith('/') ? 
+            this._canonicalPath.substr(0, this._canonicalPath.length - 1) : 
+            this._canonicalPath;
+        const url = location.origin + path;
+        if (linkEl.href !== url)
+            linkEl.href = url;
     }
 }
 
@@ -29,6 +55,7 @@ class MetaConstructor {
 
         this._descriptor.setMetaDescription();
         this._descriptor.setTitle();
+        this._descriptor.setCanonicalLink();
     }
 
     isAuthRequired() { return this._requiresAuth || this.isForAdmin(); }
