@@ -17,9 +17,10 @@ import { RouteDescriptor, MetaConstructor } from '/components/route-meta.js';
 new Vue({
     // eslint-disable-next-line no-undef
     router: new VueRouter({
+        mode: 'history',
         routes: [
             {
-                path: '/home',
+                path: '/',
                 component: tabMenu,
                 props: {
                     tabs: [

@@ -16,13 +16,18 @@
     };
 
     const app = initialisation();
- 
+
     this.initialisePassport = function () {
         const passport = require('passport');
         app.use(passport.initialize());
     };
 
     this.configureRoutes = function () {		
+        const history = require('connect-history-api-fallback');
+        app.use(history({
+            htmlAcceptHeaders: ['text/html']
+        }));
+
         app.use('/components', express.static(__dirname + '/components'));
         app.use(express.static(__dirname + '/views'));
         app.use('/resources', express.static(__dirname + '/resources'));
@@ -55,7 +60,7 @@
         const http = require('http');
 
         const fs = require('fs');
-
+    
         const pfxConfig = serverOptions.pfx;
 
         const url = serverOptions.url;
