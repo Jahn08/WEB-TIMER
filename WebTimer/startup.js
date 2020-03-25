@@ -31,6 +31,7 @@
         app.use('/components', express.static(__dirname + '/components'));
         app.use(express.static(__dirname + '/views'));
         app.use('/resources', express.static(__dirname + '/resources'));
+        app.use('/', express.static(__dirname + '/seo'));
 
         const routerAuth = require('./routes/auth');
         app.use('/auth', routerAuth);
