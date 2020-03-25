@@ -35,7 +35,8 @@ new Vue({
                         path: '/stopwatch', 
                         component: stopwatch ,
                         meta: MetaConstructor.produce(new RouteDescriptor('Stopwatch', 
-                            'Online stopwatch to start, stop or reset time while storing laps', '/'))
+                            'Online stopwatch to start, stop or reset time while storing laps', 
+                            false, '/'))
                     },
                     { 
                         path: '/timer', 
@@ -69,7 +70,7 @@ new Vue({
                             new RouteDescriptor(
                                 'Personal Timers', 
                                 'Set up your own timers fitting your personal needs',
-                                '/profile'), 
+                                true), 
                             true)
                     },
                     {
@@ -78,7 +79,8 @@ new Vue({
                         meta: MetaConstructor.produce(
                             new RouteDescriptor(
                                 'Personal Settings', 
-                                'Set up personal preferences: choose a default alarm sound, hide predefined timer programs'), 
+                                'Set up personal preferences: choose a default alarm sound, hide predefined timer programs',
+                                true), 
                             true)
                     },
                     {
@@ -86,7 +88,7 @@ new Vue({
                         component: userStatistics,
                         meta: MetaConstructor.produce(
                             new RouteDescriptor('Users Statistics', 
-                                'Figure out more about who has used Web Timer'),
+                                'Figure out more about who has used Web Timer', true),
                             undefined, true)
                     },
                 ]

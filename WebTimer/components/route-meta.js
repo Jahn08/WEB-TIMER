@@ -1,8 +1,9 @@
 class RouteDescriptor {
-    constructor(name, description, canonicalPath = null) {
+    constructor(name, description, preventRobots = false, canonicalPath = null) {
         this._name = name;
         this._description = description;
         this._canonicalPath = canonicalPath;
+        this._preventRobots = preventRobots;
     }
 
     setTitle() {
@@ -10,17 +11,21 @@ class RouteDescriptor {
     }
 
     setMetaDescription() {
-        const meta = document.querySelector('meta[name="description"]');
+        const meta = this._getMetaTagByName('description');
 
         if (meta)
             meta.content = this._description;
+    }
+
+    _getMetaTagByName(name) {
+        return document.querySelector(`meta[name="${name}"]`);
     }
 
     setCanonicalLink() {
         const relation = 'canonical';
         let linkEl = document.head.querySelector(`link[rel="${relation}"]`);
         
-        if (this._canonicalPath == null) {
+        if (this._canonicalPath == null || this._preventRobots) {
             if (linkEl)
                 linkEl.remove();
 
@@ -30,7 +35,7 @@ class RouteDescriptor {
         if (!linkEl) {
             linkEl = document.createElement('link');
             linkEl.rel = relation;
-            document.head.appendChild(linkEl);
+            this._appendElementToHead(linkEl);
         }
 
         const path = this._canonicalPath.endsWith('/') ? 
@@ -39,6 +44,27 @@ class RouteDescriptor {
         const url = location.origin + path;
         if (linkEl.href !== url)
             linkEl.href = url;
+    }
+
+    _appendElementToHead(elem) {
+        document.head.appendChild(elem);
+    }
+
+    setMetaRobots() {
+        const robotsMetaTagName = 'robots';
+        let meta = this._getMetaTagByName(robotsMetaTagName);
+
+        if (this._preventRobots) {
+            if (meta)
+                return;
+
+            meta = document.createElement('meta');
+            meta.name = robotsMetaTagName;
+            meta.content = 'noindex, nofollow';
+            this._appendElementToHead(meta);
+        }
+        else if (meta)
+            meta.remove();
     }
 }
 
@@ -56,6 +82,7 @@ class MetaConstructor {
         this._descriptor.setMetaDescription();
         this._descriptor.setTitle();
         this._descriptor.setCanonicalLink();
+        this._descriptor.setMetaRobots();
     }
 
     isAuthRequired() { return this._requiresAuth || this.isForAdmin(); }
