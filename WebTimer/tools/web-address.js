@@ -21,7 +21,7 @@ function WebAddress(host, port, useHttp = false) {
             return '';
 
         const protocol = this.useHttpsProtocol() ? 'https' : 'http';
-        return new URL(`${protocol}://${_host}:${_port}/#/`).toString();
+        return new URL(`${protocol}://${_host}:${_port}/`).toString();
     };
 }
 

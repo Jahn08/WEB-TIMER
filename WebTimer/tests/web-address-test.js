@@ -44,7 +44,7 @@ describe('WebAddress', () => {
             assert(url);
 
             const protocol = address.useHttpsProtocol() ? 'https' : 'http';
-            assert.deepStrictEqual(url, new URL(`${protocol}://${address.getHost()}:${address.getPort()}/#/`).toString());
+            assert.deepStrictEqual(url, new URL(`${protocol}://${address.getHost()}:${address.getPort()}/`).toString());
         });
 
         it('should return an empty url for a null port and host', () => {
