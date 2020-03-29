@@ -33,14 +33,13 @@ The first user registered in the application will be granted the role of an admi
 * [Bootstrap 4.3.1](https://www.npmjs.com/package/bootstrap/v/4.3.1)
 * [jQuery 3.4.1](https://www.npmjs.com/package/jquery/v/3.4.1)
 * [Mongoose 5.7.5](https://www.npmjs.com/package/mongoose/v/5.7.5)
-* [mocha 5.2.0](https://www.npmjs.com/package/mocha/v/5.2.0)
 * [Passport 0.4.0](https://www.npmjs.com/package/passport/v/0.4.0)
 * [passport-facebook-token 3.3.0](https://www.npmjs.com/package/passport-facebook-token/v/3.3.0)
 * [body-parser 1.18.2](https://www.npmjs.com/package/body-parser/v/1.18.2)
 * [Multiple Select 1.2.1](https://www.npmjs.com/package/multiple-select/v/1.2.1)
 * [Nodemailer 4.6.7](https://www.npmjs.com/package/nodemailer/v/4.6.7)
 * [escape-html 1.0.3](https://www.npmjs.com/package/escape-html/v/1.0.3)
-* [helmet 3.15.0](https://www.npmjs.com/package/helmet/v/3.15.0)
+* [helmet 3.21.3](https://www.npmjs.com/package/helmet/v/3.21.3)
 
 Icons made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [www.flaticon.com](https://www.flaticon.com/) are licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
 
