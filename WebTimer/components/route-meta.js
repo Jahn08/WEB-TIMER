@@ -38,13 +38,18 @@ class RouteDescriptor {
             this._appendElementToHead(linkEl);
         }
 
-        const path = this._canonicalPath.endsWith('/') ? 
-            this._canonicalPath.substr(0, this._canonicalPath.length - 1) : 
-            this._canonicalPath;
-        const url = location.origin + path;
+        const url = this._getAbsoluteUrl(this._canonicalPath);
         if (linkEl.href !== url)
             linkEl.href = url;
     }
+
+    _getAbsoluteUrl(relativePath) {
+        const path = relativePath.endsWith('/') ? 
+            relativePath.substr(0, relativePath.length - 1) : relativePath;
+        return this._getRootPath() + path;
+    }
+
+    _getRootPath() { return location.origin; }
 
     _appendElementToHead(elem) {
         document.head.appendChild(elem);
@@ -66,6 +71,49 @@ class RouteDescriptor {
         else if (meta)
             meta.remove();
     }
+
+    setStructuredData() {
+        const structuredDataType = 'application/ld+json';
+        let script = document.querySelector(`script[type="${structuredDataType}"]`);
+        
+        if (this._preventRobots && script)
+            return script.remove();
+
+        if (!script) {
+            script = document.createElement('script');
+            script.type = structuredDataType;
+            this._appendElementToHead(script);
+        }
+
+        script.textContent = this._getPageStructure();
+    }
+
+    _getPageStructure() {
+        const rootUrl = this._getRootPath();
+
+        return `[{
+            "@context":"http://schema.org",
+            "@type":"Organization",
+            "name":"Web Timer",
+            "url":"${rootUrl}",
+            "logo":"${this._getAbsoluteUrl('/resources/images/favicon.ico')}"
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [{
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "${rootUrl}"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "name": "${this._name}",
+                "item": "${location.href}"
+            }]
+        }]`;
+    }
 }
 
 class MetaConstructor {
@@ -79,6 +127,7 @@ class MetaConstructor {
         if (!this._descriptor)
             return;
 
+        this._descriptor.setStructuredData();
         this._descriptor.setMetaDescription();
         this._descriptor.setTitle();
         this._descriptor.setCanonicalLink();
