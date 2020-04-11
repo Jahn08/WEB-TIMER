@@ -33,6 +33,7 @@ The first user registered in the application will be granted the role of an admi
 * [Bootstrap 4.3.1](https://www.npmjs.com/package/bootstrap/v/4.3.1)
 * [jQuery 3.4.1](https://www.npmjs.com/package/jquery/v/3.4.1)
 * [Mongoose 5.7.5](https://www.npmjs.com/package/mongoose/v/5.7.5)
+* [mocha 7.1.1](https://www.npmjs.com/package/mocha/v/7.1.1)
 * [Passport 0.4.0](https://www.npmjs.com/package/passport/v/0.4.0)
 * [passport-facebook-token 3.3.0](https://www.npmjs.com/package/passport-facebook-token/v/3.3.0)
 * [body-parser 1.18.2](https://www.npmjs.com/package/body-parser/v/1.18.2)
