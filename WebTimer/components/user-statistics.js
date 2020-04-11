@@ -1,6 +1,6 @@
 ﻿import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
-import { ApiHelper } from '/components/api-helper.js';
+import { UserApi } from './api.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
 const sortLink = {
@@ -61,8 +61,7 @@ const userStatistics = {
                 sortDirection: null
             },
             pageCount: 1,
-            apiHelper: new ApiHelper(),
-            authToken: null,
+            api: null,
             headers: [{ key: 'name', value: 'Name' },
                 { key: 'gender', value: 'Gender' },
                 { key: 'location', value: 'Location' },
@@ -97,19 +96,21 @@ const userStatistics = {
                 this.goToPage(pageNum + changeIndex);
         },
         onAuthenticationChange(authToken) {
-            this.authToken = authToken;
+            if (!authToken)
+                return;
+
+            this.api = new UserApi(authToken);
             this.getUsersInfoFromServer();
         },
         getUsersInfoFromServer() {
-            if (this.authToken)
-                this.apiHelper.getUserStatistics(this.authToken, this.queryFilter).then(resp => {
-                    if (resp) {
-                        this.curUserId = resp.curUserId;
-                        this.users = resp.users;
-                        this.queryFilter = resp.queryFilter;
-                        this.pageCount = resp.pageCount;
-                    }
-                }).catch(alert);
+            this.api.getStatistics(this.queryFilter).then(resp => {
+                if (resp) {
+                    this.curUserId = resp.curUserId;
+                    this.users = resp.users;
+                    this.queryFilter = resp.queryFilter;
+                    this.pageCount = resp.pageCount;
+                }
+            }).catch(alert);
         },
         searchForText() {
             this.getUsersInfoFromServer();
@@ -127,7 +128,7 @@ const userStatistics = {
         switchAdminRole(user) {
             if (confirm(`${user.name} will be ${user.administrator ? 'deprived of' : 'granted'} the administrative role. ` +
                     'The user will get the respective message. Continue?')) {
-                this.apiHelper.postUserAdminRoleSwitch(this.authToken, user._id)
+                this.api.switchAdminRole(user._id)
                     .then(outcome => user.administrator = outcome.administrator)
                     .catch(alert);
             }

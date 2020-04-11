@@ -1,4 +1,4 @@
-import { ApiHelper } from '/components/api-helper.js';
+import { ModuleApi } from './api.js';
 import banner from '/components/banner.js';
 
 const about = {
@@ -36,8 +36,7 @@ const about = {
         };
     },
     mounted() {
-        const apiHelper = new ApiHelper();
-        apiHelper.getAboutInfo().then(resp => this.initialiseData(resp)).catch(alert);
+        new ModuleApi().getAboutInfo().then(resp => this.initialiseData(resp)).catch(alert);
     },
     methods: {
         initialiseData(resp) {

@@ -1,4 +1,4 @@
-import { ApiHelper, FbApiHelper } from '/components/api-helper.js';
+import { AuthApi, FbApi } from './api.js';
 
 const facebookAuthButton = {
     data() {
@@ -6,14 +6,13 @@ const facebookAuthButton = {
             loggedIn: null,
             userName: null,
             userPhoto: null,
-            fbApiHelper: new FbApiHelper()
+            fbApi: new FbApi()
         };
     },
     beforeCreate() {
         if (location.protocol.startsWith('https')) {
             const initialiseFbSdk = () => {
-                const fbApiHelper = new FbApiHelper();
-                fbApiHelper.initialise().then(response => {
+                new FbApi().initialise().then(response => {
                     this.statusChangeCallback(response);
                 }).catch(alert);
             };
@@ -39,10 +38,10 @@ const facebookAuthButton = {
     },
     methods: {
         logIn() {
-            this.fbApiHelper.logIn().then(response => this.statusChangeCallback(response)).catch(alert);
+            this.fbApi.logIn().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         setUserName() {
-            this.fbApiHelper.getUserInfo().then(response => {
+            this.fbApi.getUserInfo().then(response => {
                 this.userName = response.name;
 
                 if (response.picture && response.picture.data)
@@ -59,8 +58,7 @@ const facebookAuthButton = {
             }
         },
         sendUserDataToServer(token) {
-            const apiHelper = new ApiHelper();
-            apiHelper.logIn(token).then(resp => this.setUserStateLoggedIn(token, resp.hasAdminRole))
+            new AuthApi().logIn(token).then(resp => this.setUserStateLoggedIn(token, resp.hasAdminRole))
                 .catch(err => {
                     alert(err);
                     this.logOut();
@@ -71,14 +69,14 @@ const facebookAuthButton = {
             this.$emit('logged-in', token, hasAdminRole);
         },
         logOut() {
-            this.fbApiHelper.logOut().then(response => this.statusChangeCallback(response)).catch(alert);
+            this.fbApi.logOut().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         setUserStateLoggedOut() {
             this.loggedIn = false;
             this.$emit('logged-out');
         },
         checkLoginState() {
-            this.fbApiHelper.getLoginStatus().then(response => this.statusChangeCallback(response)).catch(alert);
+            this.fbApi.getLoginStatus().then(response => this.statusChangeCallback(response)).catch(alert);
         },
         authResponseIsSuccessful(response) {
             return response.authResponse && response.status === 'connected';

@@ -1,4 +1,4 @@
-﻿import { ApiHelper } from '/components/api-helper.js';
+﻿import { ProgramApi } from './api.js';
 import authListener from '/components/auth-listener.js';
 
 const Sounds = function (token = null) {
@@ -10,7 +10,7 @@ const Sounds = function (token = null) {
         
         return new Promise((resolve, reject) => {
             if (!this._sounds) {
-                new ApiHelper().getSounds(this.token)
+                new ProgramApi().getSounds(this.token)
                     .then(outcome => {
                         this._sounds = outcome;
                         resolve(this._sounds.filter(filterFunc));

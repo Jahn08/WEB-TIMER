@@ -1,7 +1,7 @@
 ﻿import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
 import RouteFormState from '/components/route-form-state.js';
-import { ApiHelper, ProgramUpdater } from '/components/api-helper.js';
+import { ProgramApi, ProgramUpdater } from './api.js';
 import { cardSection } from '/components/bootstrap-controls.js';
 
 const userTimers = {
@@ -19,7 +19,7 @@ const userTimers = {
             curStage: null,
             programs: [],
             authToken: null,
-            apiHelper: new ApiHelper(),
+            api: new ProgramApi(),
             progUpdater: null,
             restrictions: {
                 name: {
@@ -68,7 +68,8 @@ const userTimers = {
         },
         getUserProgramsFromServer() {
             if (this.authToken)
-                this.apiHelper.getUserPrograms(this.authToken).then(resp => this.initialiseProgramList(resp)).catch(alert);
+                this.api.getUserPrograms(this.authToken)
+                    .then(resp => this.initialiseProgramList(resp)).catch(alert);
         },
         initialiseProgramList(response) {
             this.setCurrentProgram();
@@ -243,7 +244,8 @@ const userTimers = {
             
             if (this.validateFormData()) {
                 this.startSaving();
-                this.apiHelper.postUserPrograms(this.authToken, this.progUpdater.getQueryData(this.programs))
+
+                this.api.saveUserPrograms(this.authToken, this.progUpdater.getQueryData(this.programs))
                     .then(resp => {
                         this.finishSaving();
                         this.initialiseProgramList(resp);

@@ -2,7 +2,7 @@ import banner from '/components/banner.js';
 import authListener from '/components/auth-listener.js';
 import RouteFormState from '/components/route-form-state.js';
 import { audioList } from '/components/audio-list.js';
-import { ApiHelper, FbApiHelper } from '/components/api-helper.js';
+import { UserApi, FbApi } from './api.js';
 
 const userSettings = {
     components: {
@@ -17,9 +17,8 @@ const userSettings = {
                 hideDefaultPrograms: false,
                 defaultSoundName: null
             },
-            authToken: null, 
-            apiHelper: new ApiHelper(),
-            fbApiHelper: new FbApiHelper(),
+            api: null,
+            fbApi: new FbApi(),
             routeFormState: RouteFormState.constructFromScope(this),
             isDirty: false
         };
@@ -28,7 +27,7 @@ const userSettings = {
         update() {
             this.startUpdating();
 
-            this.apiHelper.postUserProfileSettings(this.authToken, this.user).then(() => {
+            this.api.saveSettings(this.user).then(() => {
                 this.makeFormPure();
                 this.finishUpdating();
             }).catch(this.processError);
@@ -55,9 +54,9 @@ const userSettings = {
             if (confirm('You are going to delete your profile with all the timer programs you have created. Continue?')) {
                 this.startUpdating();
 
-                this.apiHelper.deleteUserProfile(this.authToken).then(() => {
-                    this.fbApiHelper.getUserInfo().then(userInfo =>
-                        this.fbApiHelper.deletePermissions(userInfo.id).then(() => 
+                this.api.deleteProfile().then(() => {
+                    this.fbApi.getUserInfo().then(userInfo =>
+                        this.fbApi.deletePermissions(userInfo.id).then(() => 
                             this.$router.push('/', () => {
                                 location.reload();
                             })));
@@ -65,16 +64,18 @@ const userSettings = {
             }
         },
         onAuthenticationChange(authToken) {
-            this.authToken = authToken;
+            if (!authToken)
+                return;
+
+            this.api = new UserApi(authToken);
 
             this.getUserSettingsFromServer();
         },
         getUserSettingsFromServer() {
-            if (this.authToken)
-                this.apiHelper.getUserProfileSettings(this.authToken).then(res => {
-                    this.user = res;
-                    this.finishUpdating();
-                }).catch(this.processError);
+            this.api.getSettings().then(res => {
+                this.user = res;
+                this.finishUpdating();
+            }).catch(this.processError);
         },
         onSoundNameChange(newSoundName) {
             this.makeFormDirty();

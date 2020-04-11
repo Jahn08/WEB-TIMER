@@ -2,7 +2,7 @@ import watch from '/components/watch.js';
 import { audioList } from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import { modal } from '/components/bootstrap-controls.js';
-import { ApiHelper } from '/components/api-helper.js';
+import { ProgramApi } from './api.js';
 import authListener from '/components/auth-listener.js';
 
 const stageSwitch = {
@@ -153,12 +153,9 @@ const timerCustomised = {
                     this.renderProgram(this.programs[0]);
             };
 
-            const apiHelper = new ApiHelper();
-            
-            if (token)
-                apiHelper.getActivePrograms(token).then(setProgramList).catch(alert);
-            else
-                apiHelper.getDefaultPrograms().then(setProgramList).catch(alert);
+            const api = new ProgramApi();
+            (token ? api.getActivePrograms(token) : api.getDefaultPrograms())
+                .then(setProgramList).catch(alert);
         },
         changeProgram(event) {
             let obj;
