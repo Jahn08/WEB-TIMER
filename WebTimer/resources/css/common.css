@@ -203,3 +203,15 @@ table.fbBtnTable td {
     width: 100%;
     height: 60px;
 }
+
+.fadeOut {
+    opacity: 0 !important;
+    transition: opacity 1s ease-out;
+    -webkit-transition: opacity 1s;
+}
+
+.fadeIn {
+    opacity: 1 !important;
+    transition: opacity 1s ease;
+    -webkit-transition: opacity 1s;
+}

@@ -4,6 +4,7 @@ import banner from '/components/banner.js';
 import { modal } from '/components/bootstrap-controls.js';
 import { ProgramApi } from './api.js';
 import authListener from '/components/auth-listener.js';
+import { Animation } from './animation.js';
 
 const stageSwitch = {
     data() {
@@ -134,7 +135,8 @@ const timerCustomised = {
             programTitle: '',
             audioBetweenStages: false,
             timerIsInactive: false,
-            stageSoundSrc: null
+            stageSoundSrc: null,
+            animation: new Animation('alertHeading')
         };
     },
     mounted() {
@@ -213,7 +215,7 @@ const timerCustomised = {
             this.isRun = false;
         },
         bannerBlink() {
-            $('#alertHeading').fadeOut(1000).fadeIn(1000);
+            this.animation.blink();
         },
         updateSwitchStage(stage) {
             this.switchStage = this.switchStage == stage ? --stage: stage;

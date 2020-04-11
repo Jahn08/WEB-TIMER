@@ -3,6 +3,7 @@ import { audioList } from '/components/audio-list.js';
 import banner from '/components/banner.js';
 import timeSwitch from '/components/time-switch.js';
 import { modal } from '/components/bootstrap-controls.js';
+import { Animation } from './animation.js';
 
 const timer = {
     components: {
@@ -18,7 +19,8 @@ const timer = {
             shouldPlaySound: false,
             inputText: '',
             tipText: 'Start entering figures or use switches to set the timer',
-            timerIsInactive: false
+            timerIsInactive: false,
+            animation: new Animation('alertHeading')
         };
     },
     mounted() {
@@ -41,7 +43,7 @@ const timer = {
             this.inputText = '';
         },
         bannerBlink() {
-            $('#alertHeading').fadeOut(1000).fadeIn(1000);
+            this.animation.blink();
         },
         onTextChange(newValue) {
             this.inputText = newValue;
