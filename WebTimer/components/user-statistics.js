@@ -112,6 +112,10 @@ const userStatistics = {
                 }
             }).catch(alert);
         },
+        trySearchForText(event) {
+            if (event.key === 'Enter')
+                this.searchForText();
+        },
         searchForText() {
             this.getUsersInfoFromServer();
         },
@@ -139,7 +143,8 @@ const userStatistics = {
             <banner heading="Statistics"></banner>
             <card-section header="List of Users">
                 <div class="form-inline">
-                    <input type="search" placeholder="Search by text fields..." class="form-control" v-model="queryFilter.searchFor" aria-label="Search" />
+                    <input type="search" placeholder="Search by text fields..." class="form-control" 
+                        v-model="queryFilter.searchFor" @keyup="trySearchForText" aria-label="Search" />
                     <button type="button" class="btn btn-outline-info" @click="searchForText">Search</button>
                 </div>
                 <table class="table table-striped">
