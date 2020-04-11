@@ -180,7 +180,7 @@ function FbApi() {
                         appId: '157829975071233',
                         cookie: true,
                         xfbml: true,
-                        version: 'v3.0'
+                        version: 'v6.0'
                     });
 
                     fb.AppEvents.logPageView();
