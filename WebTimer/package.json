@@ -26,7 +26,6 @@
     "helmet": "~3.21.3",
     "jquery": "~3.4.1",
     "mongoose": "~5.7.5",
-    "multiple-select": "~1.2.1",
     "nodemailer": "~4.6.7",
     "passport": "~0.4.0",
     "passport-facebook-token": "~3.3.0",
