@@ -96,7 +96,7 @@ class RouteDescriptor {
             "@type":"Organization",
             "name":"Web Timer",
             "url":"${rootUrl}",
-            "logo":"${this._getAbsoluteUrl('/resources/images/favicon.ico')}"
+            "logo":"${this._getAbsoluteUrl('/resources/images/favicon.svg')}"
         },
         {
             "@context": "https://schema.org",

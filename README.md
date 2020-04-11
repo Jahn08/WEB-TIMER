@@ -1,5 +1,5 @@
 
-![alt text](https://github.com/Jahn08/WEB-TIMER/blob/master/WebTimer/resources/images/favicon-navbar.ico)
+![alt text](https://github.com/Jahn08/WEB-TIMER/blob/master/WebTimer/resources/images/favicon.svg)
 
 # WEB-TIMER
 
