@@ -23,6 +23,16 @@
     };
 
     this.configureRoutes = function () {		
+        app.set('trust proxy', true);
+
+        app.use(function (req, res, next) {
+            const host = req.headers.host;
+            if (host.slice(0, 4) === 'www.')
+                return res.redirect(301, `${req.protocol}://${host.slice(4)}${req.originalUrl}`);
+            
+            next();
+        });
+
         const history = require('connect-history-api-fallback');
         app.use(history({
             htmlAcceptHeaders: ['text/html']
