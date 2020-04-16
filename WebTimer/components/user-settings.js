@@ -12,7 +12,8 @@ const userSettings = {
     },
     data() {
         return {
-            updating: true,
+            initialised: false,
+            updating: false,
             user: {
                 hideDefaultPrograms: false,
                 defaultSoundName: null
@@ -74,7 +75,7 @@ const userSettings = {
         getUserSettingsFromServer() {
             this.api.getSettings().then(res => {
                 this.user = res;
-                this.finishUpdating();
+                this.initialised = true;
             }).catch(this.processError);
         },
         onSoundNameChange(newSoundName) {
@@ -86,8 +87,8 @@ const userSettings = {
         <div>
             <banner heading="User Settings"></banner>
             <auth-listener @change="onAuthenticationChange">
-                <div v-if="updating">Please wait...</div>
-                <div v-else class="container">
+                <div v-if="updating || !initialised">Please wait...</div>
+                <div v-if="initialised" v-show="!updating" class="container">
                     <audio-list @change="onSoundNameChange" label="Default sound for timers" :sound-name="user.defaultSoundName"></audio-list>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input" id="hideDefaultProgramsCheck" v-model="user.hideDefaultPrograms" @change="makeFormDirty">
