@@ -31,9 +31,10 @@ const facebookTokenStrategy = new FacebookTokenPassport({
                     done(err);
                 else {
                     if (isNew)
-                        new Mailer(config).sendAccountCreationMsg(user.email, user.name).then(() => proceed(user));
-                    else
-                        proceed(user);
+                        new Mailer(config).sendAccountCreationMsg(user.email, user.name)
+                            .catch(loggerContext.error);
+                    
+                    proceed(user);
                 }
             });
         };

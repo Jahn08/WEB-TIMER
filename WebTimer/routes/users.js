@@ -103,34 +103,31 @@ router.route('/profile')
         const resp = await user.updateOne({ $set: { 
             hideDefaultPrograms: reqBody.hideDefaultPrograms,
             defaultSoundName: reqBody.defaultSoundName 
-        } });
+        }});
 
         if (!resp || !resp.ok)
             respErr.respondWithDatabaseError('The try of updating the user\'s data fell through');
         else
             res.status(204).end();
     }))
-    .delete(facebookAuth.verifyUser, (req, res) => {
+    .delete(facebookAuth.verifyUser, ResponseError.catchAsyncError(async (req, res) => {
         const respErr = new ResponseError(res);
         const user = req.user;
 
         if (!user)
             return respErr.respondWithUserIsNotFoundError();
 
-        user.remove(async err => {
-            if (err)
-                respErr.respondWithDatabaseError(err);
-            else {
-                const programModelHelper = new dbModelHelpers.ProgramModelHelper(res, user.id);
+        await user.remove();
 
-                const programs = await programModelHelper.findUserPrograms();
-                await programModelHelper.deletePrograms(programs.map(p => p._id));
+        const programModelHelper = new dbModelHelpers.ProgramModelHelper(res, user.id);
 
-                await new Mailer(config).sendAccountRemovalMsg(user.email, user.name);
-                res.status(204).end();
-            }
-        });
-    });
+        const programs = await programModelHelper.findUserPrograms();
+        await programModelHelper.deletePrograms(programs.map(p => p._id));
+
+        new Mailer(config).sendAccountRemovalMsg(user.email, user.name)
+            .catch(err => config.logger.startLogging('DeleteProfile').error(err));
+        res.status(204).end();
+    }));
 
 router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAdmin,
     ResponseError.catchAsyncError(async (req, res) => {
@@ -165,14 +162,12 @@ router.route('/adminSwitch').post(facebookAuth.verifyUser, facebookAuth.verifyAd
 
         loggerContext.info(`The user's data is going to be updated to ${JSON.stringify(updateBody)}`);
         
-        try {
-            await foundUser.updateOne({ $set: updateBody });
-            await new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin);
-            res.status(200).json(updateBody);
-        }
-        catch (err) {
-            respErr.respondWithUnexpectedError(err);
-        }
+        await foundUser.updateOne({ $set: updateBody });
+        
+        new Mailer(config).sendAdminRoleSwitchMsg(foundUser.email, foundUser.name, isAdmin)
+            .catch(loggerContext.error);
+        
+        res.status(200).json(updateBody);
     }));
 
 module.exports = router;

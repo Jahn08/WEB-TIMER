@@ -47,9 +47,14 @@ function Mailer(config, response = null) {
                     resolve(info);
                 })
                 .catch(err => {
-                    if (respErr)
-                        respErr.respondWithUnexpectedError('Sending an email failed: ' + err);
+                    const errMsg = `Sending an email failed: "${err}"`;
 
+                    if (respErr)
+                        respErr.respondWithUnexpectedError(errMsg);
+
+                    if (err.message)
+                        err.message = errMsg;
+                    
                     reject(err);
                 });
         });
