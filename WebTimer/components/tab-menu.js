@@ -1,4 +1,4 @@
-import { authEventHelper } from '/components/event-bus.js';
+import { authEventHelper } from './event-bus.js';
 
 const tabMenu = {
     props: {

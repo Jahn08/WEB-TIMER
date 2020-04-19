@@ -1,5 +1,5 @@
 ﻿import { ProgramApi } from './api.js';
-import authListener from '/components/auth-listener.js';
+import authListener from './auth-listener.js';
 
 const Sounds = function (token = null) {
     this.token = token;

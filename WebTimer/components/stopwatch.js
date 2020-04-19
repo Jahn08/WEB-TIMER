@@ -1,5 +1,5 @@
-import watch from '/components/watch.js';
-import banner from '/components/banner.js';
+import watch from './watch.js';
+import banner from './banner.js';
 
 const stopwatch = {
     components: {

@@ -1,17 +1,17 @@
-import facebookAuthButton from '/components/facebook-auth-button.js';
-import mainMenu from '/components/main-menu.js';
-import tabMenu from '/components/tab-menu.js';
-import userTimers from '/components/user-timers.js';
-import stopwatch from '/components/stopwatch.js';
-import timer from '/components/timer.js';
-import timerCustomised from '/components/timer-customised.js';
-import userSettings from '/components/user-settings.js';
-import userStatistics from '/components/user-statistics.js';
-import about from '/components/about.js';
-import AuthSession from '/components/auth-session.js';
-import RouteFormState from '/components/route-form-state.js';
-import { authEventHelper } from '/components/event-bus.js';
-import { RouteDescriptor, MetaConstructor } from '/components/route-meta.js';
+import facebookAuthButton from './facebook-auth-button.js';
+import mainMenu from './main-menu.js';
+import tabMenu from './tab-menu.js';
+import userTimers from './user-timers.js';
+import stopwatch from './stopwatch.js';
+import timer from './timer.js';
+import timerCustomised from './timer-customised.js';
+import userSettings from './user-settings.js';
+import userStatistics from './user-statistics.js';
+import about from './about.js';
+import AuthSession from './auth-session.js';
+import RouteFormState from './route-form-state.js';
+import { authEventHelper } from './event-bus.js';
+import { RouteDescriptor, MetaConstructor } from './route-meta.js';
 
 // eslint-disable-next-line no-undef
 new Vue({

@@ -1,5 +1,5 @@
-import AuthSession from '/components/auth-session.js';
-import { authEventHelper } from '/components/event-bus.js';
+import AuthSession from './auth-session.js';
+import { authEventHelper } from './event-bus.js';
 
 const authListener = {
     data() {

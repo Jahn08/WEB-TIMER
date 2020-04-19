@@ -1,8 +1,8 @@
-﻿import banner from '/components/banner.js';
-import authListener from '/components/auth-listener.js';
-import RouteFormState from '/components/route-form-state.js';
+﻿import banner from './banner.js';
+import authListener from './auth-listener.js';
+import RouteFormState from './route-form-state.js';
 import { ProgramApi, ProgramUpdater } from './api.js';
-import { cardSection } from '/components/bootstrap-controls.js';
+import { cardSection } from './bootstrap-controls.js';
 
 const userTimers = {
     components: {

@@ -1,7 +1,7 @@
-import banner from '/components/banner.js';
-import authListener from '/components/auth-listener.js';
-import RouteFormState from '/components/route-form-state.js';
-import { audioList } from '/components/audio-list.js';
+import banner from './banner.js';
+import authListener from './auth-listener.js';
+import RouteFormState from './route-form-state.js';
+import { audioList } from './audio-list.js';
 import { UserApi, FbApi } from './api.js';
 
 const userSettings = {

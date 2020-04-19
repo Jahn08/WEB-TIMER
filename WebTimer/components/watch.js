@@ -1,4 +1,4 @@
-import { watchKeyDownEventHelper } from '/components/event-bus.js';
+import { watchKeyDownEventHelper } from './event-bus.js';
 
 const rowSection = {
     props: {

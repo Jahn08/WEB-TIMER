@@ -1,7 +1,7 @@
-﻿import banner from '/components/banner.js';
-import authListener from '/components/auth-listener.js';
+﻿import banner from './banner.js';
+import authListener from './auth-listener.js';
 import { UserApi } from './api.js';
-import { cardSection } from '/components/bootstrap-controls.js';
+import { cardSection } from './bootstrap-controls.js';
 
 const sortLink = {
     props: {

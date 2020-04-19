@@ -1,5 +1,5 @@
 import { ModuleApi } from './api.js';
-import banner from '/components/banner.js';
+import banner from './banner.js';
 
 const about = {
     components: {

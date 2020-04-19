@@ -1,9 +1,9 @@
-import watch from '/components/watch.js';
-import { audioList } from '/components/audio-list.js';
-import banner from '/components/banner.js';
-import { modal } from '/components/bootstrap-controls.js';
+import watch from './watch.js';
+import { audioList } from './audio-list.js';
+import banner from './banner.js';
+import { modal } from './bootstrap-controls.js';
 import { ProgramApi } from './api.js';
-import authListener from '/components/auth-listener.js';
+import authListener from './auth-listener.js';
 import { Animation } from './animation.js';
 
 const stageSwitch = {
