@@ -1,15 +1,4 @@
-const express = require('express');
-express();
-
-const path = require('path');
-const rootPath = path.join(__dirname, '..', 'node_modules');
-
-const router = express.Router();
-router.use('/jquery', express.static(path.join(rootPath, 'jquery', 'dist')));
-router.use('/bootstrap', express.static(path.join(rootPath, 'bootstrap', 'dist')));
-router.use('/vue', express.static(path.join(rootPath, 'vue', 'dist')));
-router.use('/vue-router', express.static(path.join(rootPath, 'vue-router', 'dist')));
-
+const router = require('express').Router();
 const config = require('../config');
 
 router.route('/about').get((req, res) => {

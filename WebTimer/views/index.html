@@ -7,25 +7,21 @@
     <link rel="icon" href="/resources/images/favicon.svg" />
 </head>
 <body>
-    <link href="/modules/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/externals/bootstrap.min.css" rel="stylesheet" />
     <link href="/resources/css/multiple-select.min.css" rel="stylesheet" />
     <link href="/resources/css/common.css" rel="stylesheet" />
 
-    <script src="/modules/jquery/jquery.slim.min.js"></script>
+    <script src="/externals/jquery.slim.min.js"></script>
 
-    <script src="/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/externals/bootstrap.min.js"></script>
     <script src="/resources/scripts/multiple-select.min.js"></script>
-    <script src="/modules/vue/vue.js"></script>
-    <script src="/modules/vue-router/vue-router.min.js"></script>
-
-    <script type="module" src="/components/component-initialiser.js"></script>
+    <script src="/externals/vue.min.js"></script>
+    <script src="/externals/vue-router.min.js"></script>
     
-    <div id="app">
-        <main-menu>
-            <facebook-auth-button slot="logInBtn" @logged-in="setAuthenticationState" @logged-out="setAuthenticationState">
-            </facebook-auth-button>
-        </main-menu>
-    </div>
+    <!-- <script type="module" src="/components/component-initialiser.js"></script> -->
+    <script src="/app.js" defer></script>
+
+    <div id="app"></div>
 
     <footer class="footer">
         <div class="container text-left text-muted">

@@ -38,10 +38,11 @@
             htmlAcceptHeaders: ['text/html']
         }));
 
-        app.use('/components', express.static(__dirname + '/components'));
-        app.use(express.static(__dirname + '/views'));
-        app.use('/resources', express.static(__dirname + '/resources'));
-        app.use('/', express.static(__dirname + '/seo'));
+        const path = require('path');
+        app.use(express.static(path.join(__dirname, 'views')));
+        app.use('/resources', express.static(path.join(__dirname, 'resources')));
+        app.use('/', express.static(path.join(__dirname, 'seo')), 
+            express.static(path.join(__dirname, 'client')));
 
         const routerAuth = require('./routes/auth');
         app.use('/auth', routerAuth);
@@ -58,7 +59,7 @@
         const ResponseError = require('./tools/response-error').ResponseError;
 
         // eslint-disable-next-line no-unused-vars
-        app.use((err, req, res, next) => {			
+        app.use((err, req, res, next) => {
             if (err) {
                 const respErr = new ResponseError(res);
                 respErr.respondWithUnexpectedError(err);

@@ -1,0 +1,8 @@
+WebTimer/1.pfx
+WebTimer/node_modules/*
+WebTimer/.vscode/launch.json
+1.pfx
+WebTimer/WebTimer.njsproj
+.vscode/launch.json
+node_modules
+client

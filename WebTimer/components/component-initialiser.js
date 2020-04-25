@@ -116,6 +116,8 @@ new Vue({
 
         this.$router.onReady(() => processRoute(this.$router.currentRoute));
         this.$router.beforeEach(processRoute);
+
+        document.dispatchEvent(new Event('render-event'));
     },
     beforeDestroy() {
         authEventHelper.removeAllListeners();
@@ -165,5 +167,12 @@ new Vue({
     components: {
         mainMenu,
         facebookAuthButton
-    }
+    },
+    template: `
+        <div id="app">
+            <main-menu>
+                <facebook-auth-button slot="logInBtn" @logged-in="setAuthenticationState" @logged-out="setAuthenticationState">
+                </facebook-auth-button>
+            </main-menu>
+        </div>`
 });
