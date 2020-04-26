@@ -35,7 +35,12 @@ class FileSystem {
     }
 
     static copyFiles(destDir, ...filePaths) {
-        filePaths.forEach(p => fs.copyFileSync(p, path.join(destDir, path.basename(p))));
+        filePaths.forEach(p => this.copyFile(p, destDir));
+    }
+
+    static copyFile(filePath, destDir, destFileName = null) {
+        fs.copyFileSync(filePath, path.join(destDir, 
+            destFileName || path.basename(filePath)));
     }
 }
 

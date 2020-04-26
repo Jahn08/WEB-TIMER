@@ -11,22 +11,24 @@ const ApiMocker = require('./tools/compilation/api-mocker').ApiMocker;
 const apiMockerPlugin = new ApiMocker(buildPath);
 const defaultPort = 8000;
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const DependencyCopier = require('./tools/compilation/dependency-copier').DependencyCopier;
-const dependencyCopierPlugin = new DependencyCopier(buildPath, rootPath);
+const dependencyCopierPlugin = new DependencyCopier(buildPath, rootPath, isProduction);
 
 const BuildCleaner = require('./tools/compilation/build-cleaner').BuildCleaner;
 
 const viewsDirName = 'views';
 
 module.exports = {
-    mode: 'development',
+    mode:  isProduction ? process.env.NODE_ENV : 'development',
     entry: './components/component-initialiser.js',
     output: {
         filename: 'app.js',
         path: buildPath,
         publicPath: '/'
     },
-    devtool: 'cheap-module-source-map',
+    devtool: isProduction ? 'hidden-source-map' : 'cheap-source-map',
     plugins: [new BuildCleaner(buildPath), dependencyCopierPlugin, apiMockerPlugin,
         new PrerenderSpaPlugin({
             staticDir: __dirname,

@@ -4,7 +4,8 @@
   "description": "web-timer",
   "main": "main.js",
   "scripts": {
-    "build": "webpack",
+    "dev-build": "env webpack",
+    "build": "env NODE_ENV=production webpack",
     "start": "node main.js",
     "test": "mocha \"tests\"",
     "debug-test": "mocha --inspect-brk \"tests\"",
