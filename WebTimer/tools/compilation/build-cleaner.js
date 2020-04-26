@@ -1,4 +1,4 @@
-const FileSystem = require('../file-system').FileSystem;
+const FileSystem = require('./file-system').FileSystem;
 
 class BuildCleaner {
     constructor(buildPath) {

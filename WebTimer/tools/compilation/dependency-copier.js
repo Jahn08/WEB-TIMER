@@ -1,5 +1,5 @@
 const path = require('path');
-const FileSystem = require('../file-system').FileSystem;
+const FileSystem = require('./file-system').FileSystem;
 
 const ProxyBuilder = require('./proxy-builder').ProxyBuilder;
 
