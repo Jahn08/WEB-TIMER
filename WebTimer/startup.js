@@ -22,6 +22,39 @@
         app.use(passport.initialize());
     };
 
+    const path = require('path');
+    const fs = require('fs');
+
+    const configureViewHandlers = function() {
+        const viewsDirName = 'views';
+
+        const prerenderedViewPath = path.join(__dirname, 'client', viewsDirName);
+        const prerenderedViews = [];
+
+        if (fs.existsSync(prerenderedViewPath))
+            fs.readdirSync(prerenderedViewPath).forEach(p  => {
+                const fullPath = path.join(prerenderedViewPath, p);
+
+                if (fs.statSync(fullPath).isDirectory())
+                    prerenderedViews.push('/' + p);
+            });
+
+        app.use((req, res, next) => {
+            if (req.method === 'GET' && req.headers.accept.indexOf('text/html') !== -1) {
+                let prefix = '';
+                
+                if (prerenderedViews.includes(req.path))
+                    prefix =  path.join(viewsDirName, req.path);
+
+                req.url = prefix + '/index.html';
+            }
+
+            next();
+        });
+
+        app.use(express.static(path.join(__dirname, viewsDirName)));
+    };
+
     this.configureRoutes = function () {		
         app.set('trust proxy', true);
 
@@ -33,13 +66,8 @@
             next();
         });
 
-        const history = require('connect-history-api-fallback');
-        app.use(history({
-            htmlAcceptHeaders: ['text/html']
-        }));
+        configureViewHandlers();
 
-        const path = require('path');
-        app.use(express.static(path.join(__dirname, 'views')));
         app.use('/resources', express.static(path.join(__dirname, 'resources')));
         app.use('/', express.static(path.join(__dirname, 'seo')), 
             express.static(path.join(__dirname, 'client')));
@@ -71,7 +99,6 @@
         const https = require('https');
         const http = require('http');
 
-        const fs = require('fs');
     
         const pfxConfig = serverOptions.pfx;
 
