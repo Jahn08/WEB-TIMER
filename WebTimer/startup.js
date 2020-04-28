@@ -30,13 +30,22 @@
 
         const prerenderedViewPath = path.join(__dirname, 'client', viewsDirName);
         const prerenderedViews = [];
+        let defaultPath;
 
         if (fs.existsSync(prerenderedViewPath))
             fs.readdirSync(prerenderedViewPath).forEach(p  => {
                 const fullPath = path.join(prerenderedViewPath, p);
 
+                const viewPath = '/' + p;
                 if (fs.statSync(fullPath).isDirectory())
-                    prerenderedViews.push('/' + p);
+                    prerenderedViews.push(viewPath);
+
+                if (!defaultPath)
+                    fs.readdirSync(fullPath).forEach(fp => {
+                        const filePath = path.join(fullPath, fp);
+                        if (fs.readFileSync(filePath).indexOf('canonical') !== -1)
+                            defaultPath = viewPath;
+                    }); 
             });
 
         app.use((req, res, next) => {
@@ -44,7 +53,9 @@
                 let prefix = '';
                 
                 if (prerenderedViews.includes(req.path))
-                    prefix =  path.join(viewsDirName, req.path);
+                    prefix = path.join(viewsDirName, req.path);
+                else if (defaultPath && req.path === '/')
+                    prefix = path.join(viewsDirName, defaultPath);
 
                 req.url = prefix + '/index.html';
             }
