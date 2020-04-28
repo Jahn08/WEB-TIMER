@@ -41,6 +41,7 @@ module.exports = {
                     dependencyCopierPlugin.configureProxy(defaultPort, buildDirName))
             },
             renderer: new PrerenderSpaPlugin.PuppeteerRenderer({
+                inject: true,
                 renderAfterDocumentEvent: 'render-event'
             })
         })]  

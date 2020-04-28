@@ -1,5 +1,6 @@
 import AuthSession from './auth-session.js';
 import { authEventHelper } from './event-bus.js';
+import { Prerenderer } from './prerenderer.js';
 
 const authListener = {
     data() {
@@ -31,7 +32,9 @@ const authListener = {
             }
 
             const loggedOut = previousStatus && !this.authenticated;
-            this.$emit('change', authToken, loggedOut);
+
+            if (!Prerenderer.isPrerendering)
+                this.$emit('change', authToken, loggedOut);
         }
     },
     template: `

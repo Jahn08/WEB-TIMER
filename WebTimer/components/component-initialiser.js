@@ -12,6 +12,9 @@ import AuthSession from './auth-session.js';
 import RouteFormState from './route-form-state.js';
 import { authEventHelper } from './event-bus.js';
 import { RouteDescriptor, MetaConstructor } from './route-meta.js';
+import { Prerenderer } from './prerenderer.js';
+
+const APP_ELEMENT_ID = 'app';
 
 // eslint-disable-next-line no-undef
 new Vue({
@@ -117,7 +120,7 @@ new Vue({
         this.$router.onReady(() => processRoute(this.$router.currentRoute));
         this.$router.beforeEach(processRoute);
 
-        document.dispatchEvent(new Event('render-event'));
+        Prerenderer.finalise(APP_ELEMENT_ID);
     },
     beforeDestroy() {
         authEventHelper.removeAllListeners();
@@ -163,16 +166,16 @@ new Vue({
             }
         }
     },
-    el: '#app',
+    el: '#' + APP_ELEMENT_ID,
     components: {
         mainMenu,
         facebookAuthButton
     },
     template: `
-        <div id="app">
-            <main-menu>
-                <facebook-auth-button slot="logInBtn" @logged-in="setAuthenticationState" @logged-out="setAuthenticationState">
-                </facebook-auth-button>
-            </main-menu>
+        <div id="${APP_ELEMENT_ID}">
+            <mainMenu>
+                <facebookAuthButton slot="logInBtn" @logged-in="setAuthenticationState" 
+                @logged-out="setAuthenticationState" />
+            </mainMenu>
         </div>`
 });

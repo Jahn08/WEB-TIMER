@@ -1,4 +1,5 @@
 ﻿import { watchKeyDownEventHelper } from './event-bus.js';
+import { Prerenderer } from './prerenderer.js';
 
 const timeSwitchBlock = {
     props: {
@@ -112,7 +113,7 @@ const timeSwitch = {
 
             let val;
             let _i = 0;
-            this.values = this.input.slice()
+            this.values = Prerenderer.isPrerendering ? [] : this.input.slice()
                 .map(v => isNaN(val = Number(v)) ? v : { val, max: this.limits[_i++] });
             this.curIndex = this.getCurrentIndex();
         },
