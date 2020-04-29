@@ -59,7 +59,8 @@ const config = {
         url: new WebAddress(envs.SERVER_HOST || '0.0.0.0', envs.SERVER_PORT || 3443, 
             parseBoolean(envs.SERVER_USE_HTTP)),
         externalUrl: new WebAddress(envs.SERVER_EXTERNAL_HOST, envs.SERVER_EXTERNAL_PORT,
-            parseBoolean(envs.SERVER_EXTERNAL_USE_HTTP))
+            parseBoolean(envs.SERVER_EXTERNAL_USE_HTTP)),
+        prerendererPort: 8000
     },
     mail: {
         host: envs.MAIL_HOST,

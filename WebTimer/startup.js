@@ -25,28 +25,43 @@
     const path = require('path');
     const fs = require('fs');
 
-    const configureViewHandlers = function() {
+    const configureViewHandlers = function(serverOptions) {
         const viewsDirName = 'views';
 
         const prerenderedViewPath = path.join(__dirname, 'client', viewsDirName);
         const prerenderedViews = [];
         let defaultPath;
 
-        if (fs.existsSync(prerenderedViewPath))
-            fs.readdirSync(prerenderedViewPath).forEach(p  => {
-                const fullPath = path.join(prerenderedViewPath, p);
+        if (!fs.existsSync(prerenderedViewPath))
+            return;
+        
+        const WebAddress = require('./tools/web-address');
+        const prerenderedUrl = new WebAddress('localhost', serverOptions.prerendererPort, true)
+            .getFullUrl(true).slice(0, -1);
+        const prerenderedUrlRegex = new RegExp(prerenderedUrl, 'g');
 
-                const viewPath = '/' + p;
-                if (fs.statSync(fullPath).isDirectory())
-                    prerenderedViews.push(viewPath);
+        const actualUrl = (serverOptions.externalUrl.isInUse() ? serverOptions.externalUrl : 
+            serverOptions.url).getFullUrl().slice(0, -1);
 
-                if (!defaultPath)
-                    fs.readdirSync(fullPath).forEach(fp => {
-                        const filePath = path.join(fullPath, fp);
-                        if (fs.readFileSync(filePath).indexOf('canonical') !== -1)
-                            defaultPath = viewPath;
-                    }); 
+        fs.readdirSync(prerenderedViewPath).forEach(p  => {
+            const fullPath = path.join(prerenderedViewPath, p);
+
+            const viewPath = '/' + p;
+            if (fs.statSync(fullPath).isDirectory())
+                prerenderedViews.push(viewPath);
+
+            fs.readdirSync(fullPath).forEach(fp => {
+                const filePath = path.join(fullPath, fp);
+                const fileContent = fs.readFileSync(filePath);
+
+                if (!defaultPath && fileContent.indexOf('canonical') !== -1)
+                    defaultPath = viewPath;
+                
+                if (fileContent.indexOf(prerenderedUrl) !== -1)
+                    fs.writeFileSync(filePath, 
+                        fileContent.toString().replace(prerenderedUrlRegex, actualUrl));
             });
+        });
 
         app.use((req, res, next) => {
             if (req.method === 'GET' && req.headers.accept.indexOf('text/html') !== -1) {
@@ -66,7 +81,7 @@
         app.use(express.static(path.join(__dirname, viewsDirName)));
     };
 
-    this.configureRoutes = function () {		
+    this.configureRoutes = function (serverOptions) {		
         app.set('trust proxy', true);
 
         app.use(function (req, res, next) {
@@ -77,7 +92,7 @@
             next();
         });
 
-        configureViewHandlers();
+        configureViewHandlers(serverOptions);
 
         app.use('/resources', express.static(path.join(__dirname, 'resources')));
         app.use('/', express.static(path.join(__dirname, 'seo')), 
@@ -109,7 +124,6 @@
     this.startHttpsServerListening = function (serverOptions) {
         const https = require('https');
         const http = require('http');
-
     
         const pfxConfig = serverOptions.pfx;
 

@@ -109,8 +109,7 @@ class RouteDescriptor {
             },{
                 "@type": "ListItem",
                 "position": 2,
-                "name": "${this._name}",
-                "item": "${location.href}"
+                "name": "${this._name}"
             }]
         }]`;
     }
