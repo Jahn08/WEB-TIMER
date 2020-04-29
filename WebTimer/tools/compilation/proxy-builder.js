@@ -8,19 +8,17 @@ class ProxyBuilder {
     }
 
     addWithApiRewrite(ctrlName, apiMethod) {
-        this.proxy[`/${ctrlName}/${apiMethod}`] = {
-            target: this._targetUrl,
-            pathRewrite: {['/' + apiMethod] : `/${apiMethod}.json`}
-        };
+        const proxyObj = this._createProxyObj();
+        proxyObj.pathRewrite = {['/' + apiMethod] : `/${apiMethod}.json`};
 
+        this.proxy[`/${ctrlName}/${apiMethod}`] = proxyObj;
         return this;
     }
 
-    add(...originalPaths) {
-        this.proxy['/' + path.join(...originalPaths)] = {
-            target: this._targetUrl
-        };
+    _createProxyObj() { return { target: this._targetUrl }; }
 
+    add(...originalPaths) {
+        this.proxy['/' + path.join(...originalPaths)] = this._createProxyObj();
         return this;
     }
 }
