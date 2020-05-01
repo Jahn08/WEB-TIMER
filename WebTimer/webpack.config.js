@@ -10,7 +10,8 @@ const buildPath = path.resolve(rootPath, buildDirName);
 const ApiMocker = require('./tools/compilation/api-mocker').ApiMocker;
 const apiMockerPlugin = new ApiMocker(buildPath);
 
-const isProduction = process.env.NODE_ENV === 'production';
+const config = require('./config');
+const isProduction = config.isProduction;
 
 const DependencyCopier = require('./tools/compilation/dependency-copier').DependencyCopier;
 const dependencyCopierPlugin = new DependencyCopier(buildPath, rootPath, isProduction);
@@ -19,10 +20,10 @@ const BuildCleaner = require('./tools/compilation/build-cleaner').BuildCleaner;
 
 const viewsDirName = 'views';
 
-const defaultPort = require('./config').server.prerendererPort;
+const defaultPort = config.server.prerendererPort;
 
 module.exports = {
-    mode:  isProduction ? process.env.NODE_ENV : 'development',
+    mode:  config.isProduction ? 'production' : 'development',
     entry: './components/component-initialiser.js',
     output: {
         filename: 'app.js',
