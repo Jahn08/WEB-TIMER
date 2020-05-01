@@ -57,9 +57,9 @@ describe('Mailer', function () {
                 assert(outcome);
 
                 assert.strictEqual(outcome.code, 'ECONNECTION');
-                assert.strictEqual(outcome.errno, 'ENOTFOUND');
+                assert(outcome.message.indexOf('ENOTFOUND') !== -1);
 
-                assert.strictEqual(outcome.host, mailOptions.host);
+                assert.strictEqual(outcome.hostname, mailOptions.host);
 
                 resolve();
             })).catch(err => reject(err)));
