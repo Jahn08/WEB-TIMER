@@ -73,11 +73,14 @@ const watch = {
         }
     },
     data() {
+        const spaceKeyCode = 'Space';
+
         return { 
+            SPACE_KEY_CODE: spaceKeyCode,
             buttons: [{
                 name: 'Start|Stop',
                 shortcut: 'Space',
-                keyCodes: ['Space'],
+                keyCodes: [spaceKeyCode],
                 event: this.start
             }, {
                 name: 'Lap',
@@ -208,7 +211,8 @@ const watch = {
             if (this.inactive)
                 return true;
 
-            if (btn && btn.event) {
+            if (btn && btn.event && (event.target.localName !== 'button' || 
+                event.code !== this.SPACE_KEY_CODE)) {
                 btn.event();
                 event.preventDefault();
             }
