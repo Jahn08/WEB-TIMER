@@ -48,7 +48,7 @@ Icons made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [ww
 
 * [Node.js 8.9.4](https://nodejs.org/download/release/v8.9.4/)
 * [MongoDB 3.6.2](https://www.mongodb.org/dl/win32/x86_64-2008plus-ssl?_ga=2.113660480.637015255.1538331504-1402874581.1537118071)
-* The project was developed in MS Visual Studio 2017 Community ([the product page](https://visualstudio.microsoft.com/vs/community/))
+* The project was developed in MS Visual Studio 2017 Community ([the product page](https://visualstudio.microsoft.com/vs/community/)) and Visual Studio Code
 
 ### <a name="headSettingUpDev"></a>Setting up Dev
 
@@ -59,11 +59,12 @@ The developer computer has to have an access to a MongoDB server installed to de
 ### Deploying / Publishing
 
 The stages to deploy the application in a docker container by command prompt:
-1. Run a command in the root folder of the project where the Dockerfile file is available (including the dot at the end): *docker build -t webtimer .*
-2. Before the usage of the docker stack deploy command a swarm has to be initialised: *docker swarm init*
-3. Since the application relies on secret values they have to be entered the next way: *echo SECRET_VALUE|docker secret create SECRET_NAME -*
+1. Build the solution by choosing an option *Run Build Task -> build-prod* when clicking *F1* in VS Code or by running a command from the WebTimer folder: *npm run build*
+2. Run a command in the root folder of the project where the Dockerfile file is available (including the dot at the end): *docker build -t webtimer .*
+3. Before the usage of the docker stack deploy command a swarm has to be initialised: *docker swarm init*
+4. Since the application relies on secret values they have to be entered the next way: *echo SECRET_VALUE|docker secret create SECRET_NAME -*
 The list of all the possible secrets can be found in the docker-compose.yml file (more about them in the [configuration section below](#headConfiguration)).
-4. In the same directory where the docker-compose.yml file lies run a command: *docker stack deploy -c docker-compose.yml webtimer*
+5. In the same directory where the docker-compose.yml file lies run a command: *docker stack deploy -c docker-compose.yml webtimer*
 
 ## <a name="headConfiguration"></a>Configuration
 
