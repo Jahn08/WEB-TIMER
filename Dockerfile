@@ -9,6 +9,8 @@ RUN cd WebTimer && npm install --only=production
 
 COPY /WebTimer WebTimer
 
+RUN apk add --update curl
+
 RUN chown -R node: WebTimer/client/views
 RUN chmod -R u+rw WebTimer/client/views
 
