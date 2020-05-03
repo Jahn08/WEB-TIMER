@@ -21,7 +21,7 @@
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Debug",
+            "name": "Debug Build",
             "program": "${workspaceFolder}/WebTimer/main.js",
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "node",
@@ -31,12 +31,10 @@
             "port": 9222,
             "env": {
                 "MAIL_SECURE_PORT": "465",
-                "SERVER_PORT": "3443",
+                "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
                 "SERVER_PFX_PATH": "1.pfx",
-                "LOGGER_LEVEL": "info",
-                "SERVER_USE_HTTP": "0",
-                "SERVER_EXTERNAL_USE_HTTP": "1"
+                "LOGGER_LEVEL": "info"
             }
         },
         {
@@ -44,7 +42,7 @@
             "type": "node",
             "request": "launch",
             "protocol": "inspector",
-            "name": "Prod",
+            "name": "Prod Build",
             "program": "${workspaceFolder}/WebTimer/main.js",
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "node",
@@ -55,12 +53,29 @@
             "env": {
                 //"NODE_ENV": "production",
                 "MAIL_SECURE_PORT": "465",
-                "SERVER_PORT": "3443",
+                "SERVER_PORT": "3444",
+                "SERVER_HOST": "localhost",
+                "SERVER_PFX_PATH": "1.pfx"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+            "name": "Launch",
+            "program": "${workspaceFolder}/WebTimer/main.js",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk=9222"
+            ],
+            "port": 9222,
+            "env": {
+                "MAIL_SECURE_PORT": "465",
+                "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
                 "SERVER_PFX_PATH": "1.pfx",
-                "LOGGER_LEVEL": "error",
-                "SERVER_USE_HTTP": "0",
-                "SERVER_EXTERNAL_USE_HTTP": "1"
+                "LOGGER_LEVEL": "info"
             }
         }
     ]
