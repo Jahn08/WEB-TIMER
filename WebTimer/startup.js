@@ -26,9 +26,10 @@
     const fs = require('fs');
 
     const configureViewHandlers = function(serverOptions) {
+        const clientDirName = 'client';
         const viewsDirName = 'views';
 
-        const prerenderedViewPath = path.join(__dirname, 'client', viewsDirName);
+        const prerenderedViewPath = path.join(__dirname, clientDirName, viewsDirName);
         const prerenderedViews = [];
         let defaultPath;
 
@@ -64,7 +65,10 @@
         });
 
         app.use((req, res, next) => {
-            if (req.method === 'GET' && req.headers.accept.indexOf('text/html') !== -1) {
+            const accept = req.headers.accept || '';
+
+            if (['GET', 'HEAD'].includes(req.method) && req.path.indexOf('.') === -1 &&
+                (!accept || ['text/html', '*/*'].some(a => accept.indexOf(a) !== -1))) {
                 let prefix = '';
                 
                 if (prerenderedViews.includes(req.path))
@@ -78,7 +82,7 @@
             next();
         });
 
-        app.use(express.static(path.join(__dirname, viewsDirName)));
+        app.use('/', express.static(path.join(__dirname, clientDirName)));
     };
 
     this.configureRoutes = function (serverOptions) {		
@@ -92,11 +96,8 @@
             next();
         });
 
-        configureViewHandlers(serverOptions);
-
         app.use('/resources', express.static(path.join(__dirname, 'resources')));
-        app.use('/', express.static(path.join(__dirname, 'seo')), 
-            express.static(path.join(__dirname, 'client')));
+        app.use('/', express.static(path.join(__dirname, 'seo')));
 
         const routerAuth = require('./routes/auth');
         app.use('/auth', routerAuth);
@@ -109,6 +110,8 @@
 
         const routerUser = require('./routes/users');
         app.use('/users', routerUser);
+
+        configureViewHandlers(serverOptions);
 
         const ResponseError = require('./tools/response-error').ResponseError;
 
