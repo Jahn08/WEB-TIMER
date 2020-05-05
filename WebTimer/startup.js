@@ -82,7 +82,8 @@
             next();
         });
 
-        app.use('/', express.static(path.join(__dirname, clientDirName)));
+        app.use('/', express.static(path.join(__dirname, clientDirName)), 
+            express.static(path.join(__dirname, viewsDirName)));
     };
 
     this.configureRoutes = function (serverOptions) {		
