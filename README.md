@@ -10,6 +10,9 @@ A web application to set a timer or stopwatch along with some customisation prov
 * OAuth authentication and registration by Facebook
 * Administration module to gather the users' statistics
 * MongoDB as a default DB model provider ([more about database](#headDatabase))
+* Prerendering for better SEO ([a detailed description of my approach](https://medium.com/swlh/a-quick-approach-to-mend-seo-in-vue-8a94753eebfc)) 
+
+[Here](https://webtimer.tk) is a working version of the application.
 
 ## Installing / Getting started
 
@@ -65,6 +68,8 @@ The stages to deploy the application in a docker container by command prompt:
 4. Since the application relies on secret values they have to be entered the next way: *echo SECRET_VALUE|docker secret create SECRET_NAME -*
 The list of all the possible secrets can be found in the docker-compose.yml file (more about them in the [configuration section below](#headConfiguration)).
 5. In the same directory where the docker-compose.yml file lies run a command: *docker stack deploy -c docker-compose.yml webtimer*
+
+[Here](https://github.com/Jahn08/GKE-WITH-INGRESS) is an example of how the application can be deployed on Google Kubernetes Engine.
 
 ## <a name="headConfiguration"></a>Configuration
 
