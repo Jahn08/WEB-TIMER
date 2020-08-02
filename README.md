@@ -12,8 +12,6 @@ A web application to set a timer or stopwatch along with some customisation prov
 * MongoDB as a default DB model provider ([more about database](#headDatabase))
 * Prerendering for better SEO ([a detailed description of my approach](https://medium.com/swlh/a-quick-approach-to-mend-seo-in-vue-8a94753eebfc)) 
 
-[Here](https://webtimer.tk) is a working version of the application.
-
 ## Installing / Getting started
 
 The application is dependent on Node.js ([more about its version](#headPrerequisites)) along with MongoDB ([more about its version](#headSettingUpDev)).
