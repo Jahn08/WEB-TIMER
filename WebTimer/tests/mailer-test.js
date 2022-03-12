@@ -56,7 +56,6 @@ describe('Mailer', function () {
             .then(outcome => expectation.tryCatchForPromise(reject, () => {
                 assert(outcome);
 
-                assert.strictEqual(outcome.code, 'ECONNECTION');
                 assert(outcome.message.indexOf('ENOTFOUND') !== -1);
 
                 assert.strictEqual(outcome.hostname, mailOptions.host);
