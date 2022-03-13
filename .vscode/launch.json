@@ -34,7 +34,8 @@
                 "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
                 "SERVER_PFX_PATH": "1.pfx",
-                "LOGGER_LEVEL": "info"
+                "LOGGER_LEVEL": "info",
+                "AUTH_FACEBOOK_CLIENT_ID": "FAKE"
             }
         },
         {
@@ -55,27 +56,8 @@
                 "MAIL_SECURE_PORT": "465",
                 "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
-                "SERVER_PFX_PATH": "1.pfx"
-            }
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "name": "Launch",
-            "program": "${workspaceFolder}/WebTimer/main.js",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "node",
-            "runtimeArgs": [
-                "--inspect-brk=9222"
-            ],
-            "port": 9222,
-            "env": {
-                "MAIL_SECURE_PORT": "465",
-                "SERVER_PORT": "3444",
-                "SERVER_HOST": "localhost",
                 "SERVER_PFX_PATH": "1.pfx",
-                "LOGGER_LEVEL": "info"
+                "AUTH_FACEBOOK_CLIENT_ID": "FAKE"
             }
         }
     ]
