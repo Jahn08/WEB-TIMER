@@ -14,11 +14,9 @@ A web application to set a timer or stopwatch along with some customisation prov
 
 ## Installing / Getting started
 
-The application is dependent on Node.js ([more about its version](#headPrerequisites)) along with MongoDB ([more about its version](#headSettingUpDev)).
+The application is dependent on Node.js (and its npm utility) ([more about its version](#headPrerequisites)) along with MongoDB ([more about its version](#headSettingUpDev)).
 
-There is a couple of ways to start the application from inside the WebTimer directory (there must be a file package.json):
-1. *npm start*
-2. *npm run release* - starts the application after getting through testing
+Before starting the application all its dependencies must be installed by running a command from inside the WebTimer directory (where there is a file package.json): *npm install*. Building and starting the project is possible by using configurations inside VS Code: Debug Build or Prod Build. The configurations already have some environment variables set up in a file .vscode/launch.json, however, some parameters require revision in accordance to a local environment (more about configuring in the [configuration section below](#headConfiguration)).
 
 To turn on debugging while testing there is a script available in package.json: *npm run debug-test*. After running the command it's possible to join the process in Google Chrome through the url: *chrome://inspect*. A directive *debugger* should be used for break points in tests.
 
@@ -47,7 +45,7 @@ Icons made by [Smashicons](https://www.flaticon.com/authors/smashicons) from [ww
 
 ### <a name="headPrerequisites"></a>Prerequisites
 
-* [Node.js 8.9.4](https://nodejs.org/download/release/v8.9.4/)
+* [Node.js 16.14.0](https://nodejs.org/download/release/latest-v16.x/)
 * [MongoDB 3.6.2](https://www.mongodb.org/dl/win32/x86_64-2008plus-ssl?_ga=2.113660480.637015255.1538331504-1402874581.1537118071)
 * The project was developed in MS Visual Studio 2017 Community ([the product page](https://visualstudio.microsoft.com/vs/community/)) and Visual Studio Code
 
@@ -74,7 +72,7 @@ The list of all the possible secrets can be found in the docker-compose.yml file
 All preferences are set in config.js inside the WebTimer directory. Each option supplemented with a secret parameter can also be determined through an environment variable with the same name for purposes of developing. The structure of the settings is next:
 * URLs for databases: *db.uri* and *db.testUri* are distinct in names for the main and test databases respectively, whereas the host for MongoDB is determined through an environment variable *MONGO_HOST* or *mongodb://localhost:27017/* by default
 * Parameters for the Facebook authentication: *auth.facebook.clientId* and *auth.facebook.secretId* (both are set by secrets  *AUTH_FACEBOOK_CLIENT_ID* and *AUTH_FACEBOOK_CLIENT_SECRET* accordingly)
-* To set a path to a certificate in a pfx-format along with its password when running the application on HTTPS: *server.pfx.path* (an environment variable *SERVER_PFX_PATH* or *1.pfx* by default) and *server.pfx.password* (a secret *SERVER_PFX_PASSWORD*)
+* To set a path to a certificate in a pfx-format along with its password when running the application on HTTPS: *server.pfx.path* (an environment variable *SERVER_PFX_PATH* or *1.pfx* by default) and *server.pfx.password* (a secret *SERVER_PFX_PASSWORD*). An environment variable *SERVER_USE_HTTP* set to *true* makes it possible to run the application without the certificate
 * *server.url* is the main web address for the application that comprises a host name and port (environment variables *SERVER_HOST* or *0.0.0.0* by default and *SERVER_PORT* or *3443* by default)
 * *server.externalUrl* works as a public url for cases when it is different from the previous one (e.g., the application was deployed in a docker container) and it is required to give a link to the applciation (e.g., in emails); the external address also accepts a host name and port (environment variables *SERVER_EXTERNAL_HOST* and *SERVER_EXTERNAL_PORT* or *443* by default)
 * For sending automatic email messages: *mail.host* (an environment variable *MAIL_HOST*), *mail.port* (an environment variable *MAIL_SECURE_PORT* or *465*), *mail.auth.user* (an environment variable *MAIL_AUTH_USER*) and *mail.auth.pass* (a secret *MAIL_AUTH_PASSWORD*). The mechanism works out as long as the host and authentication options are set up 
