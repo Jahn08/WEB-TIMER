@@ -69,7 +69,7 @@ const config = {
     },
     auth: {
         facebook: {
-            clientId: secretList.retrieve('AUTH_FACEBOOK_CLIENT_ID') || envs.AUTH_FACEBOOK_CLIENT_ID,
+            clientId: secretList.retrieve('AUTH_FACEBOOK_CLIENT_ID') || envs.AUTH_FACEBOOK_CLIENT_ID || 'FAKE',
             clientSecret: secretList.retrieve('AUTH_FACEBOOK_CLIENT_SECRET') || envs.AUTH_FACEBOOK_CLIENT_SECRET
         }
     },

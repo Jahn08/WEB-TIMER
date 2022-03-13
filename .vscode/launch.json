@@ -34,8 +34,7 @@
                 "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
                 "SERVER_PFX_PATH": "1.pfx",
-                "LOGGER_LEVEL": "info",
-                "AUTH_FACEBOOK_CLIENT_ID": "FAKE"
+                "LOGGER_LEVEL": "info"
             }
         },
         {
@@ -56,8 +55,7 @@
                 "MAIL_SECURE_PORT": "465",
                 "SERVER_PORT": "3444",
                 "SERVER_HOST": "localhost",
-                "SERVER_PFX_PATH": "1.pfx",
-                "AUTH_FACEBOOK_CLIENT_ID": "FAKE"
+                "SERVER_PFX_PATH": "1.pfx"
             }
         }
     ]
